@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Diet Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI",sans-serif;background:#f5f2ee;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0;}
+
+/* ナビゲーション */
+.nav-bar{display:none;}
+.app-hdr{background:linear-gradient(135deg,#3d1a08 0%,#7a4f35 55%,#c9a96e 100%);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.app-hdr .logo{width:36px;height:36px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.app-hdr-text{flex:1;min-width:0;}
+.app-hdr-t1{font-size:15px;font-weight:700;color:#fff;font-family:"Noto Serif JP",serif;white-space:nowrap;}
+.app-hdr-t2{font-size:9px;color:rgba(255,255,255,0.7);letter-spacing:0.1em;white-space:nowrap;}
+.ham-btn{background:none;border:none;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.ham-btn span{width:20px;height:1.5px;background:rgba(255,255,255,0.9);display:block;border-radius:2px;}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;}
+.drawer-overlay.open{display:block;}
+.drawer-menu{position:fixed;top:0;left:0;right:0;background:#fff;border-radius:0 0 16px 16px;z-index:201;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.drawer-hdr{background:linear-gradient(135deg,#3d1a08 0%,#7a4f35 55%,#c9a96e 100%);padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.drawer-hdr .logo{width:36px;height:36px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.drawer-hdr-t1{font-size:15px;font-weight:700;color:#fff;font-family:"Noto Serif JP",serif;}
+.drawer-hdr-t2{font-size:9px;color:rgba(255,255,255,0.7);letter-spacing:0.1em;}
+.drawer-item{padding:14px 20px;font-size:13px;color:#3d1a08;border-bottom:0.5px solid #f0ebe5;display:flex;align-items:center;gap:10px;cursor:pointer;background:#fff;}
+.drawer-item:active{background:#f7f3ef;}
+.drawer-item.active{font-weight:700;background:#f7f3ef;}
+.drawer-dot{width:7px;height:7px;border-radius:50%;background:#d0c4ba;flex-shrink:0;}
+.drawer-dot.done{background:#7a4f35;}
+.drawer-close{padding:12px 20px;font-size:12px;color:#aaa;text-align:right;background:#faf8f5;cursor:pointer;}
+
+.view{display:none;width:100%;max-width:100%;padding:16px;}
+.view.on{display:block;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.view.on{animation:fadeInUp 0.35s ease;}
+/* スプラッシュ */
+#splash{position:fixed;inset:0;background:linear-gradient(160deg,#1a0e07 0%,#2d1a0e 40%,#3d2010 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.6s ease;}
+#splash.fade-out{opacity:0;pointer-events:none;}
+.splash-logo{width:140px;height:140px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:28px;box-shadow:0 0 40px rgba(201,169,110,0.3),0 0 80px rgba(201,169,110,0.1);}
+.splash-logo img{width:100%;height:100%;object-fit:cover;mix-blend-mode:lighten;}
+.splash-logo img{width:80%;height:80%;object-fit:contain;}
+.splash-title{font-family:"Noto Serif JP",serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:0.05em;margin-bottom:8px;}
+.splash-sub{font-size:12px;color:#c9a96e;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;}
+.splash-divider{width:40px;height:1px;background:rgba(201,169,110,0.5);margin-bottom:16px;}
+.splash-powered{font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.1em;margin-bottom:48px;}
+.splash-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.splash-star{position:absolute;width:3px;height:3px;background:#c9a96e;border-radius:50%;animation:twinkle var(--d,2s) var(--delay,0s) infinite;}
+@keyframes twinkle{0%,100%{opacity:0;}50%{opacity:1;}}
+
+
+/* カード共通 */
+.card{background:#fff;border:1px solid #d8d2ca;border-radius:20px;overflow:hidden;margin-bottom:16px;}
+
+/* ヘッダー */
+.ch{padding:16px 20px 14px;border-bottom:1px solid #ede8e2;display:flex;align-items:center;gap:14px;}
+.logo{width:46px;height:46px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.logo img{width:72%;height:72%;object-fit:contain;filter:brightness(0) invert(1);}
+.h1{font-size:15px;font-weight:600;color:#111;font-family:"Noto Serif JP",serif;white-space:nowrap;}
+.h2{font-size:12px;color:#7a6050;margin-top:2px;}
+
+/* ステッパー */
+.stepper{display:flex;align-items:center;padding:14px 22px;border-bottom:1px solid #ede8e2;}
+.stp{display:flex;align-items:center;gap:7px;}
+.sn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;}
+.sn-done{background:#7a4f35;color:#fff;}
+.sn-cur{background:#7a4f35;color:#fff;}
+.sn-off{background:#f0e8e0;color:#bbb;}
+.st{font-size:12px;font-weight:500;}
+.st-on{color:#7a4f35;}
+.st-off{color:#ccc;}
+.sline{flex:1;height:1.5px;margin:0 8px;}
+.sline-done{background:#7a4f35;}
+.sline-off{background:#e8e0d8;}
+
+/* コンテンツ */
+.ct{padding:20px;}
+.sep{height:1px;background:#ede8e2;margin:18px 0;}
+
+/* セクション見出し */
+.sh{display:flex;align-items:center;gap:8px;margin:20px 0 13px;}
+.sh:first-child{margin-top:0;}
+.sh-dot{width:8px;height:8px;border-radius:50%;background:#7a4f35;flex-shrink:0;}
+.sh-label{font-size:13px;font-weight:500;color:#111;}
+
+/* フォーム */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.g1{margin-bottom:10px;}
+.fld{display:flex;flex-direction:column;gap:5px;}
+.fld label{font-size:11px;font-weight:500;color:#555;}
+.fld input,.fld select,.fld textarea{font-size:14px;padding:11px 13px;border-radius:11px;border:1.5px solid #e0dcd6;background:#faf9f7;color:#111;width:100%;font-family:inherit;transition:border-color 0.15s;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:#7a4f35;background:#fff;}
+.fld textarea{resize:none;line-height:1.65;}
+.fld select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:#faf9f7;padding-right:36px;}
+.opt-badge{font-size:10px;font-weight:500;color:#aaa;background:#f5f2ee;padding:2px 8px;border-radius:4px;margin-left:6px;vertical-align:middle;}
+.req-mark{color:#dc2626;margin-left:2px;}
+
+/* タグ */
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+.tag{font-size:12px;font-weight:500;padding:7px 15px;border-radius:22px;border:1.5px solid #e0dcd6;color:#555;cursor:pointer;background:#faf9f7;transition:all 0.15s;}
+.tag.on{background:#f5ede6;border-color:#7a4f35;color:#7a4f35;}
+
+/* インフォボックス */
+.info-box{background:#fdf5f0;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+.info-box svg{width:16px;height:16px;stroke:#7a4f35;fill:none;stroke-width:1.8;flex-shrink:0;margin-top:1px;}
+.info-box p{font-size:12px;color:#7a4f35;line-height:1.65;margin:0;}
+
+/* プライマリボタン */
+/* ゴールドアクセント */
+:root{--gold:#c9a96e;--gold-light:#e8d5a3;--brown:#7a4f35;}
+.pbtn-gold{background:linear-gradient(135deg,#c9a96e,#a8843a);border-color:#c9a96e;color:#fff;}
+.pbtn-gold:hover{background:linear-gradient(135deg,#d4b078,#c9a96e);}
+.tab.on{border-bottom:2.5px solid #c9a96e;color:#c9a96e;}
+.pbtn{width:100%;margin-top:22px;padding:15px;border-radius:13px;background:#7a4f35;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;}
+
+/* ルールテンプレート */
+.tpl-grid{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:4px;}
+.tpl{padding:13px;border-radius:13px;border:1.5px solid #e0dcd6;cursor:pointer;background:#faf9f7;display:flex;align-items:flex-start;gap:10px;transition:all 0.15s;}
+.tpl.on{background:#f5ede6;border-color:#7a4f35;}
+.tpl-icon{width:34px;height:34px;border-radius:9px;background:#f0e8e0;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.tpl.on .tpl-icon{background:#edddd0;}
+.tpl-title{font-size:12px;font-weight:500;color:#333;line-height:1.4;}
+.tpl.on .tpl-title{color:#7a4f35;}
+.tpl-sub{font-size:11px;color:#aaa;margin-top:2px;line-height:1.4;}
+.tpl.on .tpl-sub{color:#b08060;}
+.chk{width:20px;height:20px;border-radius:50%;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all 0.15s;}
+.tpl.on .chk{background:#7a4f35;border-color:#7a4f35;}
+.chk svg{width:12px;height:12px;stroke:transparent;fill:none;stroke-width:2.5;}
+.tpl.on .chk svg{stroke:#fff;}
+
+/* チップ */
+.chips{display:flex;flex-wrap:wrap;gap:7px;min-height:32px;}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:6px 11px 6px 13px;border-radius:22px;background:#7a4f35;color:#fff;}
+.chip button{background:none;border:none;color:rgba(255,255,255,0.75);cursor:pointer;font-size:14px;line-height:1;padding:0;}
+.ci{display:flex;gap:8px;margin-top:11px;}
+.ci input{flex:1;font-size:13px;padding:11px 13px;border-radius:11px;border:1.5px solid #e0dcd6;background:#faf9f7;color:#111;font-family:inherit;}
+.ci input:focus{outline:none;border-color:#7a4f35;}
+.ci button{padding:11px 18px;border-radius:11px;border:none;background:#7a4f35;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.chip-lbl{font-size:12px;font-weight:500;color:#7a6050;margin-bottom:9px;margin-top:16px;}
+
+/* メインアプリ タブ */
+.tabs{display:flex;border-bottom:1px solid #ede8e2;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:11px 4px 9px;font-size:11px;font-weight:500;color:#bbb;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s;user-select:none;}
+.tab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;}
+
+.pg{display:none;}
+.pg.on{display:block;}
+
+/* 今日タブ */
+.date-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.date-txt{font-size:15px;font-weight:500;color:#111;font-family:"Noto Serif JP",serif;}
+.date-sub{font-size:12px;color:#9a7a60;}
+.pfc-total{background:#7a4f35;border-radius:14px;padding:14px 18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.pfc-kcal-main{color:#fff;}
+.pfc-kcal-val{font-size:28px;font-weight:500;line-height:1;font-family:"Noto Serif JP",serif;}
+.pfc-kcal-unit{font-size:12px;opacity:0.75;margin-top:2px;}
+.pfc-kcal-goal{font-size:11px;opacity:0.6;margin-top:3px;}
+.pfc-circle-wrap{display:flex;gap:10px;}
+.pfc-mini{text-align:center;}
+.pfc-mini-letter{font-size:10px;font-weight:500;color:rgba(255,255,255,0.6);}
+.pfc-mini-val{font-size:14px;font-weight:500;color:#fff;margin-top:1px;}
+.pfc-mini-g{font-size:9px;color:rgba(255,255,255,0.6);}
+.pfc-mini-goal{font-size:9px;color:rgba(255,255,255,0.45);margin-top:1px;}
+.pfc-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.pfc-bar-row{display:flex;align-items:center;gap:10px;}
+.pfc-bar-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0;}
+.pfc-bar-info{flex:1;}
+.pfc-bar-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.pfc-bar-name{font-size:11px;color:#555;}
+.pfc-bar-name span{font-size:10px;color:#aaa;margin-left:4px;}
+.pfc-bar-val{font-size:13px;font-weight:500;color:#111;}
+.pfc-bar-val span{font-size:10px;color:#aaa;font-weight:400;}
+.pfc-bar{height:8px;background:#e8e0d8;border-radius:4px;overflow:hidden;}
+.pfc-bar-f{height:100%;border-radius:4px;}
+.empty-state{text-align:center;padding:24px 16px;color:#aaa;}
+.empty-state-emoji{font-size:36px;margin-bottom:10px;}
+.empty-state-txt{font-size:14px;font-weight:500;color:#888;margin-bottom:4px;}
+.empty-state-sub{font-size:12px;color:#bbb;}
+.mealcard{background:#f7f3ef;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;}
+.mc-time{font-size:10px;font-weight:500;color:#9a7a60;margin-bottom:3px;}
+.mc-name{font-size:13px;font-weight:500;color:#111;margin-bottom:3px;}
+.mc-pfc{font-size:11px;color:#7a6050;}
+.mc-kcal{font-size:16px;font-weight:500;color:#7a4f35;white-space:nowrap;}
+.mc-kcal span{font-size:10px;color:#9a7a60;font-weight:400;}
+.meal-input-box{background:#f7f3ef;border-radius:13px;padding:14px;margin-bottom:10px;}
+.meal-input-box label{font-size:12px;font-weight:500;color:#7a6050;display:block;margin-bottom:7px;}
+.meal-input-box textarea{width:100%;font-size:13px;padding:10px 12px;border-radius:10px;border:1.5px solid #d8d2ca;background:#fff;color:#111;resize:none;line-height:1.6;font-family:inherit;}
+.meal-input-box textarea:focus{outline:none;border-color:#7a4f35;}
+.meal-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.sz-wrap{display:flex;flex-direction:column;gap:5px;}
+.sz-lbl{font-size:10px;color:#9a7a60;font-weight:500;}
+.sz-row{display:flex;gap:6px;}
+.sz{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1.5px solid #d8d2ca;color:#7a6050;cursor:pointer;background:#fff;}
+.sz.on{background:#7a4f35;border-color:#7a4f35;color:#fff;}
+.rec-btn{padding:10px 20px;border-radius:11px;background:#7a4f35;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.rec-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.ai-meal-card{background:#f7f3ef;border-radius:12px;padding:14px;margin-bottom:10px;display:none;}
+.ai-meal-lbl{font-size:11px;font-weight:500;color:#9a7a60;margin-bottom:6px;}
+.ai-meal-txt{font-size:13px;color:#111;line-height:1.8;}
+
+/* ルール（B案+緑チェック） */
+.rule-header{display:flex;align-items:center;gap:16px;background:#f7f3ef;border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.ring-wrap{position:relative;width:62px;height:62px;flex-shrink:0;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.ring-val{font-size:18px;font-weight:500;color:#7a4f35;line-height:1;}
+.ring-max{font-size:10px;color:#aaa;}
+.ring-msg .ring-title{font-size:13px;font-weight:500;color:#111;}
+.ring-msg .ring-sub{font-size:12px;color:#9a7a60;margin-top:4px;line-height:1.6;}
+.rule-list{display:flex;flex-direction:column;gap:7px;}
+.rb-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;background:#f7f3ef;cursor:pointer;transition:all 0.2s;}
+.rb-item.done{background:#f0faf4;}
+.rb-num{width:26px;height:26px;border-radius:50%;background:#e8e0d8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#888;flex-shrink:0;transition:all 0.2s;}
+.rb-item.done .rb-num{background:#16a34a;color:#fff;}
+.rb-txt{font-size:13px;font-weight:500;color:#111;flex:1;}
+.rb-item.done .rb-txt{color:#aaa;text-decoration:line-through;}
+.chk-circle{width:28px;height:28px;border-radius:50%;border:2px solid #d8d2ca;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.rb-item.done .chk-circle{background:#16a34a;border-color:#16a34a;}
+.chk-circle svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;opacity:0;transition:opacity 0.15s;}
+.rb-item.done .chk-circle svg{opacity:1;}
+.all-done-banner{background:linear-gradient(135deg,#f0faf4,#dcfce7);border-radius:12px;padding:16px;text-align:center;margin-top:8px;display:none;border:1px solid #bbf7d0;}
+
+/* AIレポートタブ */
+.coach-card{border-radius:18px;overflow:hidden;margin-bottom:14px;}
+.coach-header{background:linear-gradient(135deg,#7a4f35,#c47d4a);padding:16px 18px 14px;display:flex;align-items:center;gap:12px;}
+.coach-avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,0.4);}
+.coach-avatar svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8;}
+.coach-name{font-size:13px;font-weight:500;color:#fff;}
+.coach-mode{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;}
+.coach-body{background:#fdf8f5;border:1.5px solid #e8d5c4;border-top:none;border-radius:0 0 18px 18px;padding:16px 18px;}
+.coach-msg{font-size:15px;color:#111;line-height:1.85;}
+.coach-msg em{font-style:normal;color:#7a4f35;font-weight:500;}
+.coach-placeholder{font-size:14px;color:#aaa;line-height:1.7;}
+.coach-gen-btn{width:100%;margin-top:14px;padding:13px;border-radius:12px;background:#7a4f35;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
+.coach-gen-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;}
+.coach-gen-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.today-rule-card{background:#f7f3ef;border-radius:14px;padding:16px;margin-bottom:14px;}
+.trc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.trc-lbl{font-size:12px;font-weight:500;color:#333;}
+.trc-score{font-size:22px;font-weight:500;color:#7a4f35;}
+.trc-score span{font-size:12px;color:#bbb;font-weight:400;}
+.trc-items{display:flex;flex-direction:column;gap:7px;}
+.trc-item{display:flex;align-items:center;gap:10px;}
+.trc-dot{width:7px;height:7px;border-radius:50%;background:#7a4f35;flex-shrink:0;}
+.trc-txt{font-size:13px;color:#333;flex:1;}
+.trc-chk-ok{font-size:15px;color:#16a34a;}
+.trc-chk-ng{font-size:15px;color:#ccc;}
+.trc-comment{font-size:13px;color:#555;line-height:1.7;padding-top:10px;border-top:1px solid #ede8e2;margin-top:10px;}
+.exercise-card{background:#f7f3ef;border-radius:13px;padding:14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;}
+.ex-icon{width:38px;height:38px;border-radius:10px;background:#edddd0;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.ex-name{font-size:13px;font-weight:500;color:#111;margin-bottom:3px;}
+.ex-desc{font-size:12px;color:#7a6050;line-height:1.6;}
+.ex-tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;background:#f5ede6;color:#7a4f35;margin-top:5px;}
+
+/* 目標：スコアタブ */
+.future-card{border-radius:18px;overflow:hidden;margin-bottom:10px;}
+.future-bg{background:linear-gradient(160deg,#2d1a0e,#7a4f35);padding:22px 20px;position:relative;}
+.future-stars{position:absolute;top:14px;right:18px;font-size:20px;opacity:0.35;}
+/* YOUR FUTURE パーティクル */
+.future-card-wrap{position:relative;overflow:hidden;}
+.future-particles{position:absolute;inset:0;pointer-events:none;}
+.f-particle{position:absolute;width:3px;height:3px;border-radius:50%;background:#c9a96e;animation:fpulse var(--d,3s) var(--delay,0s) infinite;opacity:0;}
+@keyframes fpulse{0%,100%{opacity:0;transform:translateY(0);}50%{opacity:0.8;transform:translateY(-20px);}}
+.future-glow{box-shadow:0 0 30px rgba(201,169,110,0.2),0 8px 32px rgba(45,26,14,0.6);}
+.future-lbl{font-size:10px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:0.12em;margin-bottom:10px;}
+.future-copy{font-size:17px;font-weight:500;color:#fff;line-height:1.65;margin-bottom:20px;font-family:"Noto Serif JP",serif;}
+.future-copy em{font-style:normal;color:#f5c886;}
+.future-prog-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;}
+.future-bar{height:8px;background:rgba(255,255,255,0.15);border-radius:4px;overflow:hidden;}
+.future-bar-f{height:100%;border-radius:4px;background:linear-gradient(to right,#f5c886,#fff);}
+.future-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;}
+.future-pct{font-size:32px;font-weight:500;color:#fff;line-height:1;}
+.future-pct span{font-size:14px;color:rgba(255,255,255,0.55);font-weight:400;margin-left:4px;}
+.future-remain{font-size:12px;color:rgba(255,255,255,0.5);text-align:right;}
+.goal-num-card{background:#f7f3ef;border-radius:14px;padding:14px 16px;margin-bottom:14px;}
+.gnc-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.gnc-title{font-size:13px;font-weight:500;color:#111;font-family:"Noto Serif JP",serif;}
+.gnc-sub{font-size:11px;color:#9a7a60;margin-top:2px;}
+.gnc-pct{font-size:22px;font-weight:500;color:#7a4f35;line-height:1;}
+.gnc-pct span{font-size:12px;color:#bbb;font-weight:400;}
+.gnc-prog{height:8px;background:#e8e0d8;border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.gnc-prog-f{height:100%;border-radius:4px;background:#7a4f35;}
+.gnc-meta{display:flex;justify-content:space-between;font-size:11px;color:#9a7a60;}
+.radar-wrap{background:#f7f3ef;border-radius:16px;padding:18px 20px;margin-bottom:14px;display:flex;flex-direction:column;align-items:center;}
+.radar-ttl{font-size:12px;font-weight:500;color:#333;margin-bottom:2px;align-self:flex-start;}
+.radar-sub{font-size:11px;color:#9a7a60;margin-bottom:14px;align-self:flex-start;}
+.journey-wrap{overflow-x:auto;scrollbar-width:none;padding:4px 0 12px;}
+.journey-wrap::-webkit-scrollbar{display:none;}
+.journey-row{display:flex;align-items:flex-start;min-width:max-content;padding:0 4px;}
+.jstart,.jgoal{display:flex;flex-direction:column;align-items:center;min-width:64px;}
+.js-dot{width:36px;height:36px;border-radius:50%;background:#f7f3ef;border:2px solid #d8d2ca;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:6px;}
+.js-lbl,.jg-lbl{font-size:10px;color:#9a7a60;text-align:center;}
+.js-val{font-size:13px;font-weight:500;color:#aaa;text-align:center;}
+.jg-dot{width:36px;height:36px;border-radius:50%;background:#f5ede6;border:2px dashed #7a4f35;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:6px;}
+.jg-lbl{color:#7a4f35;font-weight:500;}
+.jg-val{font-size:13px;font-weight:500;color:#7a4f35;text-align:center;}
+.jcon{height:3px;min-width:28px;flex:1;margin-top:16px;}
+.jcon-done{background:#7a4f35;}
+.jcon-cur{background:linear-gradient(to right,#d97706,#e8e0d8);}
+.jcon-none{background:#e8e0d8;}
+.jnode{display:flex;flex-direction:column;align-items:center;min-width:100px;}
+.jn-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:6px;}
+.jnc-done{background:#7a4f35;}
+.jnc-cur{background:#d97706;box-shadow:0 0 0 4px rgba(217,119,6,0.15);}
+.jnc-lock{background:#e8e0d8;}
+.jn-mo{font-size:10px;color:#9a7a60;text-align:center;margin-bottom:2px;}
+.jn-kg{font-size:15px;font-weight:500;color:#111;text-align:center;line-height:1;}
+.jn-kg-lock{color:#ccc;}
+.jn-diff{font-size:10px;color:#9a7a60;text-align:center;margin-top:1px;}
+.jn-badge{font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px;margin-top:5px;}
+.jnb-done{background:#f5ede6;color:#7a4f35;}
+.jnb-cur{background:#fef3c7;color:#d97706;}
+.jnb-lock{background:#f0ece6;color:#ccc;}
+.week-rule-card{background:#f7f3ef;border-radius:12px;padding:13px 14px;margin-bottom:8px;}
+.wr-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.wr-txt{font-size:13px;font-weight:500;color:#111;}
+.wr-rate{font-size:13px;font-weight:500;}
+.rate-gold{color:#d97706;}
+.rate-green{color:#16a34a;}
+.rate-orange{color:#ea580c;}
+.rate-red{color:#dc2626;}
+.wr-days{display:flex;gap:5px;}
+.wr-day{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;}
+.wd-gold{background:#fef3c7;color:#d97706;border:1.5px solid #d97706;}
+.wd-done{background:#7a4f35;color:#fff;}
+.wd-miss{background:#e8e0d8;color:#aaa;}
+
+/* プロフィールタブ */
+.user-row{display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid #ede8e2;margin-bottom:18px;}
+.avatar{width:48px;height:48px;border-radius:50%;background:#f5ede6;display:flex;align-items:center;justify-content:center;}
+.avatar svg{width:24px;height:24px;stroke:#7a4f35;fill:none;stroke-width:1.8;}
+.u-name{font-size:17px;font-weight:500;color:#111;font-family:"Noto Serif JP",serif;}
+.u-meta{font-size:13px;color:#7a6050;margin-top:3px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.mcard{background:#f7f3ef;border-radius:12px;padding:12px 8px;text-align:center;}
+.mcard .lbl{font-size:10px;font-weight:500;color:#9a7a60;margin-bottom:6px;}
+.mcard .val{font-size:18px;font-weight:500;color:#111;line-height:1;}
+.mcard .unit{font-size:11px;color:#9a7a60;font-weight:400;}
+.hrow{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #ede8e2;}
+.hrow:last-child{border-bottom:none;}
+.hrow:first-child{padding-top:0;}
+.hicon{font-size:15px;width:20px;flex-shrink:0;}
+.hname{font-size:13px;font-weight:500;color:#111;min-width:48px;}
+.hbar{flex:1;height:10px;background:#e8e0d8;border-radius:5px;overflow:hidden;}
+.hbar-f{height:100%;border-radius:5px;}
+.hval{font-size:13px;font-weight:500;color:#111;min-width:48px;text-align:right;}
+.pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:4px;}
+.pill-warn{background:#fdf0e8;color:#8b4a1a;}
+.pill-ok{background:#eaf5e8;color:#2a6b2a;}
+.edit-btn{width:100%;margin-top:16px;padding:12px;border-radius:13px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
+.edit-btn svg{width:15px;height:15px;stroke:#7a4f35;fill:none;stroke-width:1.8;}
+
+/* オンボーディング */
+.onboarding{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.onboarding-card{background:#fff;border-radius:20px;padding:28px 24px;max-width:400px;width:100%;}
+.ob-step{display:flex;flex-direction:column;gap:4px;margin-bottom:20px;}
+.ob-dots{display:flex;gap:6px;margin-bottom:16px;}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:#e8e0d8;}
+.ob-dot.on{background:#7a4f35;}
+.ob-icon{font-size:40px;margin-bottom:12px;text-align:center;}
+.ob-title{font-size:18px;font-weight:500;color:#111;text-align:center;margin-bottom:8px;}
+.ob-desc{font-size:13px;color:#7a6050;line-height:1.7;text-align:center;}
+.ob-btn{width:100%;padding:14px;border-radius:13px;background:#7a4f35;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:20px;}
+.ob-skip{width:100%;padding:10px;border-radius:13px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px;}
+
+/* ローディング */
+.loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<!-- スプラッシュ -->
+<div id="splash">
+  <div class="splash-stars" id="splash-stars"></div>
+  <div class="splash-logo"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAE4qADAAQAAAABAAAE4gAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgE4gTiAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMAAQEBAQEBAgEBAgMCAgIDBAMDAwMEBgQEBAQEBgcGBgYGBgYHBwcHBwcHBwgICAgICAkJCQkJCwsLCwsLCwsLC//bAEMBAgICAwMDBQMDBQsIBggLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLC//dAAQAT//aAAwDAQACEQMRAD8A/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0P8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9H/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//S/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0/8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9T/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//V/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1v8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9f/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//Q/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0f8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9L/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//T/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1P8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9X/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//W/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1/8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9D/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//R/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0v8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9P/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//U/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1f8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiv7dNC/wCDJf8AaT13RLPW4vjl4ajW8gjnCnS7olRIobB+ftmgD+Iuiv7if+IIL9pb/ouvhn/wV3X/AMXUFz/wZF/tHWdu93d/HnwtFFEpd3fTLpVVRySSXwAB1NAH8PtFf1GfFP8A4N2f2Zvgpcz6f8T/ANvD4OaVe2xIls2ullu0I7GCO4aUf98V8S+If+CcX/BNTwzcSWuo/t2+DJWjOCbTwl4iu1P0aC0dT9QSKAPxNor+r/8AYg/4NgdI/wCCjPwt1L40/sfftNeHPFXhrSdWl0O5u38O6rYbb6GGGd0Ed4sMhAjuIzuC7TnAOQce/fGf/gzh+K/7P3wj8T/HT4rftBeGtO8MeD9Lu9Z1a6XRr6cwWVlG00ziOItI+1FJ2opY4wATQB/GFRX7L6R+wB/wTK1jCw/tz+FIXP8ADceC/E0WPxazC/rX1h8N/wDghj+xV8VzGvhD9vz4Po8uAkepPJpcjE9AEvZYGJ9sZoA/m4or+2Pwj/wZb/GX4gaFD4o8B/tF+DNb0y4GYruwsp7mBx/syRysp/A103/EEF+0t/0XXwz/AOCu6/8Ai6AP4dqK/uI/4gg/2lv+i6+Gf/BXdf8Axdfyd/t/fsfeIP2BP2wPG/7IPirWbfxDqHgm6htZtRtI2hhnM1vFcAqjksABKByeooA+O6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/1v8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACv8AdH+L37VHwA/Yz/Zcg+P37THiez8J+FdH022M13dtzJIYgUhhjXLzTPghIo1Z2PQHFf4XFf0N/wDByB/wUW8X/tqftuN8JdC1yHUPhn8KLK00nw9DYTLNaT3ElrC97eF0ZkkkklzGrA4EUaAYO4kA/V7/AIKF/wDB5l8f/iBqd14I/wCCcfhaDwHoaFkXxJ4ihiv9YnHZ4rUl7S3H+zJ9pJ4OV5Ffya/tIft1/tlftf6xNrX7TXxO8R+NXmbd5Gp6hLJaR85xFbBhBEoPIWONVB7V8oUUAFFFFAH+nn/wZT/8ou/iD/2VPU//AE06RX71f8Fg/wDlFH+0l/2TTxR/6bp6/BX/AIMp/wDlF38Qf+ypan/6adIr96f+Cwf/ACij/aS/7Jn4o/8ATdPQB/iR0UUUAeo/Cn44fGn4EeIk8XfBDxdrXg7VY2VlvNEv59PnBXkfPA6Nx9a/pX/YX/4O4v8AgpP+zVq1hoP7Sktn8a/CUO2OaLVUSy1hIh3iv4EG5x1JuYpy3TI6j+VeigD/AGu/+CZf/BXP9jn/AIKsfDSbxp+zdrL2+uaYinWfDGqbIdX04scBpIldxJCx+5PEzxnoSrhkH+X7/wAHHn/KbH4+f9hex/8ATdaV+d37FP7YXxk/YL/aa8KftT/Am+Npr3he7WbymJEF5bN8s9rOB96GeMsjjqAdykMFI+y/+C73xV8FfHH/AIKxfF/4u/Dq/g1LRPEN1pl7a3FtKk8bJJploSu+MspZGyjAHhgQeRQB+RlFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH/9f/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/T0/4Mpz/xq6+IA/6qnqf/AKadIr96P+CwX/KKL9pL/smfij/03T1+C/8AwZT/APKLr4gf9lT1P/006RX70f8ABYP/AJRR/tJf9kz8Uf8ApunoA/xI6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKK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Hu0N8P6V/cv44na28F6vcocGOyuGH4RsaAP8EHWdTn1rWLvWLolpbuaSZyeSWkYsc/iazaKKACiiigD/AG8v+CS3/KK/9mr/ALJZ4P8A/TTbV+Bv/B6j/wAor/Av/ZU9K/8ATTq9fvl/wSW/5RX/ALNX/ZLPB/8A6abavyx/4Ol/2SPiP+2R+wB4N+HXgG80vRbPSPiHYa3r+u65dJZaXouj2umaok97dzNysUbSxrhFaR3dURWZgKAP8luiv6UPgl+0n/wb0/sFaumlw/CHxP8AtZeIrKQC58TeJpU0LQpHU4Y2GlEzloGHI+3I0hP90HFf1P8A7An/AAXY/wCDef8AaRvrf4S638MPDXwN1O+dbeG08ReHdMttInZuire2yNbxgetyIFzwM8UAf5iFFf7VPxp/4Iv/APBJT9qPQxJ4++BXgy4ivoQyX+iWMekXLxuMq63WnfZ5GGDlTvI9K/ma/bg/4Mq/hl4gguvFf/BPn4k3Ph6+IZ08P+MP9LsnY9FjvreMTwqOgEkNwx7sKAP87uiv0t/bO/4I+/8ABR39gW8upP2kvhZrGn6NbMR/b1hF/aOjsvZvtlt5kUe4chZSkmOqgggfmlQAUV9Qfsh/sa/tHft1fGvSvgH+zJ4Zu/EmvapNHG5hjY21lE7YNxdzAFYIE6vI+BgYGTgH6+/4LPfCz4Jfs7/ttT/sq/A2LT5LX4TeHNB8I6xqWnQJBHqmvafZx/2nduEALSvdvIkjP8+5MEnAoA/KGiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//U/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA/09v+DKhcf8Et/iA/r8VNTH5aTpFfvP8A8Fg+f+CUf7SX/ZNPFH/punr8Mv8Agy609rP/AIJT+L7hul38TtWlH0Gm6Un/ALJX7rf8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lFf4F/7KnpX/AKadXoA/y/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9f/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP0H/AOCSly9p/wAFUf2a5UOCfil4QQ/R9VtlP6Gv9vCv8QL/AIJSHH/BUb9mw+nxT8Hf+ne1r/b9oA/zGv8Ag9cunf8A4KZfDmzJ+WP4Y2Dge76rqgP/AKDX8dtf2Cf8HrB/42ifD4f9Us0z/wBO2r1/H3QAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB/r5/8Gtv/KCv4If73ib/ANP+pVc/4Ohv+UFfx0/3fDf/AKf9Nqn/AMGto/40WfBH/e8Tf+n/AFGrn/B0P/ygs+On+74b/wDT/ptAH+QBRRRQAUUUUAFFFFABRRRQB/oXf8GOP/JPf2jv+wj4Y/8ARWoV/ct8Rv8AknuvZ/6B11/6Kav4af8Agxx/5J5+0d/2EfDH/orUK/uW+I//ACTzXv8AsHXX/opqAP8AA7ooooAKKKlggmuZktrZGkkkYKqqMszHgAAdSaAP9yD/AIJt6b/Yv/BOz4B6NjH2T4c+Focenl6Zbr/Sv52v+D1H/lFf4F/7KnpX/pp1ev6qPgh4JPw0+C/hD4clfL/sDRNP03aP4fskCRY/DbX8q/8Aweo/8or/AAL/ANlT0r/006vQB/l/0UUUAFFFFABRRRQAUUUUAeufAX4E/Fb9pz4x+HfgB8DtJOueLvFd4lhpdgJorfz7iTOF8yd44kGASWd1UDkmvKrm3ms7mS0uBtkiYow64ZTg9K/sb/4NDv8AgmH4++NP7XEf/BRLx7pslp4B+GS3UGi3EoKrqWvXERg2xD+OO1hld5HzgSmJRn59v8e/iT/kYr//AK+Zf/QjQBi0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUA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PxAtfih4M1e2N9Z6Df3sElxPCc/8eGox7Le45yoimETLtIMjvxX8YPj/AOH3jv4UeNNT+G/xO0a98PeINGna1v8ATdRge2uraZPvJJFIFdGHoQKAOPooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//T/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD75/wCCU3/KUX9m3/sqfg7/ANO1rX+39X+IH/wSjG7/AIKj/s2L6/FPwd/6d7Wv9vygD/ML/wCD1j/lKL8P/wDslmmf+nbV6/j8r+wP/g9Y/wCUovw//wCyWaZ/6dtXr+PygAooooAKKKKACiiigAqSKKWeVYYVLu5CqqjJJPQAVHX99H/Bqp/wQn0/XLfSv+Cof7X+hrPb7hP8PNEvo8qxQ8axLGwwQCMWQYdczgf6l6APQf8AggV/wa4aJoem6J+2f/wU50NL/UblI73QPh/fR7obZGG6O41aNhh5SMFbNhtQf64MxMcet/wcb/8ABxzffBO+1X/gnd/wTm1pLDXtPD6d4t8WacQp0soNjadpzrwlwn3Z505gI8uMiUM0f6vf8HLn/BYS7/4Jp/spQ/Cf4Iamtt8YPihHNa6TJGczaRpq/Lc6jgHKyDIiticZlJcZ8plP+TTc3Nze3Ml5eSNLNKxd3clmZmOSSTySTySaAEuLi4vLiS7u5GlllYu7uSzMzHJJJ5JJ6moaKKACiiigAooooA/cr/gi1/wXE/aD/wCCS3xag05J7nxN8INbu1fxF4Vd9wAbCtd2O8hYbtFweCEnACSdEeP/AEIf27f+CZn/AATz/wCDhj9kjQ/2hfhnqNnBr+saaLnwp8QNLgBuowuR9mvY/laaFJA0ctvLiSFwwQxvuz/kKV/pw/8ABnV+y5+1/wDBb9jnxP8AGH4y6rPYfDf4iXcN/wCE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0D4ouZxB9v8ADEmhp6s2tyx6eFHrn7Rg+2e1f4yNABRRRQAUUUUAFFFFABX+pj/wZqaHNpP/AASV1m/lQqup/EPWLlCf4gtpYQ5/OIj8K/yzq/17f+DXP4aXPw3/AOCJvwkfUIvJuvEMmtazIp6lbnUrkQt/wKBI2/GgD9Wv29dfg8KfsM/GfxTcuIo9N8C+Irp3PAVYdPnck/QCv8Liv9m//g4D+Ktt8Hf+CNn7QPii5m8j7f4Yk0NDnBZtblj08KPXP2jB9s9q/wAZCgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/0P8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACv3k/wCDaT9pGy/Zq/4LIfCfUtcufs2leMp7rwjdnOA7axC0Vqp9jei3zX4N10PhHxX4g8CeK9M8ceE7l7LVdGu4b6zuI+HiuLdxJG6+6soI+lAH++tX+Sj/AMHX3wAu/gn/AMFk/GfioQ+Tp/xH0jSPE9mAMKd1uLGc57k3FnKx/wB6v9Pz9hP9qzwl+3F+x78O/wBrDwXsS08b6Lb6hLCh3C2vMeXdW5PcwXCSRH3Q1/JH/wAHrv7Ilx4t+Avwr/bZ8O25ebwdqc/hjWGQZP2PVV862kc9kingdB/tXAoA/wA5aiiigAooooAKKKKACv3l/wCDaP8AaRsv2av+CyPwn1HXLn7NpXjOe68IXZzjc2sQtFaqfY3ot6/Bquh8I+Ktf8CeK9M8b+E7l7LVdGu4b6zuI+HiuLdxJG6+6soI+lAH++tX+Sj/AMHX3wAu/gn/AMFk/GfipYfJ0/4j6TpHiezAGFO63FjOc9y1xZysf96v9Pz9hP8Aas8Jftxfse/Dv9rDwXsS08caLb38sCHcLa7x5d1bk85MFwkkTe6Gv5I/+D139kW48W/A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1b9mP9vX4AeLPA3h7XdL8e+BfEsGp+FtZk0a+W4hbcr213b+dbuSkihiDhgwyGHBBr/IN/4LFf8ABJb40f8ABJj9p+8+Fvi+K41TwNrUk114R8SMn7rUbEEfu5Co2rdQBgk8fGDh1HluhPDf8Ewv+CsH7Vv/AASl+M//AAs/9nvUVutG1IomveGb9mbTNVhToJEUgxzICfKnTDoSR8yMyN/o5fA39vT/AIJIf8HKn7LF1+zD8Vkg0/xJqMYmufB2rXCW+uabexKcXmlz4xP5WWKzQgnYSs8Sq7RkA/yWKK/ez/gr3/wb9/tff8Er/El/44Wzm8d/CCScix8W6fET9mjc4SPUoVybWXkLvOYZCRsfcSi/gnQAUUUUAFFFfTH7J37Hf7Sv7cXxesvgZ+yz4RvvF3iO8wxhtExFbRZAM1zM5WKCFSRmSVlUEgZyQCAeKeAvAXjX4peNtK+G/wAONKutc1/XbqKx0/T7KJpri5uZ2CRxxooJZmYgAAV/rhf8G/H/AARf8Pf8EoP2am174kwW958ZfHcEU/ie+QrIthCPni023kGR5cJOZnU4lmyclEjx8h/8Evf+CQH7C/8Awb7/AAWf9tT9vfxpoJ+JhtmjuvEWoS7NP0gTId9npMbgSzTuuUaVYzPMMpGiKzK385X/AAW3/wCDpT4ofts6TrH7L37DMd74F+Ft3vtdS1qVjDrWvQcho8Kf9EtJB96MEyyrxIyqzxUAfYf/AAc0f8HEGl/Eex17/gm7+wnrSXWgy7rLxv4rsZd0d6AcSabZSIcNB/DdTKcS8xKfL3l/4PqKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/9P/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACtDSdW1XQdUttc0K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TxR/6bp6/wASSgAooooAKKKKACvof9lj9q34/fsWfGzR/wBoT9mrxJdeGPFOiyBorm2b5JoiQXgnjPyTQSYxJE4KsOo4FfPFFAH+1L/wSE/4Kn/CL/grF+yfp/xy8EeVpninTPLsfFnh8Puk0vUtuTtydzW82DJbyH7yZU/OjqPxT/4Obv8Agg7Y/tofDa9/bl/ZL0JF+LnhS1aXW9NsYgsniXTYRknao/eX1uozEfvzRgxfMywgfxu/8G7v/BSB/wDgnH/wUc8NeI/F18bbwB4/KeF/FIdsRRW926/Z7tuw+yXGyRmwSITKo+9X+xBQB/gEEY4NFf0Sf8HM/wDwTeh/4J/f8FG9X8Q+BLIWvgD4tCbxRoSxjbFbXEkn/EwtFA4AhuG8xFA2rDNGo6Gv526ACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9X/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACv8AUN/4MuL57v8A4JUeMbdjxa/E/Voh9DpmlP8Azav8vKv9Pb/gyoOf+CXHxAX/AKqpqn/po0igD95f+Cwn/KKL9pL/ALJp4o/9N09f4klf7bf/AAWE/wCUUX7SX/ZNPFH/AKbp6/xJKACiiigAooooAKKKKACv9uv/AIJNftON+2P/AME2vgx+0XdT/ar/AF/wxZx6lKTnfqdgDZ3p/wDAqCWv8RSv9aH/AINLPGH/AAk3/BFjwTou/d/wjuu+INPx/d33sl3j/wAmM/jQB8yf8Hlv7MK/Fb/gm74c/aO02APqHwo8TwPPKR9zTNbAs5hntuuhZ/l9K/y+a/2Uv+Dibwd/wnf/AARY+P8Aomzf5GhW+o4/7B17bXefw8nNf41tABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf//W/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr/AE9f+DKf/lF18QP+yp6n/wCmnSK/zCq/09P+DKj/AJRdfED/ALKnqf8A6adIoA/ef/gsL/yii/aS/wCyaeKP/TfPX+JJX+23/wAFhP8AlFH+0l/2TTxR/wCm6ev8SSgAooooAKKKKACiiigAr/WQ/wCDR/wfJ4Z/4Iw+FdaeMoPEPiPX9QUkY3hLk2uR6825H4V/k4ojyOI4wWZjgAckk1/t6/8ABKn9m27/AGRP+CcPwX/Z31a0Njqnh3wpYDVLdhgx6ndJ9pvVI9rmWWgD5c/4OI/G3/CAf8EWfj/ru/Z9o0GDTc+v9p3tvZ4/HzsfjX+NXX+nd/webftTL8LP+Ce3hH9mHSrjy9Q+K3iRJLmLP+s0vQQtzLx7XclmR24Nf5iNABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf//X/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr/AE9P+DKf/lF18QP+yp6n/wCmnSK/zC6/09P+DKj/AJRdfED/ALKnqf8A6adIoA/ef/gsJ/yii/aS/wCyaeKP/TdPX+JJX+23/wAFhP8AlFF+0l/2TTxR/wCm6ev8SSgAooooAKKKKACiiva/2dP2d/jH+1h8avD37PXwB0OfxF4t8UXS2lhZW45Zjyzux+WOKNQXkkYhERSzEAE0AfsN/wAG4X/BOzXP2/8A/gpV4Sn1fTjdeAvhjcweKvE80i5gKWj77O1bIwzXVyiqUJBMKysM7CK/2BSQqktwB1Jr8lP+CMf/AASs8B/8El/2PrL4GaVcw6z4v1mYar4s1qJNovNRdQuyLcA4t7dR5cIbGfmkKq0jCvwI/wCDo7/gvFY/ATwTqf8AwTj/AGPteSTx54gge38Z6zYShm0WwlBVrGN0Py3lwpIl53QQnoHkUoAfymf8HFH/AAUoH/BSH/got4g13wVffavh58Pt/hjwt5bZingtnP2m8XHB+1T7nRsAmERA8rX4PUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB/9D/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACv8AT1/4Mp/+UXXxA/7Knqf/AKadIr/MKr/T0/4MqP8AlF18QP8Asqep/wDpp0igD+hr/gp/oXhTxR/wTg+PHhvx5rqeGNEv/APiG3v9Xkt5LtLC3ksZVkuGghBllESkuUjBdgMKM1/kyav/AMEWP2wfFWkzeMv2Qbjw7+0R4biTzWvvhvqkeq3cSHkC40uQQapBJgjKSWgweATxn/Vo/wCCwn/KKP8AaS/7Jp4o/wDTdPX+J/4b8TeJPBuuW3ibwhqFzpWpWbiS3u7OVoJ4nHRkkQhlPuCDQB1XxM+D/wAW/gt4gbwn8Y/C2r+E9VTO6y1mxmsLgY65jnRGH5V51X7J/Bv/AIOAf+Ct/wAGdDXwjB8YNQ8XaHwJNO8Y29t4kikVeil9RinmAHT5JF446V9X+Ff+Dhjw3rTmf9pr9jb4BfEK6Iwb9fCkOnX0nqXlxcKT/uxqKAP5vakhhmuJlt7dS8jkKqqMkk8AADqTX9U3hz/gvD/wShF2t54y/wCCb3w8llHV7LUYIo8/9cX0l1P/AH1X0n4I/wCDrb9l34ARed+yV+wp4E+H2oRnMV5Z39tE4b1b7LpFtIT7+bn3oA/JT/gn5/wbs/8ABTX9vzW7DUNL8EXXw98EzyJ9o8TeLIX0+3WE8l7e3kC3N0SudnlR+WWGGkTrX+iH+xP/AME3/wDgl/8A8G+/wCvfiv4l1zTdJ1V7UW+vfEDxVNFBe3hOHNvbgnEMbsoKWtuGeQqu4yuoav4mP2gv+Dwr/grB8WrabS/hUnhT4Y2zqVWbR9MN7eAH1k1CS5iz6FYVx9ea/nR/aH/at/aX/a18Xjx5+01481zx1qybvKn1q9lu/IV8ErCrsUhTgfJGqrx0oA/s6/4LH/8AB3NN8TPCup/s7f8ABLP+0dDtL3fbah4+vIja3kkB4K6XA37yDeP+XmYJMozsjjbEg/hPvr691S9m1PU5nuLm4dpZZZWLvI7nLMzHJJJOSTyTVWigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//R/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr/AE9P+DKf/lF18QP+yp6n/wCmnSK/zC6/09f+DKgH/h1z8QP+yp6n/wCmjSKAP3m/4LCf8oov2kv+yaeKP/TdPX+JJX+25/wWDBP/AASj/aS/7Jp4o/8ATdPX+JHQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/0v8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK/wBQH/gyut2h/wCCV/jqVhgS/FLVWHuBpWkL/MGv8v6v9Tz/AIM3dFl0v/gkdqN9Im0al4/1m4Un+ILbWUOfzjI/CgD9rP8Agrrbtdf8Eqf2lI0GSPhh4sf/AL40y4b+lf4i9f7kf/BSbRZfEn/BOr4++Hrdd8l/8OPFVsqjqxl0y4UD8c1/huUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//0/8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK/wBfH/g14+Fl/wDC7/gij8Jf7Xi8m68RvrGuMvfy7vULjyW990Cxt9DX+WD+xD+xZ8df+CgH7SXh39mL9nvS31DW9enAlnKn7NYWikedd3LjhIYV+ZieWOFUF2VT/tzfs/8AwU8F/s2/Avwd+z38OY2i0HwTo1lodgr/AHzb2MKwoznu7Bcse7EnvQB03xO8GQfEf4a+Ifh5dELHr2mXenOW5AW6iaIk+2Gr/BZ8R+H9X8J+Ib/wtr8Jt7/TLiW0uYm6xzQsUdT7hgRX++9X+SL/AMHMP/BMD4g/sK/8FAfFPxp0LRpR8Lvi1qdxr2iajEpa3hv7v99fWUhHEckc7SPEh4aBl25KuFAP5wqKKKACiiigAooooAKKKKAPtn/gnP8AsT+Nv+CiX7aPgP8AY+8B3Sadc+L75kub6Qbls7C1ie4u58cbmjt4pGRCRvfamRuzX+vn+x//AMEgv+CdP7EPw3sfh18FfhZoMktrEY7jWtXsoNR1i+Zhh3uLyaMyNv5PlrtiXJCIq8V/mH/8G2f7Unw3/ZN/4K8/DXxt8Xby30vw/r63/hu41C5wI7SXVIHjtnLHhFa58qN5CQER2LEKDX+w3QB/KL/wXg/4N2/2Tv2nf2ZfFX7QH7KHgvS/APxa8H6dPqluuhW8en2OtQ2gMs1tc20KrEZnjD+TOFWTzNqyMU6f5YVf7o/7c/7Ufw3/AGLv2R/H37THxWvILPSfC2j3FwFuOVuLplKW1sq/xvcTMkSr3LDOBk1/hck5OfWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/1P8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr1f4HfFDT/AIMfFXR/idqnhPQvHMGkyPI2h+JoZrjSrzfGyBbiO3mt5WVSwdQsq/MozkZB8oooA/p8/Z7/AODqf9rP9k3w1P4P/Zl+AXwL8BabduJbiHQ/Deo2QnkUYDymLVlaRgOAzknHFfQP/Eat/wAFTf8AoQfhV/4KtX/+XNfyBUUAf1+/8Rq3/BU3/oQfhV/4KtX/APlzXGfEL/g8P/4KF/Fvwdf/AA7+Knwk+DXiXQNUjMN5puqaDqd5aXEZ/hkhl1d0cexU1/JrRQB9gfte/taaN+1l4h0rxFpfwj+H/wAJn02OaOSDwBp11ptveGUqQ08dxeXS7o9pCeX5YAY5B4x8f0UUAFFFFABRRRQAUUUUAFf0P/sf/wDB0L/wVl/Y9+G1j8JdK8S6V4+0PSojb2KeMbOTULi3ixhUFzFNb3DrH/AJZXCjCj5QFH88FFAH6a/8FCP+Cvv7ev8AwU61CxH7VXjJrzRNLfzLLQNNiFjpMEvP7z7PHxJKASBLMZJFUlQwBIr8yqKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/1f8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9b/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//X/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0P8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9H/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//S/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0/8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9T/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//V/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1v8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9f/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//Q/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0f8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9L/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//T/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1P8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9X/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//W/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1/8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9D/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//R/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//0v8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9P/AD/6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//U/wA/+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//1f8AP/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=" alt="THE LOOP"></div>
+  <div class="splash-title">AI Diet Coach</div>
+  <div class="splash-sub">PERSONAL HEALTH SUPPORT</div>
+  <div class="splash-divider"></div>
+  <div class="splash-powered">Powered by <span style="color:#c9a96e;font-weight:600;">THE LOOP</span></div>
+</div>
+
+<!-- オンボーディング -->
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-card">
+    <div class="ob-dots">
+      <div class="ob-dot on" id="od0"></div>
+      <div class="ob-dot" id="od1"></div>
+      <div class="ob-dot" id="od2"></div>
+    </div>
+    <div id="ob-content">
+      <div class="ob-icon">🎯</div>
+      <div class="ob-title">AI Diet Coachへようこそ</div>
+      <div class="ob-desc">体組成データ × トレーナー知見 × AI生成で、あなたを24時間伴走サポートします。</div>
+    </div>
+    <button class="ob-btn" id="ob-btn" onclick="nextOb()">次へ</button>
+    <button class="ob-skip" onclick="closeOb()">スキップ</button>
+  </div>
+</div>
+
+<!-- ナビゲーション -->
+<div class="nav-bar">
+  <button class="nav-btn on" onclick="showView('setup1',this)">① プロフィール</button>
+  <button class="nav-btn" onclick="showView('setup2',this)">② 目標設定</button>
+  <button class="nav-btn" onclick="showView('setup3',this)">③ 週間ルール</button>
+  <button class="nav-btn" onclick="showView('main',this)">④ メインアプリ</button>
+</div>
+
+<!-- ドロワーメニュー -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()">
+  <div class="drawer-menu" onclick="event.stopPropagation()">
+    <div class="drawer-hdr">
+      <div class="logo" id="drawer-logo-img"></div>
+      <div><div class="drawer-hdr-t1">AI Diet Coach</div><div class="drawer-hdr-t2">POWERED BY THE LOOP</div></div>
+    </div>
+    <div class="drawer-item" id="di-setup1" onclick="showView('setup1',null);closeDrawer()"><div class="drawer-dot" id="dd1"></div>① プロフィール</div>
+    <div class="drawer-item" id="di-setup2" onclick="showView('setup2',null);closeDrawer()"><div class="drawer-dot" id="dd2"></div>② 目標設定</div>
+    <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
+    <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
+    <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
+  </div>
+</div>
+
+<!-- ===== SETUP 1: プロフィール ===== -->
+<div id="view-setup1" class="view on">
+  <div class="card">
+    <div class="app-hdr">
+      <div class="logo" id="logo-s1"></div>
+      <div class="app-hdr-text">
+        <div class="app-hdr-t1">AI Diet Coach</div>
+        <div class="app-hdr-t2">POWERED BY THE LOOP</div>
+      </div>
+      <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div class="stepper">
+      <div class="stp"><div class="sn sn-cur">1</div><div class="st st-on">プロフィール</div></div>
+      <div class="sline sline-off"></div>
+      <div class="stp"><div class="sn sn-off">2</div><div class="st st-off">目標</div></div>
+      <div class="sline sline-off"></div>
+      <div class="stp"><div class="sn sn-off">3</div><div class="st st-off">ルール</div></div>
+    </div>
+    <div class="ct">
+      <div class="sh"><div class="sh-dot"></div><span class="sh-label">体組成データ</span></div>
+      <div class="info-box">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p>施術後のインボディ測定結果を入力してください。<strong>*</strong>は必須項目です。</p>
+      </div>
+      <div class="g1"><div class="fld"><label>ニックネーム（アプリ内表示名）</label><input type="text" id="nickname" placeholder="例：美咲、みーちゃん"></div></div>
+      <div class="g2">
+        <div class="fld"><label>年齢 <span class="req-mark">*</span></label><input type="number" id="age" placeholder="28"></div>
+        <div class="fld"><label>性別 <span class="req-mark">*</span></label>
+          <div class="tags" id="gender-tags" style="margin-top:8px;">
+            <span class="tag on" onclick="selectTag(this,'gender-tags')">女性</span>
+            <span class="tag" onclick="selectTag(this,'gender-tags')">男性</span>
+          </div>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="fld"><label>身長 cm <span class="req-mark">*</span></label><input type="number" id="height" placeholder="162"></div>
+        <div class="fld"><label>体重 kg <span class="req-mark">*</span></label><input type="number" id="weight" placeholder="58.2"></div>
+        <div class="fld"><label>体脂肪率 % <span class="req-mark">*</span></label><input type="number" id="fat_pct" placeholder="28.4"></div>
+      </div>
+      <div class="g3">
+        <div class="fld"><label>筋肉量 kg<span class="opt-badge">任意</span></label><input type="number" id="muscle" placeholder="38.1"></div>
+        <div class="fld"><label>脂肪量 kg<span class="opt-badge">任意</span></label><input type="number" id="fat_kg" placeholder="16.9"></div>
+        <div class="fld"><label>BMI<span class="opt-badge">任意</span></label><input type="number" id="bmi" placeholder="22.2"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label>内臓脂肪レベル<span class="opt-badge">任意</span></label><input type="number" id="visceral" placeholder="6"></div>
+        <div class="fld"><label>基礎代謝 kcal<span class="req-mark"> *</span></label><input type="number" id="bmr" placeholder="1,180"></div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="sh"><div class="sh-dot" style="background:#16a34a;"></div><span class="sh-label">ライフスタイル <span class="req-mark">*</span></span></div>
+      <div class="g1"><div class="fld"><label>職業・日中の活動量 <span class="req-mark">*</span></label>
+        <select id="activity">
+          <option value="1.2">座り仕事が多い（デスクワーク中心）</option>
+          <option value="1.375">立ち仕事が多い（接客・販売など）</option>
+          <option value="1.55">よく体を動かす（現場・営業など）</option>
+        </select>
+      </div></div>
+      <div class="g1"><div class="fld"><label>運動習慣</label>
+        <div class="tags" id="exercise-tags">
+          <span class="tag" onclick="selectTag(this,'exercise-tags')">していない</span>
+          <span class="tag on" onclick="selectTag(this,'exercise-tags')">週1〜2回</span>
+          <span class="tag" onclick="selectTag(this,'exercise-tags')">週3〜4回</span>
+          <span class="tag" onclick="selectTag(this,'exercise-tags')">ほぼ毎日</span>
+        </div>
+      </div></div>
+      <div class="g1"><div class="fld"><label>1日の食事回数</label>
+        <div class="tags" id="meal-freq-tags">
+          <span class="tag" onclick="selectTag(this,'meal-freq-tags')">1食</span>
+          <span class="tag" onclick="selectTag(this,'meal-freq-tags')">2食</span>
+          <span class="tag on" onclick="selectTag(this,'meal-freq-tags')">3食</span>
+          <span class="tag" onclick="selectTag(this,'meal-freq-tags')">不規則</span>
+        </div>
+      </div></div>
+      <div class="g2">
+        <div class="fld"><label>平均睡眠時間<span class="opt-badge">任意</span></label>
+          <select id="sleep"><option>5時間未満</option><option selected>6〜7時間</option><option>7〜8時間</option><option>8時間以上</option></select>
+        </div>
+        <div class="fld"><label>1日の水分摂取量<span class="opt-badge">任意</span></label>
+          <select id="water"><option>1L未満</option><option selected>1〜1.5L</option><option>1.5〜2L</option><option>2L以上</option></select>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="sh"><div class="sh-dot" style="background:#d97706;"></div><span class="sh-label">生活・食習慣<span class="opt-badge">任意</span></span></div>
+      <div class="g2">
+        <div class="fld"><label>飲酒頻度</label>
+          <select id="drink_freq"><option>ほぼ飲まない</option><option>週1〜2回</option><option>週3〜4回</option><option>ほぼ毎日</option></select>
+        </div>
+        <div class="fld"><label>1回あたりの飲酒量</label>
+          <select id="drink_amt"><option>少量（1杯程度）</option><option>中程度（2〜3杯）</option><option>多め（4杯以上）</option></select>
+        </div>
+      </div>
+      <div class="g1"><div class="fld"><label>間食の頻度</label>
+        <div class="tags" id="snack-tags">
+          <span class="tag on" onclick="selectTag(this,'snack-tags')">ほぼしない</span>
+          <span class="tag" onclick="selectTag(this,'snack-tags')">週1〜2回</span>
+          <span class="tag" onclick="selectTag(this,'snack-tags')">週3〜4回</span>
+          <span class="tag" onclick="selectTag(this,'snack-tags')">ほぼ毎日</span>
+        </div>
+      </div></div>
+      <div class="g1"><div class="fld"><label>ストレス過食の傾向</label>
+        <div class="tags" id="stress-tags">
+          <span class="tag on" onclick="selectTag(this,'stress-tags')">ほとんどない</span>
+          <span class="tag" onclick="selectTag(this,'stress-tags')">たまにある</span>
+          <span class="tag" onclick="selectTag(this,'stress-tags')">よくある</span>
+        </div>
+      </div></div>
+
+      <div class="sep"></div>
+      <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">ダイエット履歴・身体の悩み<span class="opt-badge">任意</span></span></div>
+      <div class="g1"><div class="fld"><label>過去に試したダイエット・うまくいかなかったこと</label>
+        <textarea id="diet_history" rows="2" placeholder="例：糖質制限は続かなかった。運動は膝が痛くてNG。"></textarea>
+      </div></div>
+      <div class="g1"><div class="fld"><label>身体の悩み・特に改善したいこと</label>
+        <textarea id="body_concern" rows="2" placeholder="例：お腹まわりの脂肪、むくみ、疲れやすさ"></textarea>
+      </div></div>
+
+      <div class="sep"></div>
+      <div class="sh"><div class="sh-dot" style="background:#c9a96e;"></div><span class="sh-label">パーソナル情報</span></div>
+      <div class="g1"><div class="fld"><label>好きな食べ物</label><input type="text" id="fav_food" placeholder="例：プリン、ラーメン、お寿司"></div></div>
+      <div class="g1"><div class="fld"><label>推し・趣味・好きなこと</label><input type="text" id="hobby" placeholder="例：K-POP、カフェ巡り、読書"></div></div>
+      <div class="g1"><div class="fld"><label>AIコーチタイプ</label>
+        <div class="tags" id="tone-tags">
+          <span class="tag on" onclick="selectTag(this,'tone-tags')">フレンドリー</span>
+          <span class="tag" onclick="selectTag(this,'tone-tags')">ていねい</span>
+          <span class="tag" onclick="selectTag(this,'tone-tags')">ロジカル</span>
+          <span class="tag" onclick="selectTag(this,'tone-tags')">ストイック</span>
+          <span class="tag" onclick="selectTag(this,'tone-tags')">ドS</span>
+          <span class="tag" onclick="selectTag(this,'tone-tags')">王子様</span>
+        </div>
+      </div></div>
+
+      <button class="pbtn" onclick="saveProfile();showView('setup2',null)">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        次へ：目標を設定する
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETUP 2: 目標設定 ===== -->
+<div id="view-setup2" class="view">
+  <div class="card">
+    <div class="app-hdr">
+      <div class="logo" id="logo-s2"></div>
+      <div class="app-hdr-text">
+        <div class="app-hdr-t1">AI Diet Coach</div>
+        <div class="app-hdr-t2">POWERED BY THE LOOP</div>
+      </div>
+      <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div class="stepper">
+      <div class="stp"><div class="sn sn-done"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg></div><div class="st st-on">プロフィール</div></div>
+      <div class="sline sline-done"></div>
+      <div class="stp"><div class="sn sn-cur">2</div><div class="st st-on">目標</div></div>
+      <div class="sline sline-off"></div>
+      <div class="stp"><div class="sn sn-off">3</div><div class="st st-off">ルール</div></div>
+    </div>
+    <div class="ct">
+      <div class="sh"><div class="sh-dot"></div><span class="sh-label">目標・期間</span></div>
+      <div class="g2">
+        <div class="fld"><label>減らしたい脂肪量 kg <span class="req-mark">*</span></label><input type="number" id="goal_fat" placeholder="例：5.0" oninput="calcGoalWeight()"></div>
+        <div class="fld"><label>達成期間</label>
+          <select id="goal_period"><option>3ヶ月</option><option>6ヶ月</option><option selected>1年</option><option>1年以上</option></select>
+        </div>
+      </div>
+      <div id="goal-weight-display" style="display:none;background:#f7f3ef;border-radius:11px;padding:11px 14px;margin-bottom:10px;font-size:13px;color:#7a4f35;font-weight:500;"></div>
+      <div class="info-box">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <p>プロフィールの体組成データをもとに、目標カロリーとPFCバランスを自動計算します。</p>
+      </div>
+
+      <div id="pfc-result" style="display:none;margin-bottom:10px;">
+        <div class="sh"><div class="sh-dot" style="background:#16a34a;"></div><span class="sh-label">自動計算結果</span></div>
+        <div style="background:#f7f3ef;border-radius:14px;padding:14px;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:500;color:#333;margin-bottom:10px;">1日の目標カロリー・PFC</div>
+          <div style="font-size:24px;font-weight:500;color:#7a4f35;margin-bottom:12px;" id="goal-kcal-display">—</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:28px;height:28px;border-radius:7px;background:#7a4f35;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0;">P</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:#555;">Protein タンパク質</span><span style="font-weight:500;color:#111;" id="goal-p">—</span></div>
+                <div style="height:6px;background:#e8e0d8;border-radius:3px;overflow:hidden;"><div id="bar-p" style="height:100%;border-radius:3px;background:#7a4f35;width:30%;"></div></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:28px;height:28px;border-radius:7px;background:#d97706;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0;">F</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:#555;">Fat 脂質</span><span style="font-weight:500;color:#111;" id="goal-f">—</span></div>
+                <div style="height:6px;background:#e8e0d8;border-radius:3px;overflow:hidden;"><div id="bar-f" style="height:100%;border-radius:3px;background:#d97706;width:20%;"></div></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:28px;height:28px;border-radius:7px;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0;">C</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:#555;">Carbohydrate 炭水化物</span><span style="font-weight:500;color:#111;" id="goal-c">—</span></div>
+                <div style="height:6px;background:#e8e0d8;border-radius:3px;overflow:hidden;"><div id="bar-c" style="height:100%;border-radius:3px;background:#16a34a;width:50%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="calcPFC()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #7a4f35;background:#fdf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px;">目標カロリー・PFCを自動計算する</button>
+
+      <div class="sep"></div>
+      <div class="sh"><div class="sh-dot" style="background:#c9a96e;"></div><span class="sh-label">モチベーション</span></div>
+      <div class="g1"><div class="fld"><label>目標とする人物像<span class="opt-badge">任意</span></label><input type="text" id="ideal_person" placeholder="例：ミランダカー、若い頃の自分"></div></div>
+      <div class="g1"><div class="fld"><label>達成後にやりたいこと・なりたい姿</label>
+        <textarea id="motivation" rows="3" placeholder="例：推しのライブに全力で行く！好きな服をなんでも着こなせるようになりたい"></textarea>
+      </div></div>
+      <div class="info-box">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <p>AIがこの内容をもとに、あなたへのメッセージをパーソナライズします。</p>
+      </div>
+
+      <div class="sep"></div>
+      <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">血液検査データ<span class="opt-badge">任意</span></span></div>
+      <div class="g2">
+        <div class="fld"><label>血糖値 mg/dL</label><input type="number" id="blood_sugar" placeholder="95"></div>
+        <div class="fld"><label>中性脂肪 mg/dL</label><input type="number" id="triglyceride" placeholder="120"></div>
+      </div>
+      <div class="g2">
+        <div class="fld"><label>HDLコレステロール</label><input type="number" id="hdl" placeholder="60"></div>
+        <div class="fld"><label>LDLコレステロール</label><input type="number" id="ldl" placeholder="110"></div>
+      </div>
+      <div class="g1"><div class="fld"><label>生活習慣病・既往歴<span class="opt-badge">任意</span></label>
+        <div class="tags" id="disease-tags">
+          <span class="tag" onclick="toggleTag(this)">高血圧</span>
+          <span class="tag" onclick="toggleTag(this)">糖尿病</span>
+          <span class="tag" onclick="toggleTag(this)">高脂血症</span>
+          <span class="tag on" onclick="toggleTag(this)">特になし</span>
+        </div>
+      </div></div>
+
+      <button class="pbtn" onclick="saveGoal();showView('setup3',null)">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        次へ：週間ルールを設定する
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETUP 3: 週間ルール ===== -->
+<div id="view-setup3" class="view">
+  <div class="card">
+    <div class="app-hdr">
+      <div class="logo" id="logo-s3"></div>
+      <div class="app-hdr-text">
+        <div class="app-hdr-t1">AI Diet Coach</div>
+        <div class="app-hdr-t2">POWERED BY THE LOOP</div>
+      </div>
+      <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div class="stepper">
+      <div class="stp"><div class="sn sn-done"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg></div><div class="st st-on">プロフィール</div></div>
+      <div class="sline sline-done"></div>
+      <div class="stp"><div class="sn sn-done"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg></div><div class="st st-on">目標</div></div>
+      <div class="sline sline-done"></div>
+      <div class="stp"><div class="sn sn-cur">3</div><div class="st st-on">ルール</div></div>
+    </div>
+    <div class="ct">
+      <div class="sh"><div class="sh-dot"></div><span class="sh-label">運動</span></div>
+      <div class="tpl-grid">
+        <div class="tpl on" onclick="toggleTpl(this,'1日の歩数目標 7,000歩')"><div class="tpl-icon">🚶</div><div style="flex:1;"><div class="tpl-title">1日の歩数目標 7,000歩</div><div class="tpl-sub">移動・散歩で積み重ねる</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'階段を積極的に使う')"><div class="tpl-icon">🪜</div><div style="flex:1;"><div class="tpl-title">階段を積極的に使う</div><div class="tpl-sub">エレベーターを避ける</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'毎日5分のセルフケア')"><div class="tpl-icon">🧘</div><div style="flex:1;"><div class="tpl-title">毎日5分のセルフケア</div><div class="tpl-sub">ストレッチ・コンディショニング</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'毎日スクワット 30回')"><div class="tpl-icon">💪</div><div style="flex:1;"><div class="tpl-title">毎日スクワット 30回</div><div class="tpl-sub">下半身・体幹を強化する</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      </div>
+      <div class="sh"><div class="sh-dot" style="background:#16a34a;"></div><span class="sh-label">食事</span></div>
+      <div class="tpl-grid">
+        <div class="tpl on" onclick="toggleTpl(this,'夜21時以降は食事をしない')"><div class="tpl-icon">🌙</div><div style="flex:1;"><div class="tpl-title">夜21時以降は食事をしない</div><div class="tpl-sub">就寝3時間前までに済ませる</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'間食は週2回以内')"><div class="tpl-icon">🍪</div><div style="flex:1;"><div class="tpl-title">間食は週2回以内</div><div class="tpl-sub">お菓子・スイーツを絞る</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl on" onclick="toggleTpl(this,'1日 1.5L の水分補給')"><div class="tpl-icon">💧</div><div style="flex:1;"><div class="tpl-title">1日 1.5L の水分補給</div><div class="tpl-sub">代謝・むくみ改善のために</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'1日3食を基本とする')"><div class="tpl-icon">🍱</div><div style="flex:1;"><div class="tpl-title">1日3食を基本とする</div><div class="tpl-sub">抜き食いをしない習慣</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      </div>
+      <div class="sh"><div class="sh-dot" style="background:#c9a96e;"></div><span class="sh-label">生活習慣</span></div>
+      <div class="tpl-grid">
+        <div class="tpl" onclick="toggleTpl(this,'7時間以上の睡眠を確保する')"><div class="tpl-icon">😴</div><div style="flex:1;"><div class="tpl-title">7時間以上の睡眠を確保する</div><div class="tpl-sub">代謝低下を防ぐ</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl on" onclick="toggleTpl(this,'23時までに就寝する')"><div class="tpl-icon">🛌</div><div style="flex:1;"><div class="tpl-title">23時までに就寝する</div><div class="tpl-sub">成長ホルモンの分泌を最大化</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'飲酒は週2回以内')"><div class="tpl-icon">🍷</div><div style="flex:1;"><div class="tpl-title">飲酒は週2回以内</div><div class="tpl-sub">脂肪燃焼・睡眠の質を守る</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="tpl" onclick="toggleTpl(this,'週2回以上のトレーニング')"><div class="tpl-icon">🏋️</div><div style="flex:1;"><div class="tpl-title">週2回以上のトレーニング</div><div class="tpl-sub">筋肉量を維持・向上させる</div></div><div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="sh" style="margin-top:0;"><div class="sh-dot" style="background:#d97706;"></div><span class="sh-label">カスタムルールを追加</span></div>
+      <div class="ci"><input type="text" id="ci" placeholder="例：間食はナッツのみにする"><button onclick="addChip()">追加</button></div>
+      <div class="chip-lbl">設定中のルール</div>
+      <div class="chips" id="ca">
+        <span class="chip" data-label="1日の歩数目標 7,000歩">1日の歩数目標 7,000歩 <button onclick="removeChip(this)">×</button></span>
+        <span class="chip" data-label="夜21時以降は食事をしない">夜21時以降は食事をしない <button onclick="removeChip(this)">×</button></span>
+        <span class="chip" data-label="1日 1.5L の水分補給">1日 1.5L の水分補給 <button onclick="removeChip(this)">×</button></span>
+        <span class="chip" data-label="23時までに就寝する">23時までに就寝する <button onclick="removeChip(this)">×</button></span>
+      </div>
+      <button class="pbtn" style="margin-top:24px;" onclick="saveRules();showView('main',null)">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg>
+        設定を保存してはじめる
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="view-main" class="view">
+  <div class="card">
+    <div class="app-hdr">
+      <div class="logo" id="logo-main"></div>
+      <div class="app-hdr-text">
+        <div class="app-hdr-t1">AI Diet Coach</div>
+        <div class="app-hdr-t2">POWERED BY THE LOOP</div>
+      </div>
+      <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div class="tabs">
+      <div class="tab on" onclick="swTab('today',this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        今日
+      </div>
+      <div class="tab" onclick="swTab('report',this)">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        AIレポート
+      </div>
+      <div class="tab" onclick="swTab('goal',this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        目標：スコア
+      </div>
+      <div class="tab" onclick="swTab('profile',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        プロフィール
+      </div>
+    </div>
+    <div style="padding:20px;">
+
+      <!-- 今日 -->
+      <div id="pg-today" class="pg on">
+        <div class="date-row">
+          <div><div class="date-txt" id="today-date">—</div><div class="date-sub" id="today-greeting">今日も一緒に頑張ろう 💪</div></div>
+        </div>
+        <div class="pfc-total">
+          <div class="pfc-kcal-main">
+            <div class="pfc-kcal-val" id="total-kcal">0</div>
+            <div class="pfc-kcal-unit">kcal 摂取</div>
+            <div class="pfc-kcal-goal" id="goal-kcal-label">目標 — kcal</div>
+          </div>
+          <div class="pfc-circle-wrap">
+            <div class="pfc-mini"><div class="pfc-mini-letter">P</div><div class="pfc-mini-val" id="total-p">0</div><div class="pfc-mini-g">g</div><div class="pfc-mini-goal" id="goal-p-label">/ —g</div></div>
+            <div class="pfc-mini"><div class="pfc-mini-letter">F</div><div class="pfc-mini-val" id="total-f">0</div><div class="pfc-mini-g">g</div><div class="pfc-mini-goal" id="goal-f-label">/ —g</div></div>
+            <div class="pfc-mini"><div class="pfc-mini-letter">C</div><div class="pfc-mini-val" id="total-c">0</div><div class="pfc-mini-g">g</div><div class="pfc-mini-goal" id="goal-c-label">/ —g</div></div>
+          </div>
+        </div>
+        <div class="pfc-bars">
+          <div class="pfc-bar-row"><div class="pfc-bar-badge" style="background:#7a4f35;">P</div><div class="pfc-bar-info"><div class="pfc-bar-head"><span class="pfc-bar-name">Protein <span>タンパク質</span></span><span class="pfc-bar-val" id="pbar-p-txt">0g</span></div><div class="pfc-bar"><div class="pfc-bar-f" id="pbar-p" style="width:0%;background:#7a4f35;"></div></div></div></div>
+          <div class="pfc-bar-row"><div class="pfc-bar-badge" style="background:#d97706;">F</div><div class="pfc-bar-info"><div class="pfc-bar-head"><span class="pfc-bar-name">Fat <span>脂質</span></span><span class="pfc-bar-val" id="pbar-f-txt">0g</span></div><div class="pfc-bar"><div class="pfc-bar-f" id="pbar-f" style="width:0%;background:#d97706;"></div></div></div></div>
+          <div class="pfc-bar-row"><div class="pfc-bar-badge" style="background:#16a34a;">C</div><div class="pfc-bar-info"><div class="pfc-bar-head"><span class="pfc-bar-name">Carbohydrate <span>炭水化物</span></span><span class="pfc-bar-val" id="pbar-c-txt">0g</span></div><div class="pfc-bar"><div class="pfc-bar-f" id="pbar-c" style="width:0%;background:#16a34a;"></div></div></div></div>
+        </div>
+        <div id="meal-list">
+          <div class="empty-state" id="meal-empty">
+            <div class="empty-state-emoji">🍽️</div>
+            <div class="empty-state-txt">まず今日の食事を記録してみよう</div>
+            <div class="empty-state-sub">下のフォームから記録できます</div>
+          </div>
+        </div>
+        <div class="meal-input-box">
+          <label>食事を記録する</label>
+          <textarea id="meal-txt" rows="2" placeholder="例：昼12時、カレーライス、サラダ"></textarea>
+          <div class="meal-bottom">
+            <div class="sz-wrap"><div class="sz-lbl">量の目安</div><div class="sz-row"><span class="sz" onclick="selSz(this)">少なめ</span><span class="sz on" onclick="selSz(this)">ふつう</span><span class="sz" onclick="selSz(this)">多め</span></div></div>
+            <button class="rec-btn" id="rec-btn" onclick="recordMeal()">記録する</button>
+          </div>
+        </div>
+        <div class="ai-meal-card" id="ai-meal-card">
+          <div class="ai-meal-lbl">AI解析結果</div>
+          <div class="ai-meal-txt" id="ai-meal-txt"></div>
+        </div>
+
+        <div style="height:1px;background:#ede8e2;margin:18px 0;"></div>
+
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">今日のルール</span></div>
+        <div class="rule-header">
+          <div class="ring-wrap">
+            <svg width="62" height="62" viewBox="0 0 62 62">
+              <circle cx="31" cy="31" r="25" fill="none" stroke="#e8e0d8" stroke-width="5"/>
+              <circle id="ring-circle" cx="31" cy="31" r="25" fill="none" stroke="#16a34a" stroke-width="5"
+                stroke-dasharray="157" stroke-dashoffset="157" stroke-linecap="round" style="transition:stroke-dashoffset 0.4s ease;"/>
+            </svg>
+            <div class="ring-center"><div class="ring-val" id="ring-val">0</div><div class="ring-max" id="ring-max">/ 0</div></div>
+          </div>
+          <div class="ring-msg">
+            <div class="ring-title" id="ring-title">今日のルールに挑戦しよう！</div>
+            <div class="ring-sub" id="ring-sub">タップしてチェックしてね💪</div>
+          </div>
+        </div>
+        <div class="rule-list" id="rule-list"></div>
+        <div class="all-done-banner" id="all-done">
+          <div style="font-size:26px;margin-bottom:5px;">🎉</div>
+          <div style="font-size:13px;font-weight:500;color:#16a34a;">今日のルール全部クリア！</div>
+          <div style="font-size:12px;color:#7a6050;margin-top:3px;">この調子で明日も続けよう</div>
+        </div>
+      </div>
+
+      <!-- AIレポート -->
+      <div id="pg-report" class="pg">
+        <div class="sh" style="margin-top:0;"><div class="sh-dot"></div><span class="sh-label">AIコーチからの一言</span></div>
+        <div class="coach-card">
+          <div class="coach-header">
+            <div class="coach-avatar"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="3"/><line x1="8" y1="11" x2="8" y2="8"/><line x1="16" y1="11" x2="16" y2="8"/></svg></div>
+            <div><div class="coach-name">AIコーチからの一言</div><div class="coach-mode" id="coach-mode">— モード · 今日のフィードバック</div></div>
+          </div>
+          <div class="coach-body">
+            <div id="coach-msg-area">
+              <div class="coach-placeholder">ボタンを押してレポートを生成してください。</div>
+            </div>
+            <button class="coach-gen-btn" id="gen-btn" onclick="generateReport()">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              今日のレポートを生成する
+            </button>
+            <button class="pbtn" id="line-share-btn" style="display:none;margin-top:10px;background:#06C755;border-color:#06C755;" onclick="shareToLine()">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:#fff;"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.6 5.78 4.07 7.5L5 22l4.27-2.24C10.14 20.24 11.06 20.4 12 20.4c5.52 0 10-4.02 10-9s-4.48-9-10-9z"/></svg>
+              LINEでシェア
+            </button>
+          </div>
+        </div>
+
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">今日のルール達成</span></div>
+        <div class="today-rule-card">
+          <div class="trc-head"><div class="trc-lbl">今日の達成状況</div><div class="trc-score" id="trc-score">0<span> / 0</span></div></div>
+          <div class="trc-items" id="trc-items"></div>
+          <div class="trc-comment" id="trc-comment" style="display:none;"></div>
+        </div>
+
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">今週の宿題エクササイズ</span></div>
+        <div id="exercise-list"></div>
+      </div>
+
+      <!-- 目標：スコア -->
+      <div id="pg-goal" class="pg">
+        <div class="future-card">
+          <div class="future-bg">
+            <div class="future-stars">✨</div>
+            <div class="future-particles" id="future-particles"></div>
+        <div class="future-lbl">✦ YOUR FUTURE</div>
+            <div class="future-copy" id="future-copy">目標を設定してください</div>
+            <div class="future-prog-label"><span>現在地</span><span>ゴール</span></div>
+            <div class="future-bar"><div class="future-bar-f" id="future-bar-f" style="width:0%;"></div></div>
+            <div class="future-bottom">
+              <div class="future-pct" id="future-pct">0<span>% 達成</span></div>
+              <div class="future-remain" id="future-remain">ゴールまで あと100%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="goal-num-card">
+          <div class="gnc-row">
+            <div><div class="gnc-title" id="gnc-title">脂肪 あと — kg</div><div class="gnc-sub" id="gnc-sub">目標体重 — kg ／ 期間設定中</div></div>
+            <div class="gnc-pct" id="gnc-pct">—<span>%</span></div>
+          </div>
+          <div class="gnc-prog"><div class="gnc-prog-f" id="gnc-prog-f" style="width:0%;"></div></div>
+          <div class="gnc-meta"><span id="gnc-start">開始時 —</span><span id="gnc-goal">目標 —</span></div>
+        </div>
+
+        <div class="radar-wrap">
+          <div class="radar-ttl">今日のスコア</div>
+          <div class="radar-sub">5点満点・継続するほどスコアが上がります</div>
+          <svg viewBox="0 0 220 220" width="200" height="200">
+            <g opacity="0.15" stroke="#7a4f35" fill="none" stroke-width="1">
+              <polygon points="110,18 194,68 194,152 110,202 26,152 26,68"/>
+              <polygon points="110,36 176,74 176,146 110,184 44,146 44,74"/>
+              <polygon points="110,54 158,80 158,140 110,166 62,140 62,80"/>
+              <polygon points="110,72 140,86 140,134 110,148 80,134 80,86"/>
+              <polygon points="110,90 122,92 122,128 110,130 98,128 98,92"/>
+            </g>
+            <g stroke="#7a4f35" stroke-width="0.8" opacity="0.1">
+              <line x1="110" y1="18" x2="110" y2="202"/>
+              <line x1="194" y1="68" x2="26" y2="152"/>
+              <line x1="194" y1="152" x2="26" y2="68"/>
+            </g>
+            <polygon id="radar-polygon" points="110,110 110,110 110,110 110,110 110,110 110,110" fill="#7a4f35" fill-opacity="0.2" stroke="#7a4f35" stroke-width="2"/>
+            <circle id="r0" cx="110" cy="110" r="4" fill="#7a4f35"/>
+            <circle id="r1" cx="110" cy="110" r="4" fill="#7a4f35"/>
+            <circle id="r2" cx="110" cy="110" r="4" fill="#7a4f35"/>
+            <circle id="r3" cx="110" cy="110" r="4" fill="#7a4f35"/>
+            <circle id="r4" cx="110" cy="110" r="4" fill="#7a4f35"/>
+            <circle id="r5" cx="110" cy="110" r="4" fill="#7a4f35"/>
+            <text x="110" y="10" text-anchor="middle" font-size="11" fill="#555" font-weight="500">栄養</text>
+            <text x="200" y="68" text-anchor="start" font-size="11" fill="#555" font-weight="500">運動</text>
+            <text x="200" y="154" text-anchor="start" font-size="11" fill="#555" font-weight="500">睡眠</text>
+            <text x="110" y="216" text-anchor="middle" font-size="11" fill="#555" font-weight="500">習慣</text>
+            <text x="20" y="154" text-anchor="end" font-size="11" fill="#555" font-weight="500">継続</text>
+            <text x="20" y="68" text-anchor="end" font-size="11" fill="#555" font-weight="500">食事</text>
+            <text x="218" y="12" text-anchor="end" font-size="10" fill="#bbb">5</text>
+          </svg>
+        </div>
+
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">マイルストーン</span></div>
+        <div class="journey-wrap"><div class="journey-row" id="journey-row">
+          <div class="jstart"><div class="js-dot">🏁</div><div class="js-lbl">スタート</div><div class="js-val" id="j-start-val">—</div></div>
+          <div class="jcon jcon-none" id="j-con0"></div>
+          <div class="jnode"><div class="jn-circle jnc-lock" id="j-circle0">🔒</div><div class="jn-mo">1ヶ月</div><div class="jn-kg jn-kg-lock" id="j-kg0">—</div><div class="jn-diff" id="j-diff0">—</div><span class="jn-badge jnb-lock" id="j-badge0">未解放</span></div>
+          <div class="jcon jcon-none" id="j-con1"></div>
+          <div class="jnode"><div class="jn-circle jnc-lock" id="j-circle1">🔒</div><div class="jn-mo">2ヶ月</div><div class="jn-kg jn-kg-lock" id="j-kg1">—</div><div class="jn-diff" id="j-diff1">—</div><span class="jn-badge jnb-lock" id="j-badge1">未解放</span></div>
+          <div class="jcon jcon-none" id="j-con2"></div>
+          <div class="jnode"><div class="jn-circle jnc-lock" id="j-circle2">🔒</div><div class="jn-mo">3ヶ月</div><div class="jn-kg jn-kg-lock" id="j-kg2">—</div><div class="jn-diff" id="j-diff2">—</div><span class="jn-badge jnb-lock" id="j-badge2">未解放</span></div>
+          <div class="jcon jcon-none"></div>
+          <div class="jgoal"><div class="jg-dot">🎯</div><div class="jg-lbl">ゴール</div><div class="jg-val" id="j-goal-val">—</div></div>
+        </div></div>
+
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">週間ルール運用状況</span></div>
+        <div id="rule-level-card" style="background:linear-gradient(135deg,#2d1a0e,#3d2010);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:10px;color:rgba(201,169,110,0.7);letter-spacing:0.1em;margin-bottom:4px;">現在のレベル</div>
+            <div id="rule-level-name" style="font-size:18px;font-weight:700;color:#c9a96e;font-family:'Noto Serif JP',serif;">—</div>
+            <div id="rule-streak" style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:3px;">—</div>
+          </div>
+          <div id="rule-level-badge" style="font-size:36px;">🌱</div>
+        </div>
+        <div id="week-rules"></div>
+      </div>
+
+      <!-- プロフィール -->
+      <div id="pg-profile" class="pg">
+        <div class="user-row">
+          <div class="avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div><div class="u-name" id="profile-name">—</div><div class="u-meta" id="profile-meta">—</div></div>
+        </div>
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">体組成データ</span></div>
+        <div class="grid3">
+          <div class="mcard"><div class="lbl">体重</div><div class="val" id="d-weight">—<span class="unit">kg</span></div></div>
+          <div class="mcard"><div class="lbl">体脂肪率</div><div class="val" id="d-fat">—<span class="unit">%</span></div></div>
+          <div class="mcard"><div class="lbl">筋肉量</div><div class="val" id="d-muscle">—<span class="unit">kg</span></div></div>
+          <div class="mcard"><div class="lbl">脂肪量</div><div class="val" id="d-fat-kg">—<span class="unit">kg</span></div></div>
+          <div class="mcard"><div class="lbl">身長</div><div class="val" id="d-height">—<span class="unit">cm</span></div></div>
+          <div class="mcard"><div class="lbl">BMI</div><div class="val" id="d-bmi">—</div></div>
+        </div>
+        <div class="sh"><div class="sh-dot"></div><span class="sh-label">生活習慣</span></div>
+        <div class="hrow">
+          <span class="hicon" style="color:#c9a96e;">🌙</span>
+          <span class="hname">睡眠</span>
+          <div class="hbar"><div class="hbar-f" id="hbar-sleep" style="background:#c9a96e;width:0%;"></div></div>
+          <span class="hval" id="hval-sleep">—</span>
+          <span class="pill" id="hpill-sleep"></span>
+        </div>
+        <div class="hrow">
+          <span class="hicon" style="color:#16a34a;">🏃</span>
+          <span class="hname">活動量</span>
+          <div class="hbar"><div class="hbar-f" id="hbar-act" style="background:#16a34a;width:0%;"></div></div>
+          <span class="hval" id="hval-act">—</span>
+          <span class="pill" id="hpill-act"></span>
+        </div>
+        <div class="hrow">
+          <span class="hicon" style="color:#0ea5e9;">💧</span>
+          <span class="hname">水分</span>
+          <div class="hbar"><div class="hbar-f" id="hbar-water" style="background:#0ea5e9;width:0%;"></div></div>
+          <span class="hval" id="hval-water">—</span>
+          <span class="pill" id="hpill-water"></span>
+        </div>
+        <button class="edit-btn" onclick="showView('setup1',null)">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          プロフィールを編集する
+        </button>
+        <button style="width:100%;margin-top:10px;padding:12px;border-radius:13px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;" onclick="updateBodyData()">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#7a4f35;fill:none;stroke-width:1.8;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.22"/></svg>
+          体組成データを更新する
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = 'https://loop-gemini-proxy.koshiro-katsura.workers.dev';
+
+// ===== オンボーディング =====
+const obSteps = [
+  {icon:'🎯',title:'AI Diet Coachへようこそ',desc:'体組成データ × トレーナー知見 × AI生成で、あなたを24時間伴走サポートします。'},
+  {icon:'📊',title:'毎日3分で完結',desc:'食事を記録して、ルールをチェックして、AIコーチの一言をもらう。シンプルな習慣が変化をつくります。'},
+  {icon:'✨',title:'あなたの未来へ',desc:'目標までの進捗を「YOUR FUTURE」で可視化。数字だけでなく、なりたい自分までの距離が見えます。'},
+];
+let obIdx = 0;
+function nextOb() {
+  obIdx++;
+  if(obIdx >= obSteps.length) { closeOb(); return; }
+  const s = obSteps[obIdx];
+  document.getElementById('ob-content').innerHTML = `<div class="ob-icon">${s.icon}</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div>`;
+  document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obIdx));
+  if(obIdx === obSteps.length-1) document.getElementById('ob-btn').textContent = 'はじめる';
+}
+function closeOb() { document.getElementById('onboarding').style.display='none'; localStorage.setItem('ob_done','1'); }
+if(localStorage.getItem('ob_done')) closeOb();
+
+// ===== ビュー切り替え =====
+function showView(view, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('view-'+view).classList.add('on');
+  if(btn) btn.classList.add('on');
+  else {
+    const map = {setup1:0,setup2:1,setup3:2,main:3};
+    document.querySelectorAll('.nav-btn')[map[view]]?.classList.add('on');
+  }
+  if(view==='main') { loadMain(); }
+  window.scrollTo(0,0);
+}
+
+// ===== タブ切り替え =====
+function swTab(name,el) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  el.classList.add('on');
+}
+
+// ===== タグ操作 =====
+function selectTag(el, groupId) {
+  document.querySelectorAll('#'+groupId+' .tag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+function toggleTag(el) { el.classList.toggle('on'); }
+
+// ===== 目標体重自動計算 =====
+function calcGoalWeight() {
+  const profile = JSON.parse(localStorage.getItem('profile')||'{}');
+  const goalFat = parseFloat(document.getElementById('goal_fat').value);
+  if(!profile.weight || !goalFat) { document.getElementById('goal-weight-display').style.display='none'; return; }
+  const goalWeight = (parseFloat(profile.weight) - goalFat).toFixed(1);
+  document.getElementById('goal-weight-display').style.display='block';
+  document.getElementById('goal-weight-display').textContent = `目標体重：約 ${goalWeight} kg（現在 ${profile.weight} kg から ${goalFat} kg 減）`;
+}
+
+// ===== PFC自動計算（JS） =====
+function calcPFC() {
+  const profile = JSON.parse(localStorage.getItem('profile')||'{}');
+  const age = parseFloat(profile.age||30);
+  const weight = parseFloat(profile.weight||60);
+  const height = parseFloat(profile.height||160);
+  const gender = profile.gender||'女性';
+  const actFactor = parseFloat(profile.activity||document.getElementById('activity').value||'1.375');
+  const exercise = profile.exercise||document.querySelector('#exercise-tags .tag.on')?.textContent||'週1〜2回';
+  const goalFat = parseFloat(document.getElementById('goal_fat').value||0);
+  const period = document.getElementById('goal_period').value;
+
+  // BMR（ミフリン式）
+  let bmr;
+  if(gender==='男性') bmr = 10*weight + 6.25*height - 5*age + 5;
+  else bmr = 10*weight + 6.25*height - 5*age - 161;
+  if(profile.bmr) bmr = parseFloat(profile.bmr);
+
+  // TDEE
+  let act = actFactor;
+  if(exercise==='週3〜4回') act += 0.175;
+  else if(exercise==='ほぼ毎日') act += 0.35;
+  const tdee = Math.round(bmr * act);
+
+  // 期間から1日の赤字
+  const months = period==='3ヶ月'?3:period==='6ヶ月'?6:period==='1年'?12:18;
+  const days = months * 30;
+  const deficit = goalFat>0 ? Math.round((goalFat * 7200) / days) : 300;
+  const goalKcal = Math.max(Math.round(bmr), tdee - deficit);
+
+  // PFC比率
+  const isActive = exercise==='週3〜4回'||exercise==='ほぼ毎日';
+  const pRatio = isActive ? 0.35 : 0.30;
+  const fRatio = 0.20;
+  const cRatio = 1 - pRatio - fRatio;
+  const goalP = Math.round((goalKcal * pRatio) / 4);
+  const goalF = Math.round((goalKcal * fRatio) / 9);
+  const goalC = Math.round((goalKcal * cRatio) / 4);
+
+  document.getElementById('goal-kcal-display').textContent = goalKcal + ' kcal / 日';
+  document.getElementById('goal-p').textContent = goalP + 'g';
+  document.getElementById('goal-f').textContent = goalF + 'g';
+  document.getElementById('goal-c').textContent = goalC + 'g';
+  document.getElementById('bar-p').style.width = (pRatio*100)+'%';
+  document.getElementById('bar-f').style.width = (fRatio*100)+'%';
+  document.getElementById('bar-c').style.width = (cRatio*100)+'%';
+  document.getElementById('pfc-result').style.display='block';
+
+  localStorage.setItem('pfc', JSON.stringify({goalKcal,goalP,goalF,goalC}));
+}
+
+// ===== 保存 =====
+function saveProfile() {
+  const bmrVal = document.getElementById('bmr').value;
+  if(!document.getElementById('age').value || !document.getElementById('height').value || !document.getElementById('weight').value || !document.getElementById('fat_pct').value || !bmrVal) {
+    alert('必須項目（*）をすべて入力してください。\n基礎代謝kcalの入力も必須です。');
+    return false;
+  }
+  const data = {
+    nickname: document.getElementById('nickname').value,
+    age: document.getElementById('age').value,
+    gender: document.querySelector('#gender-tags .tag.on')?.textContent||'女性',
+    height: document.getElementById('height').value,
+    weight: document.getElementById('weight').value,
+    fat_pct: document.getElementById('fat_pct').value,
+    muscle: document.getElementById('muscle').value,
+    fat_kg: document.getElementById('fat_kg').value,
+    bmi: document.getElementById('bmi').value,
+    visceral: document.getElementById('visceral').value,
+    bmr: document.getElementById('bmr').value,
+    activity: document.getElementById('activity').value,
+    exercise: document.querySelector('#exercise-tags .tag.on')?.textContent||'週1〜2回',
+    meal_freq: document.querySelector('#meal-freq-tags .tag.on')?.textContent||'3食',
+    sleep: document.getElementById('sleep').value,
+    water: document.getElementById('water').value,
+    drink_freq: document.getElementById('drink_freq').value,
+    drink_amt: document.getElementById('drink_amt').value,
+    snack: document.querySelector('#snack-tags .tag.on')?.textContent||'ほぼしない',
+    stress: document.querySelector('#stress-tags .tag.on')?.textContent||'ほとんどない',
+    diet_history: document.getElementById('diet_history').value,
+    body_concern: document.getElementById('body_concern').value,
+    fav_food: document.getElementById('fav_food').value,
+    hobby: document.getElementById('hobby').value,
+    tone: document.querySelector('#tone-tags .tag.on')?.textContent||'フレンドリー',
+  };
+  localStorage.setItem('profile', JSON.stringify(data));
+}
+
+function saveGoal() {
+  const data = {
+    goal_fat: document.getElementById('goal_fat').value,
+    goal_period: document.getElementById('goal_period').value,
+    ideal_person: document.getElementById('ideal_person').value,
+    motivation: document.getElementById('motivation').value,
+    blood_sugar: document.getElementById('blood_sugar').value,
+    triglyceride: document.getElementById('triglyceride').value,
+    hdl: document.getElementById('hdl').value,
+    ldl: document.getElementById('ldl').value,
+  };
+  localStorage.setItem('goal', JSON.stringify(data));
+  calcPFC();
+}
+
+function saveRules() {
+  const chips = [...document.querySelectorAll('#ca .chip')].map(c => c.dataset.label);
+  localStorage.setItem('rules', JSON.stringify(chips));
+  // 今週の記録を初期化
+  const today = new Date();
+  const weekKey = `week_${today.getFullYear()}_${getWeek(today)}`;
+  if(!localStorage.getItem(weekKey)) {
+    const init = {};
+    chips.forEach(r => init[r] = {});
+    localStorage.setItem(weekKey, JSON.stringify(init));
+  }
+}
+
+// ===== ルールテンプレート =====
+function toggleTpl(el, label) {
+  el.classList.toggle('on');
+  const ca = document.getElementById('ca');
+  const ex = [...ca.querySelectorAll('.chip')].find(c => c.dataset.label===label);
+  if(el.classList.contains('on')) {
+    if(!ex) {
+      const c = document.createElement('span');
+      c.className='chip'; c.dataset.label=label;
+      c.innerHTML = label+' <button onclick="removeChip(this)">×</button>';
+      c.querySelector('button').addEventListener('click',()=>{c.remove();el.classList.remove('on');});
+      ca.appendChild(c);
+    }
+  } else { if(ex) ex.remove(); }
+}
+function removeChip(btn) { btn.closest('.chip').remove(); }
+function addChip() {
+  const i=document.getElementById('ci'), v=i.value.trim(); if(!v) return;
+  const ca=document.getElementById('ca');
+  const c=document.createElement('span'); c.className='chip'; c.dataset.label=v;
+  c.innerHTML=v+' <button onclick="removeChip(this)">×</button>';
+  c.querySelector('button').addEventListener('click',()=>c.remove());
+  ca.appendChild(c); i.value='';
+}
+
+// ===== メインアプリ ロード =====
+function loadMain() {
+  const profile = JSON.parse(localStorage.getItem('profile')||'{}');
+  const goal = JSON.parse(localStorage.getItem('goal')||'{}');
+  const pfc = JSON.parse(localStorage.getItem('pfc')||'{}');
+  const rules = JSON.parse(localStorage.getItem('rules')||'[]');
+
+  // 日付
+  const today = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('today-date').textContent = (today.getMonth()+1)+'月'+today.getDate()+'日（'+days[today.getDay()]+'）';
+
+  // ニックネーム
+  const nick = profile.nickname||profile.name||'';
+  if(nick) document.getElementById('today-greeting').textContent = nick+'さん、今日も一緒に頑張ろう 💪';
+  if(nick) document.getElementById('main-sub').textContent = nick+'さんのサポート';
+
+  // PFC目標ラベル
+  if(pfc.goalKcal) {
+    document.getElementById('goal-kcal-label').textContent = '目標 '+pfc.goalKcal+' kcal';
+    document.getElementById('goal-p-label').textContent = '/ '+pfc.goalP+'g';
+    document.getElementById('goal-f-label').textContent = '/ '+pfc.goalF+'g';
+    document.getElementById('goal-c-label').textContent = '/ '+pfc.goalC+'g';
+  }
+
+  // 今日の食事ロード
+  const todayKey = 'meals_'+formatDate(today);
+  const meals = JSON.parse(localStorage.getItem(todayKey)||'[]');
+  renderMeals(meals, pfc);
+
+  // ルール
+  renderRules(rules);
+
+  // プロフィール表示
+  if(profile.nickname||profile.name) {
+    document.getElementById('profile-name').textContent = (profile.nickname||profile.name||'ユーザー')+' さん';
+    document.getElementById('profile-meta').textContent = [profile.age?profile.age+'歳':'',profile.gender,''].filter(Boolean).join('・');
+  }
+  if(profile.weight) document.getElementById('d-weight').innerHTML = profile.weight+'<span class="unit">kg</span>';
+  if(profile.fat_pct) document.getElementById('d-fat').innerHTML = profile.fat_pct+'<span class="unit">%</span>';
+  if(profile.muscle) document.getElementById('d-muscle').innerHTML = profile.muscle+'<span class="unit">kg</span>';
+  if(profile.fat_kg) document.getElementById('d-fat-kg').innerHTML = profile.fat_kg+'<span class="unit">kg</span>';
+  if(profile.height) document.getElementById('d-height').innerHTML = profile.height+'<span class="unit">cm</span>';
+  if(profile.bmi) document.getElementById('d-bmi').textContent = profile.bmi;
+
+  // 生活習慣バー
+  const sleepMap = {'5時間未満':{w:30,lbl:'不足',cls:'pill-warn'},'6〜7時間':{w:60,lbl:'やや不足',cls:'pill-warn'},'7〜8時間':{w:85,lbl:'良好',cls:'pill-ok'},'8時間以上':{w:100,lbl:'十分',cls:'pill-ok'}};
+  const sl = sleepMap[profile.sleep]||{w:60,lbl:'—',cls:''};
+  document.getElementById('hbar-sleep').style.width=sl.w+'%';
+  document.getElementById('hval-sleep').textContent=profile.sleep||'—';
+  document.getElementById('hpill-sleep').textContent=sl.lbl;
+  document.getElementById('hpill-sleep').className='pill '+sl.cls;
+
+  const actMap = {'1.2':{w:30,lbl:'少なめ',cls:'pill-warn'},'1.375':{w:55,lbl:'中程度',cls:'pill-ok'},'1.55':{w:80,lbl:'活発',cls:'pill-ok'}};
+  const am = actMap[profile.activity]||{w:55,lbl:'中程度',cls:'pill-ok'};
+  document.getElementById('hbar-act').style.width=am.w+'%';
+  document.getElementById('hval-act').textContent=am.lbl;
+  document.getElementById('hpill-act').textContent=am.lbl==='少なめ'?'やや少ない':'適切';
+  document.getElementById('hpill-act').className='pill '+(am.lbl==='少なめ'?'pill-warn':'pill-ok');
+
+  const waterMap = {'1L未満':{w:25,lbl:'1L未満',cls:'pill-warn'},'1〜1.5L':{w:55,lbl:'1〜1.5L',cls:'pill-warn'},'1.5〜2L':{w:80,lbl:'1.5〜2L',cls:'pill-ok'},'2L以上':{w:100,lbl:'2L以上',cls:'pill-ok'}};
+  const wm = waterMap[profile.water]||{w:55,lbl:'1〜1.5L',cls:'pill-warn'};
+  document.getElementById('hbar-water').style.width=wm.w+'%';
+  document.getElementById('hval-water').textContent=wm.lbl;
+  document.getElementById('hpill-water').textContent=wm.cls==='pill-warn'?'もう少し':'適切';
+  document.getElementById('hpill-water').className='pill '+wm.cls;
+
+  // AIコーチモード
+  const tone = profile.tone||'フレンドリー';
+  document.getElementById('coach-mode').textContent = tone+'モード · 今日のフィードバック';
+
+  // 目標：スコア
+  loadGoalScore(profile, goal, pfc, rules);
+
+  // 宿題エクササイズ（JSロジック）
+  loadExercises(profile);
+
+  // AIレポートのルール表示
+  loadReportRules(rules);
+}
+
+function loadGoalScore(profile, goal, pfc, rules) {
+  const idealPerson = goal.ideal_person||'';
+  const motivation = goal.motivation||'';
+  if(idealPerson||motivation) {
+    const copy = idealPerson ? `和製${idealPerson}になって<br><em>${motivation||'目標を達成する'}</em>` : `<em>${motivation}</em>`;
+    document.getElementById('future-copy').innerHTML = copy;
+  }
+
+  // 進捗計算
+  const startFat = parseFloat(profile.fat_kg||0);
+  const goalFatAmt = parseFloat(goal.goal_fat||0);
+  if(startFat>0 && goalFatAmt>0) {
+    // 仮の現在脂肪量（実際はデータ更新で変動）
+    const currentFat = startFat; // 初期値
+    const targetFat = startFat - goalFatAmt;
+    const progress = Math.max(0,Math.min(100,Math.round(((startFat-currentFat)/goalFatAmt)*100)));
+    document.getElementById('future-bar-f').style.width=progress+'%';
+    document.getElementById('future-pct').innerHTML=progress+'<span>% 達成</span>';
+    document.getElementById('future-remain').textContent='ゴールまで あと'+(100-progress)+'%';
+
+    const goalWeight = (parseFloat(profile.weight||0)-goalFatAmt).toFixed(1);
+    document.getElementById('gnc-title').textContent='脂肪 あと '+goalFatAmt+'kg';
+    document.getElementById('gnc-sub').textContent='目標体重 '+goalWeight+'kg ／ '+goal.goal_period;
+    document.getElementById('gnc-pct').innerHTML=progress+'<span>%</span>';
+    document.getElementById('gnc-prog-f').style.width=progress+'%';
+    document.getElementById('gnc-start').textContent='開始時 脂肪量 '+startFat+'kg';
+    document.getElementById('gnc-goal').textContent='目標 '+targetFat.toFixed(1)+'kg';
+    document.getElementById('j-goal-val').textContent=goalWeight+'kg';
+    document.getElementById('j-start-val').textContent=profile.weight+'kg';
+
+    // マイルストーン
+    const fatPerMonth = goalFatAmt/3;
+    for(let i=0;i<3;i++){
+      const mFat = startFat-(fatPerMonth*(i+1));
+      const mWeight = (parseFloat(profile.weight)-fatPerMonth*(i+1)).toFixed(1);
+      document.getElementById('j-kg'+(i)).textContent=mWeight+'kg';
+      document.getElementById('j-diff'+(i)).textContent='−'+(fatPerMonth*(i+1)).toFixed(1)+'kg';
+    }
+  }
+
+  // レーダースコア計算
+  const todayKey='meals_'+formatDate(new Date());
+  const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
+  const totalKcal=meals.reduce((s,m)=>s+m.kcal,0);
+  const gKcal=pfc.goalKcal||1400;
+
+  // 栄養スコア
+  const nutritionScore = totalKcal>0 ? Math.min(5,Math.round((Math.min(totalKcal,gKcal)/gKcal)*5)) : 1;
+  // 運動スコア
+  const exMap={'していない':2,'週1〜2回':3,'週3〜4回':4,'ほぼ毎日':5};
+  const exerciseScore = exMap[profile.exercise]||3;
+  // 睡眠スコア
+  const slMap={'5時間未満':1,'6〜7時間':3,'7〜8時間':4,'8時間以上':5};
+  const sleepScore = slMap[profile.sleep]||3;
+  // 習慣スコア（今日のルール達成率）
+  const todayChecks=JSON.parse(localStorage.getItem('today_checks_'+formatDate(new Date()))||'[]');
+  const habitScore = rules.length>0 ? Math.max(1,Math.round((todayChecks.length/rules.length)*5)) : 3;
+  // 継続スコア（起動回数）
+  const launches=parseInt(localStorage.getItem('launch_count')||'1');
+  const contScore = Math.min(5,Math.max(1,Math.round(launches/3)));
+  // 食事スコア
+  const mealScore = meals.length>0 ? Math.min(5,meals.length+1) : 1;
+
+  const scores=[nutritionScore,exerciseScore,sleepScore,habitScore,contScore,mealScore];
+  updateRadar(scores);
+
+  // 週間ルール
+  loadWeekRules(rules);
+}
+
+function updateRadar(scores) {
+  const cx=110,cy=110,maxR=92;
+  // 6軸の角度（上から時計回り）
+  const angles=[-90,-30,30,90,150,210].map(a=>a*Math.PI/180);
+  const points=scores.map((s,i)=>{
+    const r=(s/5)*maxR;
+    return [cx+r*Math.cos(angles[i]),cy+r*Math.sin(angles[i])];
+  });
+  document.getElementById('radar-polygon').setAttribute('points',points.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' '));
+  points.forEach((p,i)=>{
+    document.getElementById('r'+i).setAttribute('cx',p[0].toFixed(1));
+    document.getElementById('r'+i).setAttribute('cy',p[1].toFixed(1));
+  });
+}
+
+function loadWeekRules(rules) {
+  const today=new Date();
+  const weekKey='week_'+today.getFullYear()+'_'+getWeek(today);
+  const weekData=JSON.parse(localStorage.getItem(weekKey)||'{}');
+  const days=['月','火','水','木','金','土','日'];
+  const container=document.getElementById('week-rules');
+  container.innerHTML='';
+
+  // レベル計算
+  const totalStreak=parseInt(localStorage.getItem('rule_streak')||'0');
+  const levels=[
+    {min:0,  name:'はじまりの一歩',  badge:'🌱'},
+    {min:7,  name:'習慣の芽生え',    badge:'🌿'},
+    {min:21, name:'着実な成長',      badge:'🌸'},
+    {min:42, name:'ルーティン戦士',  badge:'⚡'},
+    {min:70, name:'鉄の意志',        badge:'🔥'},
+    {min:100,name:'THE LOOP マスター',badge:'👑'},
+  ];
+  const lv=levels.slice().reverse().find(l=>totalStreak>=l.min)||levels[0];
+  const next=levels[levels.findIndex(l=>l.min===lv.min)+1];
+  const lvEl=document.getElementById('rule-level-name');
+  const stEl=document.getElementById('rule-streak');
+  const bdEl=document.getElementById('rule-level-badge');
+  if(lvEl) lvEl.textContent=lv.name;
+  if(bdEl) bdEl.textContent=lv.badge;
+  if(stEl) stEl.textContent=`継続 ${totalStreak} 日${next?' ／ 次のレベルまで '+(next.min-totalStreak)+'日':''}`;
+
+  rules.forEach(rule=>{
+    const ruleData=weekData[rule]||{};
+    const doneDays=Object.values(ruleData).filter(v=>v).length;
+    const rateClass=doneDays===7?'rate-gold':doneDays>=5?'rate-green':doneDays>=3?'rate-orange':'rate-red';
+    const trophy=doneDays===7?' 🏆':'';
+    const card=document.createElement('div');
+    card.className='week-rule-card';
+    card.innerHTML=`<div class="wr-head"><div class="wr-txt">${rule}</div><div class="wr-rate ${rateClass}">${doneDays}/7${trophy}</div></div><div class="wr-days">${days.map((d,i)=>{const done=ruleData[i]?'wd-done':i<new Date().getDay()?'wd-miss':'wd-future';return `<div class="wr-day ${done}">${d}</div>`;}).join('')}</div>`;
+    container.appendChild(card);
+  });
+}
+
+// ===== 食事記録 =====
+function renderMeals(meals, pfc) {
+  const list=document.getElementById('meal-list');
+  const empty=document.getElementById('meal-empty');
+  if(meals.length===0){empty.style.display='block';} else {empty.style.display='none';}
+  [...list.querySelectorAll('.mealcard')].forEach(c=>c.remove());
+  let totalKcal=0,totalP=0,totalF=0,totalC=0;
+  meals.forEach(m=>{
+    totalKcal+=m.kcal||0; totalP+=m.p||0; totalF+=m.f||0; totalC+=m.c||0;
+    const card=document.createElement('div'); card.className='mealcard';
+    card.innerHTML=`<div><div class="mc-time">${m.time}</div><div class="mc-name">${m.name}</div><div class="mc-pfc">P ${m.p}g ／ F ${m.f}g ／ C ${m.c}g</div></div><div><div class="mc-kcal">${m.kcal}<span>kcal</span></div></div>`;
+    list.insertBefore(card,empty);
+  });
+  document.getElementById('total-kcal').textContent=totalKcal;
+  document.getElementById('total-p').textContent=totalP;
+  document.getElementById('total-f').textContent=totalF;
+  document.getElementById('total-c').textContent=totalC;
+  const gK=pfc.goalKcal||1400, gP=pfc.goalP||100, gF=pfc.goalF||30, gC=pfc.goalC||180;
+  document.getElementById('pbar-p').style.width=Math.min(100,(totalP/gP*100))+'%';
+  document.getElementById('pbar-f').style.width=Math.min(100,(totalF/gF*100))+'%';
+  document.getElementById('pbar-c').style.width=Math.min(100,(totalC/gC*100))+'%';
+  document.getElementById('pbar-p-txt').textContent=totalP+'g';
+  document.getElementById('pbar-f-txt').textContent=totalF+'g';
+  document.getElementById('pbar-c-txt').textContent=totalC+'g';
+}
+
+async function recordMeal() {
+  const txt=document.getElementById('meal-txt').value.trim();
+  if(!txt) return;
+  const btn=document.getElementById('rec-btn');
+  btn.innerHTML='<span class="loading-spinner"></span>解析中...';
+  btn.disabled=true;
+  const size=document.querySelector('.sz.on')?.textContent||'ふつう';
+  const prompt=`以下の食事内容のカロリーとPFCを推定してください。
+食事：${txt}
+量：${size}
+JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":数値,"name":"内容の簡潔な説明"}`;
+  try {
+    const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+    const data=await res.json();
+    const raw=data.candidates[0].content.parts[0].text;
+    const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const now=new Date();
+    const time=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+    const meal={...json,time,size};
+    const todayKey='meals_'+formatDate(now);
+    const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
+    meals.push(meal);
+    localStorage.setItem(todayKey,JSON.stringify(meals));
+    const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
+    renderMeals(meals,pfc);
+    document.getElementById('meal-txt').value='';
+    const card=document.getElementById('ai-meal-card');
+    document.getElementById('ai-meal-txt').textContent=`${json.name}：${json.kcal}kcal（P:${json.p}g F:${json.f}g C:${json.c}g）`;
+    card.style.display='block';
+    setTimeout(()=>card.style.display='none',4000);
+  } catch(e) { alert('解析に失敗しました。もう一度お試しください。'); }
+  btn.innerHTML='記録する'; btn.disabled=false;
+}
+
+// ===== ルール =====
+function renderRules(rules) {
+  const list=document.getElementById('rule-list');
+  list.innerHTML='';
+  if(rules.length===0) return;
+  const todayKey='today_checks_'+formatDate(new Date());
+  const checks=JSON.parse(localStorage.getItem(todayKey)||'[]');
+  document.getElementById('ring-max').textContent='/ '+rules.length;
+  rules.forEach((r,i)=>{
+    const done=checks.includes(r);
+    const item=document.createElement('div');
+    item.className='rb-item'+(done?' done':'');
+    item.innerHTML=`<div class="rb-num">${i+1}</div><span class="rb-txt">${r}</span><div class="chk-circle"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+    item.addEventListener('click',()=>toggleRuleCheck(r,rules));
+    list.appendChild(item);
+  });
+  updateRing(checks,rules);
+}
+
+function toggleRuleCheck(rule,rules) {
+  const todayKey='today_checks_'+formatDate(new Date());
+  let checks=JSON.parse(localStorage.getItem(todayKey)||'[]');
+  const weekKey='week_'+new Date().getFullYear()+'_'+getWeek(new Date());
+  let weekData=JSON.parse(localStorage.getItem(weekKey)||'{}');
+  if(!weekData[rule]) weekData[rule]={};
+  const dayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
+  if(checks.includes(rule)){
+    checks=checks.filter(c=>c!==rule);
+    weekData[rule][dayIdx]=false;
+  } else {
+    checks.push(rule);
+    weekData[rule][dayIdx]=true;
+    // 全ルール達成でstreak+1
+    if(rules.every(r=>checks.includes(r))) {
+      const lastStreakDate=localStorage.getItem('streak_last_date');
+      const todayStr=formatDate(new Date());
+      if(lastStreakDate!==todayStr) {
+        const streak=parseInt(localStorage.getItem('rule_streak')||'0')+1;
+        localStorage.setItem('rule_streak',streak);
+        localStorage.setItem('streak_last_date',todayStr);
+      }
+    }
+  }
+  localStorage.setItem(todayKey,JSON.stringify(checks));
+  localStorage.setItem(weekKey,JSON.stringify(weekData));
+  renderRules(rules);
+}
+
+function updateRing(checks,rules) {
+  const done=checks.length, total=rules.length;
+  document.getElementById('ring-val').textContent=done;
+  const circumference=157;
+  const offset=total>0?circumference-(circumference*(done/total)):circumference;
+  document.getElementById('ring-circle').setAttribute('stroke-dashoffset',offset);
+  const remaining=total-done;
+  const t=document.getElementById('ring-title'), s=document.getElementById('ring-sub');
+  if(done===total&&total>0){t.textContent='今日のルール全部クリア！🎉';s.textContent='素晴らしい！明日も続けよう';document.getElementById('all-done').style.display='block';}
+  else if(done===0){t.textContent='今日のルールに挑戦しよう！';s.textContent='タップしてチェックしてね💪';document.getElementById('all-done').style.display='none';}
+  else{t.textContent=`あと${remaining}つで今日クリア！`;s.textContent='もう少し、頑張ろう💪';document.getElementById('all-done').style.display='none';}
+}
+
+// ===== AIレポート =====
+function loadReportRules(rules) {
+  const todayKey='today_checks_'+formatDate(new Date());
+  const checks=JSON.parse(localStorage.getItem(todayKey)||'[]');
+  document.getElementById('trc-score').innerHTML=checks.length+'<span> / '+rules.length+'</span>';
+  const items=document.getElementById('trc-items');
+  items.innerHTML='';
+  rules.forEach(r=>{
+    const done=checks.includes(r);
+    items.innerHTML+=`<div class="trc-item"><div class="trc-dot"></div><span class="trc-txt">${r}</span><span class="${done?'trc-chk-ok':'trc-chk-ng'}">${done?'✓':'✗'}</span></div>`;
+  });
+}
+
+async function generateReport() {
+  const btn=document.getElementById('gen-btn');
+  btn.innerHTML='<span class="loading-spinner"></span>生成中...';
+  btn.disabled=true;
+  const profile=JSON.parse(localStorage.getItem('profile')||'{}');
+  const goal=JSON.parse(localStorage.getItem('goal')||'{}');
+  const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
+  const rules=JSON.parse(localStorage.getItem('rules')||'[]');
+  const todayKey='meals_'+formatDate(new Date());
+  const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
+  const checks=JSON.parse(localStorage.getItem('today_checks_'+formatDate(new Date()))||'[]');
+  const tone=profile.tone||'フレンドリー';
+  const toneMap={
+    'フレンドリー':'親しみやすくポジティブな友人のように',
+    'ていねい':'丁寧で温かく礼儀正しく',
+    'ロジカル':'数値と根拠を示して論理的に',
+    'ストイック':'厳しく本音で、甘えを許さず',
+    'ドS':'辛口でシャープに、でもちゃんと愛がある感じで',
+    '王子様':'優雅で甘く、あなたを特別な存在として扱う王子様のように'
+  };
+  const mealSummary=meals.length>0?meals.map(m=>m.name+'('+m.kcal+'kcal)').join('、'):'記録なし';
+  const ruleSummary=rules.map(r=>r+(checks.includes(r)?'→達成':'→未達')).join('、');
+  const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}フィードバックしてください。
+
+【利用者情報】
+- 名前：${profile.nickname||profile.name||'ユーザー'}さん
+- 好きな食べ物：${profile.fav_food||'未設定'}
+- 推し・趣味：${profile.hobby||'未設定'}
+- 目標人物像：${goal.ideal_person||'未設定'}
+- 達成後にやりたいこと：${goal.motivation||'未設定'}
+
+【今日の記録】
+- 食事：${mealSummary}
+- ルール：${ruleSummary}
+
+【条件】
+- 3文以内で簡潔に
+- 好きな食べ物・推し・目標を自然に絡める
+- 絵文字を1〜2個使う
+- 明日への具体的なアドバイスを1つ含める`;
+
+  try {
+    const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+    const data=await res.json();
+    const msg=data.candidates[0].content.parts[0].text;
+    document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+    document.getElementById('line-share-btn').style.display='flex';
+    document.getElementById('line-share-btn').setAttribute('data-msg', msg);
+  } catch(e) { document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">生成に失敗しました。もう一度お試しください。</div>'; }
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今日のレポートを生成する';
+  btn.disabled=false;
+  loadReportRules(JSON.parse(localStorage.getItem('rules')||'[]'));
+}
+
+// ===== 宿題エクササイズ（JSロジック） =====
+function loadExercises(profile) {
+  const fat=parseFloat(profile.fat_pct||25);
+  const muscle=parseFloat(profile.muscle||35);
+  const exercise=profile.exercise||'週1〜2回';
+  const stress=profile.stress||'ほとんどない';
+  const list=document.getElementById('exercise-list');
+  const weekNum=getWeek(new Date());
+
+  // 有酸素メニュー（週でローテーション）
+  const cardioMenu=[
+    {icon:'🚶',name:'毎日10分ウォーキング',desc:'食後30分以内に歩くと血糖値の上昇を抑えられます。近所を一周するだけでOK。',tag:'有酸素・脂肪燃焼'},
+    {icon:'🏃',name:'20分ジョギング×週3回',desc:'有酸素運動の中でも脂肪燃焼効率が高い。ゆっくりでOK、続けることが大切。',tag:'有酸素・脂肪燃焼'},
+    {icon:'🚴',name:'自転車または踏み台昇降 20分',desc:'関節への負担が少なく脂肪燃焼に効果的。テレビを見ながらでもOK。',tag:'有酸素・低負荷'},
+    {icon:'💃',name:'ダンスエクササイズ 15分',desc:'楽しみながら全身を動かせる有酸素運動。YouTubeの動画を活用しましょう。',tag:'有酸素・楽しく継続'},
+  ];
+  // 筋トレメニュー
+  const strengthMenu=[
+    {icon:'💪',name:'スクワット 20回 × 2セット',desc:'朝起きたらすぐ実施。下半身の大きな筋肉を使うことで基礎代謝が上がります。',tag:'筋トレ・代謝アップ'},
+    {icon:'🏋️',name:'自重トレーニング 15分',desc:'プランク・腹筋・腕立ての3種目を各30秒×3セット。体幹を中心に鍛えます。',tag:'筋トレ・体幹強化'},
+    {icon:'🧗',name:'壁プッシュアップ 15回 × 3セット',desc:'腕・胸・肩を鍛える入門筋トレ。背筋を伸ばしてゆっくり行うのがポイント。',tag:'筋トレ・上半身'},
+    {icon:'🦵',name:'ランジ 左右10回 × 2セット',desc:'臀部・太もも・体幹を同時に鍛える複合筋トレ。バランス感覚も向上します。',tag:'筋トレ・下半身'},
+  ];
+  // リラクゼーションメニュー
+  const relaxMenu=[
+    {icon:'🧘',name:'寝る前3分深呼吸',desc:'4秒吸って・7秒止めて・8秒吐く。副交感神経を優位にしてストレスと食欲を抑えます。',tag:'リラクゼーション・睡眠改善'},
+    {icon:'🧘',name:'寝る前3分ストレッチ',desc:'睡眠の質を上げるために就寝30分前に実施。股関節・肩周りをほぐします。',tag:'リカバリー・睡眠改善'},
+    {icon:'🛁',name:'38〜40℃のお風呂 15分',desc:'就寝1.5時間前の入浴が最も睡眠の質を高めます。体の深部体温を下げる効果があります。',tag:'リカバリー・疲労回復'},
+    {icon:'📵',name:'就寝1時間前スマホオフ',desc:'ブルーライトを避けることでメラトニン分泌を促し、自然な眠気が訪れやすくなります。',tag:'睡眠の質・改善'},
+  ];
+
+  const cardioIdx = weekNum % cardioMenu.length;
+  const strengthIdx = weekNum % strengthMenu.length;
+  const relaxIdx = weekNum % relaxMenu.length;
+
+  let exercises=[];
+  if(fat>30||exercise==='していない') exercises.push(cardioMenu[0]);
+  else exercises.push(cardioMenu[cardioIdx]);
+
+  if(muscle<38||exercise==='していない'||exercise==='週1〜2回') exercises.push(strengthMenu[0]);
+  else exercises.push(strengthMenu[strengthIdx]);
+
+  exercises.push(relaxMenu[relaxIdx]);
+
+  list.innerHTML=`<div style="font-size:10px;color:#aaa;margin-bottom:8px;letter-spacing:0.05em;">第${weekNum}週のメニュー</div>`+exercises.map(e=>`<div class="exercise-card"><div class="ex-icon">${e.icon}</div><div><div class="ex-name">${e.name}</div><div class="ex-desc">${e.desc}</div><span class="ex-tag">${e.tag}</span></div></div>`).join('');
+}
+
+// ===== 体組成データ更新 =====
+function updateBodyData() {
+  showView('setup1',null);
+  setTimeout(()=>{ document.querySelector('#view-setup1 .ct').scrollIntoView({behavior:'smooth'}); },300);
+}
+
+// ===== サイズ選択 =====
+function shareToLine() {
+  const btn = document.getElementById('line-share-btn');
+  const msg = btn.getAttribute('data-msg')||'';
+  const text = encodeURIComponent('【AI Diet Coach レポート】\n' + msg);
+  window.open('https://line.me/R/msg/text/?' + text, '_blank');
+}
+function selSz(el) { document.querySelectorAll('.sz').forEach(s=>s.classList.remove('on')); el.classList.add('on'); }
+
+// ===== ユーティリティ =====
+function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function getWeek(d) { const s=new Date(d.getFullYear(),0,1); return Math.ceil(((d-s)/86400000+s.getDay()+1)/7); }
+
+// ===== 起動カウント =====
+const lc=parseInt(localStorage.getItem('launch_count')||'0')+1;
+localStorage.setItem('launch_count',lc);
+
+// ===== 初期化 =====
+// ===== スプラッシュ =====
+(function(){
+  const splash = document.getElementById('splash');
+  // 2回目以降は短く
+  const isFirst = !localStorage.getItem('launched');
+  localStorage.setItem('launched','1');
+  const dur = isFirst ? 2200 : 1000;
+  const stars = document.getElementById('splash-stars');
+  // 星を生成
+  for(let i=0;i<30;i++){
+    const s=document.createElement('div');
+    s.className='splash-star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${1.5+Math.random()*2.5}s;--delay:${Math.random()*2}s;`;
+    stars.appendChild(s);
+  }
+  setTimeout(()=>{
+    splash.classList.add('fade-out');
+    setTimeout(()=>{ splash.style.display='none'; },600);
+  },dur);
+})();
+
+// ===== YOUR FUTUREパーティクル =====
+function initFutureParticles(){
+  const c=document.getElementById('future-particles');
+  if(!c)return;
+  c.innerHTML='';
+  for(let i=0;i<15;i++){
+    const p=document.createElement('div');
+    p.className='f-particle';
+    p.style.cssText=`left:${10+Math.random()*80}%;top:${20+Math.random()*60}%;--d:${2+Math.random()*3}s;--delay:${Math.random()*2}s;`;
+    c.appendChild(p);
+  }
+}
+
+function openDrawer() {
+  document.getElementById('drawer-overlay').classList.add('open');
+  const views = ['setup1','setup2','setup3','main'];
+  views.forEach(v => { const el = document.getElementById('di-'+v); if(el) el.classList.remove('active'); });
+  const cur = document.querySelector('.view.on');
+  if(cur) { const id = cur.id.replace('view-',''); const el = document.getElementById('di-'+id); if(el) el.classList.add('active'); }
+}
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function initLogoImages() {
+  const imgSrc = './IMG_1539.png';
+  ['logo-s1','logo-s2','logo-s3','logo-main','drawer-logo-img'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && !el.querySelector('img')) {
+      const img = document.createElement('img');
+      img.src = imgSrc; img.alt = 'THE LOOP';
+      img.style.cssText = 'width:80%;height:80%;object-fit:contain;mix-blend-mode:lighten;';
+      el.appendChild(img);
+    }
+  });
+}
+window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); });
+</script>
+</body>
+</html>
