@@ -478,6 +478,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:2px;">圧倒的に簡単</div>
         <div style="font-size:11px;color:#888;line-height:1.5;">写真撮影・バーコード不要。テキスト入力だけで完了</div>
       </div>
+      <div style="border-left:3px solid #c9a96e;border-radius:0;padding:9px 12px;background:#faf9f7;margin-bottom:7px;">
+        <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:2px;">圧倒的に正確</div>
+        <div style="font-size:11px;color:#888;line-height:1.5;">体組成データ×専門DB×AIで個別最適化されたアドバイス</div>
+      </div>
       <div style="border-left:3px solid #c9a96e;border-radius:0;padding:9px 12px;background:#faf9f7;margin-bottom:20px;">
         <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:2px;">圧倒的な実用性</div>
         <div style="font-size:11px;color:#888;line-height:1.5;">進捗・AIレポート・PFCグラフ・宿題運動をひとつに統合</div>
@@ -532,10 +536,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <div style="margin-bottom:10px;">画面右上の「☰」から、いつでも各画面に移動できます。</div>
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">①「今日」タブ</div>
-          <div>「あなたの未来」で達成率と残りの脂肪量がわかります。「食事を記録する」にテキストで書いて記録すると、AIが自動でカロリー・PFCを解析します（写真・バーコード不要）。「今日のルール」はタップしてチェックします。</div>
+          <div>「あなたの未来」で達成率と残りの脂肪量がわかります。「食事を記録する」にテキストで書いて記録すると、AIが自動でカロリー・PFCを解析します（写真・バーコード不要）。記録後、数秒ほどでその日のPFCバランスが目標から大きくズレていないか自動で確認し、ズレている場合はアラートでお知らせします。「今日のルール」はタップしてチェックします。</div>
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">②「AIレポート」タブ</div>
           <div>「今日のレポートを生成する」でAIコーチからのフィードバックが届きます。「今週の食事状況」グラフはカロリー／PFCを切り替え、週も移動できます。「今週の宿題エクササイズ」は体組成・運動習慣に応じて毎週変わります。</div>
+          <div style="margin-top:8px;padding:8px 10px;background:#faf9f7;border-radius:8px;">※ごく稀に生成がうまくいかないことがあります。その場合は少し時間を置いてから、もう一度お試しください。</div>
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">③「プロフィール」タブ</div>
           <div>現在の体組成データ・生活習慣を確認できます。「体組成データを更新する」からステップ①の画面に戻り、最新の数値を入力できます。</div>
@@ -2273,12 +2278,29 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
 - 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
 
   try {
-    const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
-    const data=await res.json();
-    const msg=data.candidates[0].content.parts[0].text;
-    document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
-    document.getElementById('line-share-btn').style.display='flex';
-    document.getElementById('line-share-btn').setAttribute('data-msg', msg);
+    const RETRIABLE_STATUS=[429,500,502,503,504];
+    const maxAttempts=2;
+    let succeeded=false;
+    for(let attempt=1; attempt<=maxAttempts; attempt++) {
+      if(attempt>1) btn.innerHTML='<span class="loading-spinner"></span>もう一度試しています...';
+      try {
+        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+        if(!res.ok) {
+          if(RETRIABLE_STATUS.includes(res.status) && attempt<maxAttempts) continue;
+          break;
+        }
+        const data=await res.json();
+        const msg=data.candidates[0].content.parts[0].text;
+        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('line-share-btn').style.display='flex';
+        document.getElementById('line-share-btn').setAttribute('data-msg', msg);
+        succeeded=true;
+        break;
+      } catch(innerErr) {
+        if(attempt<maxAttempts) continue;
+      }
+    }
+    if(!succeeded) document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">生成に失敗しました。もう一度お試しください。</div>';
   } catch(e) { document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">生成に失敗しました。もう一度お試しください。</div>'; }
   btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今日のレポートを生成する';
   btn.disabled=false;
