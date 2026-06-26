@@ -50,7 +50,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .splash-logo img{width:100%;height:100%;object-fit:cover;}
 .splash-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,110,0.35) 0%,rgba(201,169,110,0) 70%);opacity:0;animation:splashFadeOnly 1s ease forwards;animation-delay:0.1s;pointer-events:none;z-index:0;}
 .splash-title{font-family:"Playfair Display",serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:0.02em;margin-bottom:8px;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.5s;}
-.splash-sub{font-size:12px;color:#c9a96e;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.75s;}
+.splash-sub{font-size:11px;color:#c9a96e;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.75s;}
 .splash-divider{width:40px;height:1px;background:rgba(201,169,110,0.5);margin-bottom:16px;opacity:0;animation:splashFadeOnly 0.6s ease forwards;animation-delay:0.9s;}
 .splash-powered{font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.1em;margin-bottom:48px;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:1.0s;}
 @keyframes splashFadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
@@ -1705,7 +1705,12 @@ function renderWeeklyChart(tab){
     svg.appendChild(gt);
 
     const pts=vals.map((v,i)=>v!==null?xs[i]+','+yp(v).toFixed(1):null).filter(Boolean).join(' ');
-    if(pts){const pl=mkEl('polyline',{points:pts,fill:'none',stroke:'#7a4f35','stroke-width':'1','stroke-dasharray':'2 3','stroke-linecap':'round'});svg.appendChild(pl);}
+    if(pts){
+      const halo=mkEl('polyline',{points:pts,fill:'none',stroke:'#f7f3ef','stroke-width':'4','stroke-linecap':'round','stroke-linejoin':'round'});
+      svg.appendChild(halo);
+      const pl=mkEl('polyline',{points:pts,fill:'none',stroke:'#7a4f35','stroke-width':'1.8','stroke-linecap':'round','stroke-linejoin':'round'});
+      svg.appendChild(pl);
+    }
 
     let ov=0,un=0;
     weekData.forEach((d,i)=>{
@@ -1713,7 +1718,7 @@ function renderWeeklyChart(tab){
       const y=yp(d.kcal),c=dc(d.kcal,goalKcal);
       if(c==='#dc2626')ov++;if(c==='#2563eb')un++;
       const isTdy=i===todayIdx;
-      const ci=mkEl('circle',{cx:xs[i],cy:y.toFixed(1),r:'2.5',fill:c||'#9a9a9a'});
+      const ci=mkEl('circle',{cx:xs[i],cy:y.toFixed(1),r:'2.3',fill:c||'#9a9a9a',stroke:'#f7f3ef','stroke-width':'1'});
       if(!isTdy)ci.setAttribute('opacity','0.5');
       svg.appendChild(ci);
     });
@@ -1739,9 +1744,15 @@ function renderWeeklyChart(tab){
     const cols={p:'#6b4a6e',f:'#a8843a',c:'#57704a'};
     const goals={p:goalP,f:goalF,c:goalC};
 
+    const ptsMap={};
     ['p','f','c'].forEach(k=>{
-      const pts=weekData.map((d,i)=>d.hasData?xs[i]+','+yp(d[k]).toFixed(1):null).filter(Boolean).join(' ');
-      if(pts){const pl=mkEl('polyline',{points:pts,fill:'none',stroke:cols[k],'stroke-width':'1','stroke-dasharray':'2 3','stroke-linecap':'round'});svg.appendChild(pl);}
+      ptsMap[k]=weekData.map((d,i)=>d.hasData?xs[i]+','+yp(d[k]).toFixed(1):null).filter(Boolean).join(' ');
+    });
+    ['p','f','c'].forEach(k=>{
+      if(ptsMap[k]){const halo=mkEl('polyline',{points:ptsMap[k],fill:'none',stroke:'#f7f3ef','stroke-width':'4','stroke-linecap':'round','stroke-linejoin':'round'});svg.appendChild(halo);}
+    });
+    ['p','f','c'].forEach(k=>{
+      if(ptsMap[k]){const pl=mkEl('polyline',{points:ptsMap[k],fill:'none',stroke:cols[k],'stroke-width':'1.8','stroke-linecap':'round','stroke-linejoin':'round'});svg.appendChild(pl);}
     });
 
     const ov=[],un=[];
@@ -1753,7 +1764,7 @@ function renderWeeklyChart(tab){
         if(c==='#dc2626'&&!ov.includes(k.toUpperCase()))ov.push(k.toUpperCase());
         if(c==='#2563eb'&&!un.includes(k.toUpperCase()))un.push(k.toUpperCase());
         const isTdy=i===todayIdx;
-        const ci=mkEl('circle',{cx:xs[i],cy:y.toFixed(1),r:'2.5',fill:c});
+        const ci=mkEl('circle',{cx:xs[i],cy:y.toFixed(1),r:'2.3',fill:c,stroke:'#f7f3ef','stroke-width':'1'});
         if(!isTdy)ci.setAttribute('opacity','0.5');
         svg.appendChild(ci);
       });
