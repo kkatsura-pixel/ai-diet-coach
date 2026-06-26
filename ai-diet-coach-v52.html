@@ -1717,9 +1717,7 @@ function renderWeeklyChart(tab){
       if(!d.hasData)return;
       const y=yp(d.kcal),c=dc(d.kcal,goalKcal);
       if(c==='#dc2626')ov++;if(c==='#2563eb')un++;
-      const isTdy=i===todayIdx;
       const ci=mkEl('circle',{cx:xs[i],cy:y.toFixed(1),r:'2.3',fill:c||'#9a9a9a',stroke:'#f7f3ef','stroke-width':'1'});
-      if(!isTdy)ci.setAttribute('opacity','0.5');
       svg.appendChild(ci);
     });
 
@@ -1763,9 +1761,7 @@ function renderWeeklyChart(tab){
         if(!c)return;
         if(c==='#dc2626'&&!ov.includes(k.toUpperCase()))ov.push(k.toUpperCase());
         if(c==='#2563eb'&&!un.includes(k.toUpperCase()))un.push(k.toUpperCase());
-        const isTdy=i===todayIdx;
         const ci=mkEl('circle',{cx:xs[i],cy:y.toFixed(1),r:'2.3',fill:c,stroke:'#f7f3ef','stroke-width':'1'});
-        if(!isTdy)ci.setAttribute('opacity','0.5');
         svg.appendChild(ci);
       });
     });
