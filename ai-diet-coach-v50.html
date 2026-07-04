@@ -700,11 +700,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div></div>
 
       <div class="sep"></div>
-      <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">ダイエット履歴・身体の悩み<span class="opt-badge">任意</span></span></div>
-      <div class="g1"><div class="fld"><label>過去に試したダイエット・うまくいかなかったこと</label>
+      <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">ダイエット履歴・身体の悩み</span></div>
+      <div class="g1"><div class="fld"><label>過去に試したダイエット・うまくいかなかったこと<span class="opt-badge">任意</span></label>
         <textarea id="diet_history" rows="2" placeholder="例：糖質制限は続かなかった。運動は膝が痛くてNG。"></textarea>
       </div></div>
-      <div class="g1"><div class="fld"><label>身体の悩み・特に改善したいこと</label>
+      <div class="g1"><div class="fld"><label>身体の悩み・特に改善したいこと<span class="req-mark">*</span></label>
         <textarea id="body_concern" rows="2" placeholder="例：お腹まわりの脂肪、むくみ、疲れやすさ"></textarea>
       </div></div>
 
@@ -1511,8 +1511,8 @@ function calcPFC() {
 // ===== 保存 =====
 function saveProfile() {
   const bmrVal = document.getElementById('bmr').value;
-  if(!document.getElementById('age').value || !document.getElementById('height').value || !document.getElementById('weight').value || !document.getElementById('fat_pct').value || !bmrVal || !document.getElementById('fav_food').value || !document.getElementById('hobby').value) {
-    alert('必須項目（*）をすべて入力してください。\n基礎代謝kcal、好きな食べ物、推し・趣味の入力も必須です。');
+  if(!document.getElementById('age').value || !document.getElementById('height').value || !document.getElementById('weight').value || !document.getElementById('fat_pct').value || !bmrVal || !document.getElementById('body_concern').value || !document.getElementById('fav_food').value || !document.getElementById('hobby').value) {
+    alert('必須項目（*）をすべて入力してください。\n基礎代謝kcal、身体の悩み・特に改善したいこと、好きな食べ物、推し・趣味の入力も必須です。');
     return false;
   }
   // 脂肪量kgは入力欄を持たず、常に体重×体脂肪率%から自動計算する
@@ -2317,6 +2317,7 @@ async function generateReport() {
 - 推し・趣味：${profile.hobby||'未設定'}
 - 目標人物像：${goal.ideal_person||'未設定'}
 - 達成後にやりたいこと：${goal.motivation||'未設定'}
+- 身体の悩み・改善したいこと：${profile.body_concern}
 ${bodyInfo}${bloodInfo}
 
 【今日の記録】
@@ -2326,7 +2327,7 @@ ${bodyInfo}${bloodInfo}
 【文章構成】以下の順序で構成してください
 1. 目標と現在地の再確認（できていることをメインに褒める、できていないことは僅かに伝える）
 2. PFCに触れる（数値）＋カロリーは補足程度
-3. その体への影響を伝える（理論・危機感）
+3. その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
 4. 具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
 5. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
