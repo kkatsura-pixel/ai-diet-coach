@@ -2283,6 +2283,7 @@ async function generateReport() {
     bloodInfo = "\n- 血液検査データ：" + refs.join('、') + "\n- 既往歴：" + ((goal.diseases&&goal.diseases.length)?goal.diseases.join('、'):'特になし');
   }
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
+  const lifestyleInfo=`\n- 生活習慣（参考）：飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
   const toneConditions={
     'フレンドリー':`- 好きな食べ物・推しと目標を同等に絡める
 - PFCの数値に軽く触れる
@@ -2318,7 +2319,7 @@ async function generateReport() {
 - 目標人物像：${goal.ideal_person||'未設定'}
 - 達成後にやりたいこと：${goal.motivation||'未設定'}
 - 身体の悩み・改善したいこと：${profile.body_concern}
-${bodyInfo}${bloodInfo}
+${bodyInfo}${lifestyleInfo}${bloodInfo}
 
 【今日の記録】
 - 食事（PFC含む）：${mealSummary}
@@ -2335,6 +2336,7 @@ ${bodyInfo}${bloodInfo}
 - 5文以内・280文字以内で収める
 - 長すぎず短すぎず、簡潔・端的に
 - 絵文字を1〜2個使う
+- 生活習慣（参考）は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
 ${toneConditions[tone]||toneConditions['フレンドリー']}
 - 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
 
