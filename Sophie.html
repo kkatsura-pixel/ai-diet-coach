@@ -13,24 +13,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI",sans-serif;background:linear-gradient(135deg,#FFFCF5 0%,#F5E9D3 60%,#e8d5ac 100%) fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI",sans-serif;background:linear-gradient(90deg,#4f260f 0%,#683414 30%,#FFFCF5 100%) fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0;}
 
 /* ナビゲーション */
 .nav-bar{display:none;}
-.app-hdr{background:linear-gradient(135deg,#FFFCF5 0%,#F5E9D3 60%,#e8d5ac 100%);padding:12px 16px;padding-top:calc(env(safe-area-inset-top) + 12px);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
-.app-hdr .logo{width:auto;height:26px;border-radius:0;background:transparent;display:flex;align-items:center;justify-content:flex-start;flex-shrink:0;overflow:visible;}
-.app-hdr-text{flex:1;min-width:0;}
-.app-hdr-t1{font-size:18px;font-weight:700;color:#683414;font-family:"Playfair Display",serif;letter-spacing:0.01em;white-space:nowrap;}
-.app-hdr-t2{font-size:9px;color:rgba(104,52,20,0.7);letter-spacing:0.1em;white-space:nowrap;margin-left:40px;}
-.ham-btn{background:none;border:none;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.app-hdr,.drawer-hdr{background:linear-gradient(90deg,#4f260f 0%,#683414 30%,#FFFCF5 100%);padding:12px 16px;padding-top:calc(env(safe-area-inset-top) + 12px);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.hdr-circle{width:44px;height:44px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.hdr-circle img{width:100%;height:100%;object-fit:cover;}
+.hdr-wordmark{width:auto;height:22px;display:flex;align-items:center;flex-shrink:0;overflow:visible;}
+.hdr-wordmark img{width:auto;height:100%;object-fit:contain;}
+.hdr-sub{font-size:10px;color:#683414;letter-spacing:0.1em;white-space:nowrap;margin-left:40px;}
+.ham-btn{background:none;border:none;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:auto;}
 .ham-btn span{width:20px;height:1.5px;background:rgba(104,52,20,0.9);display:block;border-radius:2px;}
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;}
 .drawer-overlay.open{display:block;}
 .drawer-menu{position:fixed;top:0;left:0;right:0;background:#fff;border-radius:0 0 16px 16px;z-index:201;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
-.drawer-hdr{background:linear-gradient(135deg,#FFFCF5 0%,#F5E9D3 60%,#e8d5ac 100%);padding:12px 16px;display:flex;align-items:center;gap:12px;}
-.drawer-hdr .logo{width:auto;height:30px;border-radius:0;background:transparent;display:flex;align-items:center;justify-content:flex-start;flex-shrink:0;overflow:visible;}
-.drawer-hdr-t1{font-size:18px;font-weight:700;color:#683414;font-family:"Playfair Display",serif;letter-spacing:0.01em;margin-left:40px;}
-.drawer-hdr-t2{display:none;}
 .drawer-item{padding:14px 20px;font-size:13px;color:#4f260f;border-bottom:0.5px solid #f0ebe5;display:flex;align-items:center;gap:10px;cursor:pointer;background:#fff;}
 .drawer-item:active{background:#f7f3ef;}
 .drawer-item.active{font-weight:700;background:#f7f3ef;}
@@ -395,7 +392,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
 <!-- スプラッシュ -->
 <div id="splash">
-  <img id="splash-img" src="./DC%20-%209.png" alt="Sophie">
+  <img id="splash-img" src="./IMG_3045.png" alt="Sophie">
 </div>
 
 <!-- オンボーディング -->
@@ -441,8 +438,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()">
   <div class="drawer-menu" onclick="event.stopPropagation()">
     <div class="drawer-hdr">
-      <div class="logo" id="drawer-logo-img"></div>
-      <div class="drawer-hdr-t1">AI DIET COACH</div>
+      <div class="hdr-circle" id="circle-drawer"></div>
+      <div class="hdr-wordmark" id="drawer-logo-img"></div>
+      <div class="hdr-sub">AI DIET COACH</div>
     </div>
     <div class="drawer-item" id="di-setup1" onclick="showView('setup1',null);closeDrawer()"><div class="drawer-dot" id="dd1"></div>① プロフィール</div>
     <div class="drawer-item" id="di-setup2" onclick="showView('setup2',null);closeDrawer()"><div class="drawer-dot" id="dd2"></div>② 目標設定</div>
@@ -457,10 +455,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <div id="view-guide" class="view">
   <div class="card">
     <div class="app-hdr">
-      <div class="logo" id="logo-guide"></div>
-      <div class="app-hdr-text">
-        <div class="app-hdr-t2">AI DIET COACH</div>
-      </div>
+      <div class="hdr-circle" id="circle-guide"></div>
+      <div class="hdr-wordmark" id="logo-guide"></div>
+      <div class="hdr-sub">AI DIET COACH</div>
       <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
     </div>
 
@@ -579,10 +576,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <div id="view-setup1" class="view on">
   <div class="card">
     <div class="app-hdr">
-      <div class="logo" id="logo-s1"></div>
-      <div class="app-hdr-text">
-        <div class="app-hdr-t2">AI DIET COACH</div>
-      </div>
+      <div class="hdr-circle" id="circle-s1"></div>
+      <div class="hdr-wordmark" id="logo-s1"></div>
+      <div class="hdr-sub">AI DIET COACH</div>
       <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
     </div>
     <div class="stepper">
@@ -734,10 +730,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <div id="view-setup2" class="view">
   <div class="card">
     <div class="app-hdr">
-      <div class="logo" id="logo-s2"></div>
-      <div class="app-hdr-text">
-        <div class="app-hdr-t2">AI DIET COACH</div>
-      </div>
+      <div class="hdr-circle" id="circle-s2"></div>
+      <div class="hdr-wordmark" id="logo-s2"></div>
+      <div class="hdr-sub">AI DIET COACH</div>
       <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
     </div>
     <div class="stepper">
@@ -846,10 +841,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <div id="view-setup3" class="view">
   <div class="card">
     <div class="app-hdr">
-      <div class="logo" id="logo-s3"></div>
-      <div class="app-hdr-text">
-        <div class="app-hdr-t2">AI DIET COACH</div>
-      </div>
+      <div class="hdr-circle" id="circle-s3"></div>
+      <div class="hdr-wordmark" id="logo-s3"></div>
+      <div class="hdr-sub">AI DIET COACH</div>
       <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
     </div>
     <div class="stepper">
@@ -899,10 +893,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <div id="view-main" class="view">
   <div class="card">
     <div class="app-hdr">
-      <div class="logo" id="logo-main"></div>
-      <div class="app-hdr-text">
-        <div class="app-hdr-t2" id="main-sub">AI DIET COACH</div>
-      </div>
+      <div class="hdr-circle" id="circle-main"></div>
+      <div class="hdr-wordmark" id="logo-main"></div>
+      <div class="hdr-sub" id="main-sub">AI DIET COACH</div>
       <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
     </div>
     <div class="tabs">
@@ -2451,7 +2444,7 @@ localStorage.setItem('launch_count',lc);
   localStorage.setItem('launched','1');
   if(isFirst){
     // 1枚目 0〜1.5秒 → 2枚目 1.5〜3秒 → 3秒後に0.4秒かけてフェードアウト
-    setTimeout(()=>{ img.src='./DC%20-%2010.png'; }, 1500);
+    setTimeout(()=>{ img.src='./IMG_3046.png'; }, 1500);
     setTimeout(()=>{
       splash.classList.add('fade-out');
       setTimeout(()=>{ splash.style.display='none'; }, 400);
@@ -2489,14 +2482,21 @@ function closeDrawer() {
   document.getElementById('drawer-overlay').classList.remove('open');
 }
 function initLogoImages() {
-  const imgSrc = './logo-sophie-header.png';
   ['logo-s1','logo-s2','logo-s3','logo-main','logo-guide','drawer-logo-img'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
       el.innerHTML = '';
       const img = document.createElement('img');
-      img.src = imgSrc; img.alt = 'Sophie';
-      img.style.cssText = 'width:auto;height:100%;object-fit:contain;';
+      img.src = './logo-sophie-wordmark.png'; img.alt = 'Sophie';
+      el.appendChild(img);
+    }
+  });
+  ['circle-s1','circle-s2','circle-s3','circle-main','circle-guide','circle-drawer'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      el.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = './logo-sophie-circle.png'; img.alt = 'Sophie';
       el.appendChild(img);
     }
   });
