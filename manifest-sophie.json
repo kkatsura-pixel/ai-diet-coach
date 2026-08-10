@@ -1,0 +1,20 @@
+{
+  "name": "Sophie - AI diet coach -",
+  "short_name": "Sophie AI",
+  "start_url": "./Sophie.html",
+  "display": "standalone",
+  "background_color": "#FFFCF5",
+  "theme_color": "#FFFCF5",
+  "icons": [
+    {
+      "src": "./icon-sophie-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-sophie.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
