@@ -20,7 +20,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .app-hdr,.drawer-hdr{background:linear-gradient(90deg,#4f260f 0%,#683414 30%,#FFFCF5 100%);padding:12px 16px;padding-top:calc(env(safe-area-inset-top) + 12px);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
 .hdr-circle{width:44px;height:44px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
 .hdr-circle img{width:100%;height:100%;object-fit:cover;}
-.hdr-wordmark{width:auto;height:38px;display:flex;align-items:center;flex-shrink:0;overflow:visible;}
+.hdr-wordmark{width:auto;height:38px;display:flex;align-items:center;flex-shrink:0;overflow:visible;margin-top:5px;}
 .hdr-wordmark img{width:auto;height:100%;object-fit:contain;}
 .hdr-sub{font-size:10px;color:#FFFCF5;letter-spacing:0.1em;white-space:nowrap;margin-left:40px;}
 .ham-btn{background:none;border:none;cursor:pointer;padding:4px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:auto;}
@@ -60,11 +60,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .stepper{display:flex;align-items:center;padding:14px 22px;border-bottom:1px solid #ede8e2;}
 .stp{display:flex;align-items:center;gap:7px;}
 .sn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;}
-.sn-done{background:#683414;color:#fff;}
-.sn-cur{background:#683414;color:#fff;}
+.sn-done{background:#7a4f35;color:#fff;}
+.sn-cur{background:#7a4f35;color:#fff;}
 .sn-off{background:#f0e8e0;color:#bbb;}
 .st{font-size:12px;font-weight:500;}
-.st-on{color:#683414;}
+.st-on{color:#7a4f35;}
 .st-off{color:#ccc;}
 .sline{flex:1;height:1.5px;margin:0 8px;}
 .sline-done{background:#683414;}
@@ -592,7 +592,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="sh"><div class="sh-dot"></div><span class="sh-label">体組成データ</span></div>
       <div class="info-box">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <p>施術後のインボディ測定結果を入力してください。<strong>*</strong>は必須項目です。</p>
+        <p>体組成の測定結果を入力してください。<strong>*</strong>は必須項目です。</p>
       </div>
       <div class="g1"><div class="fld"><label>ニックネーム（アプリ内表示名）</label><input type="text" id="nickname" placeholder="例：美咲、みーちゃん"></div></div>
       <div class="g2">
