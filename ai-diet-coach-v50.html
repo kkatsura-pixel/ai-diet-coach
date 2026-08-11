@@ -27,8 +27,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;}
 .drawer-overlay.open{display:block;}
 .drawer-menu{position:fixed;top:0;left:0;right:0;background:#fff;border-radius:0 0 16px 16px;z-index:201;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
-.drawer-hdr{background:linear-gradient(135deg,#3d1a08 0%,#7a4f35 55%,#c9a96e 100%);padding:12px 16px;display:flex;align-items:center;gap:12px;}
-.drawer-hdr .logo{width:36px;height:36px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.drawer-hdr{background:linear-gradient(135deg,#3d1a08 0%,#7a4f35 55%,#c9a96e 100%);padding:12px 16px;padding-top:calc(env(safe-area-inset-top) + 12px);display:flex;align-items:center;gap:12px;}
+.drawer-hdr .logo{width:44px;height:44px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
 .drawer-hdr-t1{font-size:18px;font-weight:700;color:#fff;font-family:"Playfair Display",serif;letter-spacing:0.01em;}
 .drawer-hdr-t2{font-size:9px;color:rgba(255,255,255,0.7);letter-spacing:0.1em;}
 .drawer-item{padding:14px 20px;font-size:13px;color:#3d1a08;border-bottom:0.5px solid #f0ebe5;display:flex;align-items:center;gap:10px;cursor:pointer;background:#fff;}
@@ -43,7 +43,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 .view.on{animation:fadeInUp 0.35s ease;}
 /* スプラッシュ */
-#splash{position:fixed;inset:0;background:linear-gradient(160deg,#1a0e07 0%,#2d1a0e 40%,#3d2010 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.6s ease;}
+#splash{position:fixed;inset:0;background:#FFFCF5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.4s ease;}
+#splash.fade-out{opacity:0;pointer-events:none;}
+#splash-img{width:100%;height:100%;object-fit:cover;}
 #splash.fade-out{opacity:0;pointer-events:none;}
 .splash-logo-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
 .splash-logo{width:140px;height:140px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.15s;position:relative;z-index:1;}
@@ -255,7 +257,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .coach-name{font-size:13px;font-weight:500;color:#fff;}
 .coach-mode{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;letter-spacing:0.05em;}
 .coach-body{background:#fdf8f5;border:1.5px solid #e8d5c4;border-top:none;border-radius:0 0 8px 8px;padding:16px 18px;}
-.coach-msg{font-size:15px;color:#111;line-height:1.85;}
+.coach-msg{font-size:15px;color:#111;line-height:1.85;white-space:pre-line;}
 .coach-msg em{font-style:normal;color:#7a4f35;font-weight:500;}
 .coach-placeholder{font-size:14px;color:#aaa;line-height:1.7;}
 .coach-gen-btn{width:100%;margin-top:14px;padding:13px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
@@ -407,15 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
 <!-- スプラッシュ -->
 <div id="splash">
-  <div class="splash-stars" id="splash-stars"></div>
-  <div class="splash-logo-wrap">
-    <div class="splash-glow"></div>
-    <div class="splash-logo"><img src="./IMG_1539.png" alt="THE LOOP"></div>
-  </div>
-  <div class="splash-title">AI Diet Coach</div>
-  <div class="splash-sub">PERSONAL HEALTH SUPPORT</div>
-  <div class="splash-divider"></div>
-  <div class="splash-powered">Powered by <span style="color:#c9a96e;font-weight:600;">THE LOOP</span></div>
+  <img id="splash-img" src="./IMG_3068.png" alt="AI Diet Coach">
 </div>
 
 <!-- オンボーディング -->
@@ -588,7 +582,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div style="margin-top:24px;padding-top:18px;border-top:1px solid #ede8e2;text-align:center;">
         <div style="font-size:11.5px;color:#888;margin-bottom:10px;">ご不明点は公式LINEよりお問い合わせください</div>
         <a href="https://lin.ee/RmsHGg8" style="display:block;text-decoration:none;background:linear-gradient(135deg,#c9a96e,#a8843a);color:#fff;font-size:13px;font-weight:700;padding:13px;border-radius:6px;">Body Innovation 公式LINE</a>
-        <a href="https://body-innovation.net/designed-with-ai" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">AI Diet Coach 公式HP</a>
+        <a href="https://body-innovation.net/ai-diet-coach" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">AI Diet Coach 公式HP</a>
         <a href="https://kkatsura-pixel.github.io/ai-diet-coach/AI_Diet_Coach_取扱説明書.pdf" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">画像付き取扱説明書（PDF）</a>
       </div>
 
@@ -618,7 +612,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="sh"><div class="sh-dot"></div><span class="sh-label">体組成データ</span></div>
       <div class="info-box">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <p>施術後のインボディ測定結果を入力してください。<strong>*</strong>は必須項目です。</p>
+        <p>測定結果を入力してください。<strong>*</strong>は必須項目です。</p>
       </div>
       <div class="g1"><div class="fld"><label>ニックネーム（アプリ内表示名）</label><input type="text" id="nickname" placeholder="例：美咲、みーちゃん"></div></div>
       <div class="g2">
@@ -678,7 +672,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="sh"><div class="sh-dot" style="background:#d97706;"></div><span class="sh-label">生活・食習慣<span class="opt-badge">任意</span></span></div>
       <div class="g2">
         <div class="fld"><label>飲酒頻度</label>
-          <select id="drink_freq"><option>ほぼ飲まない</option><option>週1〜2回</option><option>週3〜4回</option><option>ほぼ毎日</option></select>
+          <select id="drink_freq"><option>飲まない</option><option>ほぼ飲まない</option><option>週1〜2回</option><option>週3〜4回</option><option>ほぼ毎日</option></select>
         </div>
         <div class="fld"><label>1回あたりの飲酒量</label>
           <select id="drink_amt"><option>少量（1杯程度）</option><option>中程度（2〜3杯）</option><option>多め（4杯以上）</option></select>
@@ -686,6 +680,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div>
       <div class="g1"><div class="fld"><label>間食の頻度</label>
         <div class="tags" id="snack-tags">
+          <span class="tag" onclick="selectTag(this,'snack-tags')">しない</span>
           <span class="tag on" onclick="selectTag(this,'snack-tags')">ほぼしない</span>
           <span class="tag" onclick="selectTag(this,'snack-tags')">週1〜2回</span>
           <span class="tag" onclick="selectTag(this,'snack-tags')">週3〜4回</span>
@@ -694,6 +689,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div></div>
       <div class="g1"><div class="fld"><label>ストレス過食の傾向</label>
         <div class="tags" id="stress-tags">
+          <span class="tag" onclick="selectTag(this,'stress-tags')">ない</span>
           <span class="tag on" onclick="selectTag(this,'stress-tags')">ほとんどない</span>
           <span class="tag" onclick="selectTag(this,'stress-tags')">たまにある</span>
           <span class="tag" onclick="selectTag(this,'stress-tags')">よくある</span>
@@ -2337,6 +2333,7 @@ ${bodyInfo}${lifestyleInfo}${bloodInfo}
 - 5文以内・280文字以内で収める
 - 長すぎず短すぎず、簡潔・端的に
 - 絵文字を1〜2個使う
+- 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
 - 生活習慣（参考）は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
 ${toneConditions[tone]||toneConditions['フレンドリー']}
 - 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
@@ -2469,23 +2466,13 @@ localStorage.setItem('launch_count',lc);
 // ===== スプラッシュ =====
 (function(){
   const splash = document.getElementById('splash');
-  // 2回目以降は短く
-  const isFirst = !localStorage.getItem('launched');
-  localStorage.setItem('launched','1');
-  if(!isFirst) splash.classList.add('no-anim');
-  const dur = isFirst ? 2200 : 1000;
-  const stars = document.getElementById('splash-stars');
-  // 星を生成
-  for(let i=0;i<30;i++){
-    const s=document.createElement('div');
-    s.className='splash-star';
-    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${1.5+Math.random()*2.5}s;--delay:${Math.random()*2}s;`;
-    stars.appendChild(s);
-  }
+  const img = document.getElementById('splash-img');
+  // 毎回、必ずフル演出（1枚目 0〜1.5秒 → 2枚目 1.5〜3秒 → 3秒後に0.4秒かけてフェードアウト）
+  setTimeout(()=>{ img.src='./IMG_3070.png'; }, 1500);
   setTimeout(()=>{
     splash.classList.add('fade-out');
-    setTimeout(()=>{ splash.style.display='none'; },600);
-  },dur);
+    setTimeout(()=>{ splash.style.display='none'; }, 400);
+  }, 3000);
 })();
 
 // ===== YOUR FUTUREパーティクル =====
@@ -2512,7 +2499,7 @@ function closeDrawer() {
   document.getElementById('drawer-overlay').classList.remove('open');
 }
 function initLogoImages() {
-  const imgSrc = './IMG_1591.png';
+  const imgSrc = './logo-v50-circle.png';
   ['logo-s1','logo-s2','logo-s3','logo-main','logo-guide','drawer-logo-img'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
