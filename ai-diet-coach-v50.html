@@ -2644,6 +2644,9 @@ localStorage.setItem('launch_count',lc);
 (function(){
   const splash = document.getElementById('splash');
   const img = document.getElementById('splash-img');
+  // 2枚目の画像を裏側で先読みしておく（切り替え時の読み込み遅延によるズレを防止）
+  const preload = new Image();
+  preload.src = './IMG_3070.png';
   // 毎回、必ずフル演出（1枚目 0〜1.5秒 → 2枚目 1.5〜3秒 → 3秒後に0.4秒かけてフェードアウト）
   setTimeout(()=>{ img.src='./IMG_3070.png'; img.classList.remove('frame1'); }, 1500);
   setTimeout(()=>{
