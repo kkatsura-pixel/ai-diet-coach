@@ -522,10 +522,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">ステップ① プロフィール</div>
           <div style="margin-bottom:6px;">あなたの体・生活・好みの情報を入力します。</div>
-          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f0ec;"><span>年齢・性別・身長・体重・体脂肪率・基礎代謝</span><span style="color:#a8843a;font-weight:700;margin-left:8px;flex-shrink:0;">必須</span></div>
-          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f0ec;"><span>職業・日中の活動量</span><span style="color:#a8843a;font-weight:700;margin-left:8px;flex-shrink:0;">必須</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f0ec;"><span>ニックネーム・年齢・性別・身長・体重・体脂肪率・基礎代謝</span><span style="color:#a8843a;font-weight:700;margin-left:8px;flex-shrink:0;">必須</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f0ec;"><span>職業・日中の活動量・運動習慣・運動強度・1日の食事回数</span><span style="color:#a8843a;font-weight:700;margin-left:8px;flex-shrink:0;">必須</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f0ec;"><span>飲酒頻度・量／間食の頻度</span><span style="color:#a8843a;font-weight:700;margin-left:8px;flex-shrink:0;">必須</span></div>
           <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f0ec;"><span>好きな食べ物・推し・趣味・AIコーチタイプ</span><span style="color:#a8843a;font-weight:700;margin-left:8px;flex-shrink:0;">必須</span></div>
-          <div style="display:flex;justify-content:space-between;padding:5px 0;"><span>その他（筋肉量・生活習慣など）</span><span style="color:#999;margin-left:8px;flex-shrink:0;">任意</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;"><span>筋肉量・平均睡眠時間・1日の水分摂取量・ストレス過食の傾向</span><span style="color:#999;margin-left:8px;flex-shrink:0;">任意</span></div>
           <div style="margin-top:8px;padding:8px 10px;background:#faf9f7;border-radius:8px;">ポイント：ここで入力する体重・体脂肪率は「現在地」です。あとで更新しても、ステップ②の目標は動きません。</div>
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">ステップ② 目標設定</div>
@@ -551,7 +552,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <div>「あなたの未来」で達成率と残りの脂肪量がわかります。「食事を記録する」にテキストで書いて記録すると、AIが自動でカロリー・PFCを解析します（写真・バーコード不要）。記録後、数秒ほどでその日のPFCバランスが目標から大きくズレていないか自動で確認し、ズレている場合はアラートでお知らせします。「今日のルール」はタップしてチェックします。</div>
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">②「AIレポート」タブ</div>
-          <div>「今日のレポートを生成する」でAIコーチからのフィードバックが届きます。「今週の食事状況」グラフはカロリー／PFCを切り替え、週も移動できます。「今週の宿題エクササイズ」は体組成・運動習慣に応じて毎週変わります。</div>
+          <div>「今日のレポートを生成する」でAIコーチからのフィードバックが届きます。「今週の食事状況」グラフはカロリー／PFCを切り替え、週も移動できます。グラフ下の「今週のレポートを生成する」では、7日間の記録・ルール達成状況・栄養バランスの傾向から、習慣化の観点でのフィードバックが届きます。「今週の宿題エクササイズ」は体組成・運動習慣に応じて毎週変わります。</div>
           <div style="margin-top:8px;padding:8px 10px;background:#faf9f7;border-radius:8px;">※ごく稀に生成がうまくいかないことがあります。その場合は少し時間を置いてから、もう一度お試しください。</div>
 
           <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">③「プロフィール」タブ</div>
@@ -1356,8 +1357,9 @@ const GUIDE_FAQ = [
   {q:'食事のAI解析結果が実際と少し違う場合、修正できますか？', a:'記録内容を直接修正する機能はありません。「削除」して書き直し、再度記録してください。食材名・量・調理法まで具体的に書くほどAIの解析精度が上がります。'},
   {q:'AIレポートは1日に何回でも生成できますか？', a:'回数制限はありません。記録を追加・変更した後に再生成すると、最新の内容を反映したレポートが生成されます。'},
   {q:'血液検査データは何のために入力するのですか？入力しないとどうなりますか？', a:'AIレポート生成時の参考情報として、一般的な基準値と比較した上での生活習慣アドバイスに活用されます（医学的な診断ではありません）。入力は任意で、入力しなくても他の機能に影響しません。'},
-  {q:'うまく動かない・表示が崩れる時はどうすればいいですか？', a:'まずアプリを一度閉じて、再度開いてみてください。改善しない場合は、ホーム画面に追加し直すか、公式LINEまでご連絡ください。'},
-  {q:'AIの推定が違う場合は？', a:'AIによる解析は、文部科学省「日本食品標準成分表」のデータを参考に推定しています。ただし食材の見た目や記載内容によって誤差が生じる場合があります。実際の数値と差が大きい場合は、公式LINE「Body Innovation」までお気軽にご報告ください。今後の精度改善に活用させていただきます。'}
+  {q:'うまく動かない・表示が崩れる時はどうすればいいですか？', a:'まずアプリを一度閉じて、再度開いてみてください。改善しない場合は、公式LINEまでご連絡ください。'},
+  {q:'AIの推定が違う場合は？', a:'AIによる解析は、文部科学省「日本食品標準成分表」のデータを優先的に参考にして推定しています。ただし食材の見た目や記載内容によって誤差が生じる場合があります。実際の数値と差が大きい場合は、公式LINE「Body Innovation」までお気軽にご報告ください。今後の精度改善に活用させていただきます。'},
+  {q:'今週のレポートと今日のレポートは何が違いますか？', a:'「今日のレポート」はその日の食事内容へのフィードバックです。「今週のレポートを生成する」は、7日間の記録・ルール達成状況・栄養バランスの傾向から、習慣化の観点でのフィードバックを行います。「AIレポート」タブの「今週の食事状況」グラフ下から生成できます。'}
 ];
 function renderGuideFaq() {
   const wrap = document.getElementById('guide-faq');
