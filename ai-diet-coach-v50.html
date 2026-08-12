@@ -46,6 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 #splash{position:fixed;inset:0;background:#FFFCF5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.4s ease;}
 #splash.fade-out{opacity:0;pointer-events:none;}
 #splash-img{width:100%;height:100%;object-fit:cover;transform:scale(0.667);}
+#splash-img.frame1{transform:scale(0.64);}
 #splash.fade-out{opacity:0;pointer-events:none;}
 .splash-logo-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
 .splash-logo{width:140px;height:140px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.15s;position:relative;z-index:1;}
@@ -409,7 +410,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
 <!-- スプラッシュ -->
 <div id="splash">
-  <img id="splash-img" src="./IMG_3068.png" alt="AI Diet Coach">
+  <img id="splash-img" class="frame1" src="./IMG_3068.png" alt="AI Diet Coach">
 </div>
 
 <!-- オンボーディング -->
@@ -2468,7 +2469,7 @@ localStorage.setItem('launch_count',lc);
   const splash = document.getElementById('splash');
   const img = document.getElementById('splash-img');
   // 毎回、必ずフル演出（1枚目 0〜1.5秒 → 2枚目 1.5〜3秒 → 3秒後に0.4秒かけてフェードアウト）
-  setTimeout(()=>{ img.src='./IMG_3070.png'; }, 1500);
+  setTimeout(()=>{ img.src='./IMG_3070.png'; img.classList.remove('frame1'); }, 1500);
   setTimeout(()=>{
     splash.classList.add('fade-out');
     setTimeout(()=>{ splash.style.display='none'; }, 400);
@@ -2506,7 +2507,7 @@ function initLogoImages() {
       el.innerHTML = '';
       const img = document.createElement('img');
       img.src = imgSrc; img.alt = 'THE LOOP';
-      img.style.cssText = 'width:130%;height:130%;object-fit:cover;';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
       el.appendChild(img);
     }
   });
