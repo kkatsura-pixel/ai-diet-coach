@@ -652,6 +652,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag" onclick="selectTag(this,'exercise-tags')">ほぼ毎日</span>
         </div>
       </div></div>
+      <div class="g1"><div class="fld"><label>運動強度</label>
+        <div class="tags" id="exercise-intensity-tags">
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">運動していない</span>
+          <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（ウォーキング・ヨガ等）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（ジョギング・軽い筋トレ等）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（ジム高負荷・HIIT・登山等）</span>
+        </div>
+      </div></div>
       <div class="g1"><div class="fld"><label>1日の食事回数</label>
         <div class="tags" id="meal-freq-tags">
           <span class="tag" onclick="selectTag(this,'meal-freq-tags')">1食</span>
@@ -1239,6 +1247,7 @@ function loadProfileForm() {
   set('fav_food',p.fav_food); set('hobby',p.hobby);
   if(p.gender) { document.querySelectorAll('#gender-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.gender); }); }
   if(p.exercise) { document.querySelectorAll('#exercise-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise); }); }
+  if(p.exercise_intensity) { document.querySelectorAll('#exercise-intensity-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_intensity); }); }
   if(p.meal_freq) { document.querySelectorAll('#meal-freq-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.meal_freq); }); }
   if(p.snack) { document.querySelectorAll('#snack-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.snack); }); }
   if(p.stress) { document.querySelectorAll('#stress-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.stress); }); }
@@ -1529,6 +1538,7 @@ function saveProfile() {
     bmr: document.getElementById('bmr').value,
     activity: document.getElementById('activity').value,
     exercise: document.querySelector('#exercise-tags .tag.on')?.textContent||'週1〜2回',
+    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.textContent||'軽度（ウォーキング・ヨガ等）',
     meal_freq: document.querySelector('#meal-freq-tags .tag.on')?.textContent||'3食',
     sleep: document.getElementById('sleep').value,
     water: document.getElementById('water').value,
@@ -2124,7 +2134,7 @@ async function recordMeal() {
   const prompt=`以下の食事内容のカロリーとPFCを推定してください。
 食事：${txt}
 量：${size}
-日本食品標準成分表の数値を参考に推定してください。
+文部科学省「日本食品標準成分表」の数値を優先的に参考にして推定してください。
 JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":数値,"name":"内容の簡潔な説明"}`;
   let success=false;
   for(let attempt=1;attempt<=3;attempt++) {
@@ -2281,7 +2291,7 @@ async function generateReport() {
     bloodInfo = "\n- 血液検査データ：" + refs.join('、') + "\n- 既往歴：" + ((goal.diseases&&goal.diseases.length)?goal.diseases.join('、'):'特になし');
   }
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
-  const lifestyleInfo=`\n- 生活習慣（参考）：飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const lifestyleInfo=`\n- 生活習慣（参考）：運動${profile.exercise||'週1〜2回'}・強度${profile.exercise_intensity||'軽度（ウォーキング・ヨガ等）'}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
   const toneConditions={
     'フレンドリー':`- 好きな食べ物・推しと目標を同等に絡める
 - PFCの数値に軽く触れる
@@ -2331,11 +2341,15 @@ ${bodyInfo}${lifestyleInfo}${bloodInfo}
 5. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
 【条件】
-- 5文以内・280文字以内で収める
+- 6文以内・400文字以内で収める
 - 長すぎず短すぎず、簡潔・端的に
 - 絵文字を1〜2個使う
 - 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
 - 生活習慣（参考）は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
+- 運動頻度・強度が高い場合（週3回以上×中〜高強度）は、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない
+- 運動頻度が低い、または強度が軽い場合は、間食・糖質量への意識づけを重視する
+- 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
+- カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
 - 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
 
