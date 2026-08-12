@@ -46,7 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 #splash{position:fixed;inset:0;background:#FFFCF5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.4s ease;}
 #splash.fade-out{opacity:0;pointer-events:none;}
 #splash-img{width:100%;height:100%;object-fit:cover;transform:scale(0.667);}
-#splash-img.frame1{transform:scale(0.64);}
+#splash-img.frame1{transform:none;}
 #splash.fade-out{opacity:0;pointer-events:none;}
 .splash-logo-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
 .splash-logo{width:140px;height:140px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.15s;position:relative;z-index:1;}
@@ -410,7 +410,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
 <!-- スプラッシュ -->
 <div id="splash">
-  <img id="splash-img" class="frame1" src="./IMG_3068.png" alt="AI Diet Coach">
+  <img id="splash-img" class="frame1" src="./splash-frame1.png" alt="AI Diet Coach">
 </div>
 
 <!-- オンボーディング -->
@@ -2512,7 +2512,10 @@ async function generateWeeklyReport() {
     if(meals.length>0){
       recordedDays++;
       const kcal=meals.reduce((s,m)=>s+(m.kcal||0),0);
-      dailySummaries.push(`${dayLabels[i]}:${meals.map(m=>m.name).join('、')}（${kcal}kcal）`);
+      const pTotal=meals.reduce((s,m)=>s+(m.p||0),0);
+      const fTotal=meals.reduce((s,m)=>s+(m.f||0),0);
+      const cTotal=meals.reduce((s,m)=>s+(m.c||0),0);
+      dailySummaries.push(`${dayLabels[i]}:${meals.map(m=>m.name).join('、')}（kcal:${kcal} P:${pTotal}g F:${fTotal}g C:${cTotal}g）`);
     } else {
       dailySummaries.push(`${dayLabels[i]}:記録なし`);
     }
@@ -2564,17 +2567,22 @@ ${dailySummaries.join('\n')}
 - ルール達成状況：${ruleSummary||'ルール未設定'}
 
 【文章構成】以下の順序で構成してください
-1. 今週全体の傾向の再確認（できていることをメインに褒める、できていないことは僅かに伝える）
-2. 記録日数・ルール達成状況に触れる
-3. 週の中で見えた習慣的な課題を、「身体の悩み・改善したいこと」に関連づけて伝える（理論・傾向として）
-4. 来週に向けた具体的な行動提案＋その先の未来のベネフィットを提示する
-5. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
+1. 記録日数・ルール達成状況の再確認（7日中何日記録できたか、ルールを何日守れたかを具体的な数字で示す。できていた日・できていなかった日のムラ＝継続できなかったことに触れる）
+2. なぜそれが問題なのか、理由を伝える（「守れたり守れなかったり」「記録したりしなかったり」という不安定さそのものが、成果が出にくい最大の原因であることを伝える）
+3. 今週のカロリー・PFCの傾向に触れる（カロリー・タンパク質・脂質・炭水化物それぞれについて、日によるムラ、または一貫した傾向が見られる場合は必ず言及する）
+4. このまま（継続のムラ＋栄養傾向）を続けた場合のリスク・未来を、まとめて伝える（継続できないこと、栄養バランスの偏りの両方が重なることで目標達成がどれだけ遠のくかを理論・危機感として伝える。「身体の悩み・改善したいこと」に関連づけて、このままだとどうなるかを伝える）
+5. 来週、具体的に何をどう改善すべきかを提案する
+6. 励まし、当事者意識を持たせる問いかけで締める（習慣化としてのルールの意識）
 
 【条件】
 - 6文以内・400文字以内で収める
 - 長すぎず短すぎず、簡潔・端的に
 - 絵文字を1〜2個使う
 - 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
+- 記録日数（7日中○日）とルール達成日数を、必ず具体的な数字で言及する
+- 「守れた日と守れなかった日のムラ」「記録した日としなかった日のムラ」など、継続性・持続性の観点を必ず盛り込む
+- カロリー・P（タンパク質）・F（脂質）・C（炭水化物）それぞれについて、日によるムラ、または一貫した傾向（毎日通して多い/少ない）が見られる場合は、必ず言及する
+- 危機感を煽る際も、頭ごなしに責めるのではなく、理由→リスク→改善提案→励ましの順で伝える
 - 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
