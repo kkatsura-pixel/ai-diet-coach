@@ -615,7 +615,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         <p>測定結果を入力してください。<strong>*</strong>は必須項目です。</p>
       </div>
-      <div class="g1"><div class="fld"><label>ニックネーム（アプリ内表示名）</label><input type="text" id="nickname" placeholder="例：美咲、みーちゃん"></div></div>
+      <div class="g1"><div class="fld"><label>ニックネーム（アプリ内表示名）<span class="req-mark">*</span></label><input type="text" id="nickname" placeholder="例：美咲、みーちゃん"></div></div>
       <div class="g2">
         <div class="fld"><label>年齢 <span class="req-mark">*</span></label><input type="number" id="age" placeholder="28"></div>
         <div class="fld"><label>性別 <span class="req-mark">*</span></label>
@@ -636,7 +636,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div>
 
       <div class="sep"></div>
-      <div class="sh"><div class="sh-dot" style="background:#16a34a;"></div><span class="sh-label">ライフスタイル <span class="req-mark">*</span></span></div>
+      <div class="sh"><div class="sh-dot" style="background:#16a34a;"></div><span class="sh-label">ライフスタイル</span></div>
       <div class="g1"><div class="fld"><label>職業・日中の活動量 <span class="req-mark">*</span></label>
         <select id="activity">
           <option value="1.2">座り仕事が多い（デスクワーク中心）</option>
@@ -644,23 +644,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <option value="1.55">よく体を動かす（現場・営業など）</option>
         </select>
       </div></div>
-      <div class="g1"><div class="fld"><label>運動習慣</label>
+      <div class="g1"><div class="fld"><label>運動習慣 <span class="req-mark">*</span></label>
         <div class="tags" id="exercise-tags">
-          <span class="tag" onclick="selectTag(this,'exercise-tags')">していない</span>
+          <span class="tag" onclick="selectTag(this,'exercise-tags')">なし</span>
           <span class="tag on" onclick="selectTag(this,'exercise-tags')">週1〜2回</span>
           <span class="tag" onclick="selectTag(this,'exercise-tags')">週3〜4回</span>
           <span class="tag" onclick="selectTag(this,'exercise-tags')">ほぼ毎日</span>
         </div>
       </div></div>
-      <div class="g1"><div class="fld"><label>運動強度</label>
+      <div class="g1"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
         <div class="tags" id="exercise-intensity-tags">
           <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">運動していない</span>
+          <div style="flex-basis:100%;height:0;"></div>
           <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（ウォーキング・ヨガ等）</span>
           <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（ジョギング・軽い筋トレ等）</span>
           <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（ジム高負荷・HIIT・登山等）</span>
         </div>
       </div></div>
-      <div class="g1"><div class="fld"><label>1日の食事回数</label>
+      <div class="g1"><div class="fld"><label>1日の食事回数 <span class="req-mark">*</span></label>
         <div class="tags" id="meal-freq-tags">
           <span class="tag" onclick="selectTag(this,'meal-freq-tags')">1食</span>
           <span class="tag" onclick="selectTag(this,'meal-freq-tags')">2食</span>
@@ -678,16 +679,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div>
 
       <div class="sep"></div>
-      <div class="sh"><div class="sh-dot" style="background:#d97706;"></div><span class="sh-label">生活・食習慣<span class="opt-badge">任意</span></span></div>
+      <div class="sh"><div class="sh-dot" style="background:#d97706;"></div><span class="sh-label">生活・食習慣</span></div>
       <div class="g2">
-        <div class="fld"><label>飲酒頻度</label>
+        <div class="fld"><label>飲酒頻度 <span class="req-mark">*</span></label>
           <select id="drink_freq"><option>飲まない</option><option>ほぼ飲まない</option><option>週1〜2回</option><option>週3〜4回</option><option>ほぼ毎日</option></select>
         </div>
-        <div class="fld"><label>1回あたりの飲酒量</label>
+        <div class="fld"><label>1回あたりの飲酒量 <span class="req-mark">*</span></label>
           <select id="drink_amt"><option>少量（1杯程度）</option><option>中程度（2〜3杯）</option><option>多め（4杯以上）</option></select>
         </div>
       </div>
-      <div class="g1"><div class="fld"><label>間食の頻度</label>
+      <div class="g1"><div class="fld"><label>間食の頻度 <span class="req-mark">*</span></label>
         <div class="tags" id="snack-tags">
           <span class="tag" onclick="selectTag(this,'snack-tags')">しない</span>
           <span class="tag on" onclick="selectTag(this,'snack-tags')">ほぼしない</span>
@@ -696,7 +697,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag" onclick="selectTag(this,'snack-tags')">ほぼ毎日</span>
         </div>
       </div></div>
-      <div class="g1"><div class="fld"><label>ストレス過食の傾向</label>
+      <div class="g1"><div class="fld"><label>ストレス過食の傾向<span class="opt-badge">任意</span></label>
         <div class="tags" id="stress-tags">
           <span class="tag" onclick="selectTag(this,'stress-tags')">ない</span>
           <span class="tag on" onclick="selectTag(this,'stress-tags')">ほとんどない</span>
@@ -715,7 +716,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div></div>
 
       <div class="sep"></div>
-      <div class="sh"><div class="sh-dot" style="background:#c9a96e;"></div><span class="sh-label">パーソナル情報 <span class="req-mark">*</span></span></div>
+      <div class="sh"><div class="sh-dot" style="background:#c9a96e;"></div><span class="sh-label">パーソナル情報</span></div>
       <div class="g1"><div class="fld"><label>好きな食べ物<span class="req-mark">*</span></label><input type="text" id="fav_food" placeholder="例：プリン、ラーメン、お寿司"></div></div>
       <div class="g1"><div class="fld"><label>推し・趣味・好きなこと<span class="req-mark">*</span></label><input type="text" id="hobby" placeholder="例：K-POP、カフェ巡り、読書"></div></div>
       <div class="g1"><div class="fld"><label>AIコーチタイプ<span class="req-mark">*</span></label>
@@ -1075,6 +1076,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <svg id="weekly-chart-svg" width="100%" viewBox="0 0 300 150"><text x="150" y="75" text-anchor="middle" font-size="12" fill="#bbb">データがありません</text></svg>
           <div id="weekly-chart-legend" style="display:flex;gap:10px;justify-content:center;margin-top:8px;flex-wrap:wrap;font-size:9px;color:#666;"></div>
           <div id="weekly-chart-alert" style="display:flex;gap:6px;margin-top:8px;"></div>
+          <div id="weekly-report-area" style="margin-top:8px;">
+            <div id="weekly-coach-msg-area">
+              <div class="coach-placeholder">ボタンを押して今週のレポートを生成してください。</div>
+            </div>
+            <button class="coach-gen-btn" id="weekly-gen-btn" onclick="generateWeeklyReport()">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              今週のレポートを生成する
+            </button>
+            <button class="pbtn" id="weekly-line-share-btn" style="display:none;margin-top:10px;background:#06C755;border-color:#06C755;" onclick="shareWeeklyToLine()">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:#fff;"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.6 5.78 4.07 7.5L5 22l4.27-2.24C10.14 20.24 11.06 20.4 12 20.4c5.52 0 10-4.02 10-9s-4.48-9-10-9z"/></svg>
+              LINEでシェア
+            </button>
+          </div>
         </div>
 
         <div class="sh" style="margin-top:40px;"><div class="sh-dot"></div><span class="sh-label">今週のルール運用状況</span></div>
@@ -1942,7 +1956,7 @@ function loadGoalScore(profile, goal, pfc, rules) {
   // 栄養スコア
   const nutritionScore = totalKcal>0 ? Math.min(5,Math.round((Math.min(totalKcal,gKcal)/gKcal)*5)) : 1;
   // 運動スコア
-  const exMap={'していない':2,'週1〜2回':3,'週3〜4回':4,'ほぼ毎日':5};
+  const exMap={'なし':2,'週1〜2回':3,'週3〜4回':4,'ほぼ毎日':5};
   const exerciseScore = exMap[profile.exercise]||3;
   // 睡眠スコア
   const slMap={'5時間未満':1,'6〜7時間':3,'7〜8時間':4,'8時間以上':5};
@@ -2348,6 +2362,8 @@ ${bodyInfo}${lifestyleInfo}${bloodInfo}
 - 生活習慣（参考）は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
 - 運動頻度・強度が高い場合（週3回以上×中〜高強度）は、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない
 - 運動頻度が低い、または強度が軽い場合は、間食・糖質量への意識づけを重視する
+- プロフィールの飲酒頻度・量が多い場合（週3回以上、または1回あたり多め）、当日の食事記録に飲酒に関する内容が含まれるときは、脅すのではなく事実として軽く触れる
+- プロフィールの間食頻度が多い場合（週3回以上）、当日の食事記録に間食に関する内容が含まれるときは、目標達成との関連について軽く触れる
 - 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
@@ -2443,10 +2459,10 @@ function loadExercises(profile) {
   const relaxIdx = weekNum % relaxMenu.length;
 
   let exercises=[];
-  if(fat>30||exercise==='していない') exercises.push(cardioMenu[0]);
+  if(fat>30||exercise==='なし') exercises.push(cardioMenu[0]);
   else exercises.push(cardioMenu[cardioIdx]);
 
-  if(muscle<38||exercise==='していない'||exercise==='週1〜2回') exercises.push(strengthMenu[0]);
+  if(muscle<38||exercise==='なし'||exercise==='週1〜2回') exercises.push(strengthMenu[0]);
   else exercises.push(strengthMenu[strengthIdx]);
 
   exercises.push(relaxMenu[relaxIdx]);
@@ -2461,6 +2477,144 @@ function updateBodyData() {
 }
 
 // ===== サイズ選択 =====
+// ===== 今週のレポート生成 =====
+async function generateWeeklyReport() {
+  const btn=document.getElementById('weekly-gen-btn');
+  btn.innerHTML='<span class="loading-spinner"></span>生成中...';
+  btn.disabled=true;
+  const profile=JSON.parse(localStorage.getItem('profile')||'{}');
+  const goal=JSON.parse(localStorage.getItem('goal')||'{}');
+  const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
+  const rules=JSON.parse(localStorage.getItem('rules')||'[]');
+  const tone=profile.tone||'フレンドリー';
+  const toneMap={
+    'フレンドリー':'親しみやすくポジティブな友人のように',
+    'ていねい':'丁寧で温かく礼儀正しく',
+    'ロジカル':'数値と根拠を示して論理的に',
+    'ストイック':'厳しく本音で、甘えを許さず',
+    'ドS':'辛口でシャープに、でもちゃんと愛がある感じで',
+    '王子様':'優雅で甘く、あなたを特別な存在として扱う王子様のように'
+  };
+
+  // 表示中の週（weekOffset連動）の7日分を集計
+  const today=new Date();
+  today.setDate(today.getDate()+weekOffset*7);
+  const todayIdx=today.getDay()===0?6:today.getDay()-1;
+  const weekStart=new Date(today); weekStart.setDate(today.getDate()-todayIdx);
+  const dayLabels=['月','火','水','木','金','土','日'];
+  const dailySummaries=[];
+  let recordedDays=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(weekStart);
+    d.setDate(weekStart.getDate()+i);
+    const key='meals_'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const meals=JSON.parse(localStorage.getItem(key)||'[]');
+    if(meals.length>0){
+      recordedDays++;
+      const kcal=meals.reduce((s,m)=>s+(m.kcal||0),0);
+      dailySummaries.push(`${dayLabels[i]}:${meals.map(m=>m.name).join('、')}（${kcal}kcal）`);
+    } else {
+      dailySummaries.push(`${dayLabels[i]}:記録なし`);
+    }
+  }
+  const weekKey='week_'+today.getFullYear()+'_'+getWeek(today);
+  const weekRuleData=JSON.parse(localStorage.getItem(weekKey)||'{}');
+  const ruleSummary=rules.map(r=>{
+    const days=weekRuleData[r]||{};
+    const achieved=Object.values(days).filter(v=>v).length;
+    return `${r}(週${achieved}/7日達成)`;
+  }).join('、');
+
+  const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
+  const lifestyleInfo=`\n- 生活習慣（参考）：運動${profile.exercise||'週1〜2回'}・強度${profile.exercise_intensity||'軽度（ウォーキング・ヨガ等）'}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const toneConditions={
+    'フレンドリー':`- 好きな食べ物・推しと目標を同等に絡める
+- 体への影響は優しく伝える
+- 励ます口調で`,
+    'ていねい':`- 好きな食べ物・推しと目標を同等に絡める
+- 体への影響は丁寧に伝える
+- 温かく礼儀正しい口調で`,
+    '王子様':`- 好きな食べ物・推しと目標を同等に絡める
+- 体への影響は優雅に伝える
+- 特別な存在として扱う口調で`,
+    'ロジカル':`- 目標を推し・好きな食べ物より優先して絡める
+- 週間データを具体的に示す
+- 分析・論理的な口調で`,
+    'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
+- 週間データで現実を突きつける
+- 厳しく追い込む口調で`,
+    'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
+- 週間データで現実を突きつける
+- 辛口でシャープに、愛のある追い込む口調で`
+  };
+
+  const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}、今週1週間の習慣についてフィードバックしてください。単日の食事内容ではなく、週を通じた傾向・習慣化の観点で評価してください。
+
+【利用者情報】
+- 名前：${profile.nickname||profile.name||'ユーザー'}さん
+- 好きな食べ物：${profile.fav_food||'未設定'}
+- 推し・趣味：${profile.hobby||'未設定'}
+- 目標人物像：${goal.ideal_person||'未設定'}
+- 達成後にやりたいこと：${goal.motivation||'未設定'}
+- 身体の悩み・改善したいこと：${profile.body_concern}
+${bodyInfo}${lifestyleInfo}
+
+【今週の記録（記録日数：${recordedDays}/7日）】
+${dailySummaries.join('\n')}
+- ルール達成状況：${ruleSummary||'ルール未設定'}
+
+【文章構成】以下の順序で構成してください
+1. 今週全体の傾向の再確認（できていることをメインに褒める、できていないことは僅かに伝える）
+2. 記録日数・ルール達成状況に触れる
+3. 週の中で見えた習慣的な課題を、「身体の悩み・改善したいこと」に関連づけて伝える（理論・傾向として）
+4. 来週に向けた具体的な行動提案＋その先の未来のベネフィットを提示する
+5. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
+
+【条件】
+- 6文以内・400文字以内で収める
+- 長すぎず短すぎず、簡潔・端的に
+- 絵文字を1〜2個使う
+- 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
+- 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
+- カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
+${toneConditions[tone]||toneConditions['フレンドリー']}
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む`;
+
+  try {
+    const RETRIABLE_STATUS=[429,500,502,503,504];
+    const maxAttempts=2;
+    let succeeded=false;
+    for(let attempt=1; attempt<=maxAttempts; attempt++) {
+      if(attempt>1) btn.innerHTML='<span class="loading-spinner"></span>もう一度試しています...';
+      try {
+        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+        if(!res.ok) {
+          if(RETRIABLE_STATUS.includes(res.status) && attempt<maxAttempts) continue;
+          break;
+        }
+        const data=await res.json();
+        const msg=data.candidates[0].content.parts[0].text;
+        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('weekly-line-share-btn').style.display='flex';
+        document.getElementById('weekly-line-share-btn').setAttribute('data-msg', msg);
+        succeeded=true;
+        break;
+      } catch(innerErr) {
+        if(attempt<maxAttempts) continue;
+      }
+    }
+    if(!succeeded) document.getElementById('weekly-coach-msg-area').innerHTML='<div class="coach-placeholder">生成に失敗しました。もう一度お試しください。</div>';
+  } catch(e) { document.getElementById('weekly-coach-msg-area').innerHTML='<div class="coach-placeholder">生成に失敗しました。もう一度お試しください。</div>'; }
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今週のレポートを生成する';
+  btn.disabled=false;
+}
+function shareWeeklyToLine() {
+  const btn = document.getElementById('weekly-line-share-btn');
+  const msg = btn.getAttribute('data-msg')||'';
+  const text = encodeURIComponent('【AI Diet Coach 週間レポート】\n' + msg);
+  window.open('https://line.me/R/msg/text/?' + text, '_blank');
+}
+
 function shareToLine() {
   const btn = document.getElementById('line-share-btn');
   const msg = btn.getAttribute('data-msg')||'';
