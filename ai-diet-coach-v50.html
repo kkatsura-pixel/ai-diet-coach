@@ -391,7 +391,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .ob-title{font-size:18px;font-weight:500;color:#111;text-align:center;margin-bottom:8px;}
 .ob-desc{font-size:13px;color:#7a6050;line-height:1.7;text-align:center;}
 .ob-btn{width:100%;padding:14px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:20px;}
+.ob-btn:disabled{opacity:0.6;}
 .ob-skip{width:100%;padding:10px;border-radius:6px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px;}
+.ob-link{width:100%;text-align:center;padding:10px;border-radius:6px;border:none;background:none;color:#7a4f35;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px;text-decoration:underline;text-underline-offset:3px;}
+.pin-wrap{display:flex;justify-content:center;gap:8px;margin-top:18px;}
+.pin-digit{width:38px;height:46px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:20px;font-weight:600;text-align:center;color:#111;font-family:inherit;transition:border-color 0.15s;}
+.pin-digit:focus{outline:none;border-color:#7a4f35;background:#fff;}
+.pin-err{font-size:11px;color:#dc2626;text-align:center;margin-top:10px;line-height:1.6;min-height:14px;}
 
 /* アラート */
 .alert-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
@@ -416,7 +422,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <!-- オンボーディング -->
 <div class="onboarding" id="onboarding">
   <div class="onboarding-card">
-    <div class="ob-dots">
+    <div class="ob-dots" id="ob-dots">
       <div class="ob-dot on" id="od0"></div>
       <div class="ob-dot" id="od1"></div>
       <div class="ob-dot" id="od2"></div>
@@ -428,7 +434,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="ob-desc">体組成データ × トレーナー知見 × AI生成で、<br>あなたを24時間伴走サポートします。</div>
     </div>
     <button class="ob-btn" id="ob-btn" onclick="nextOb()">次へ</button>
-    <button class="ob-skip" onclick="closeOb()">スキップ</button>
+    <button class="ob-skip" id="ob-skip" onclick="proceedToBackupSetup()">スキップ</button>
+    <button class="ob-link" id="ob-link" style="display:none;"></button>
   </div>
 </div>
 
@@ -464,6 +471,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
     <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
+    <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
     <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
   </div>
 </div>
@@ -1241,7 +1249,7 @@ const obSteps = [
 let obIdx = 0;
 function nextOb() {
   obIdx++;
-  if(obIdx >= obSteps.length) { closeOb(); return; }
+  if(obIdx >= obSteps.length) { proceedToBackupSetup(); return; }
   const s = obSteps[obIdx];
   document.getElementById('ob-content').innerHTML = `<div class="ob-icon">${s.icon}</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div>${s.extra||''}`;
   document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obIdx));
@@ -1249,6 +1257,247 @@ function nextOb() {
 }
 function closeOb() { document.getElementById('onboarding').style.display='none'; localStorage.setItem('ob_done','1'); localStorage.setItem('ob_done_date',formatDate(new Date())); }
 if(localStorage.getItem('ob_done')) { closeOb(); checkAlert(); }
+
+// ===== バックアップ機能（暗証番号方式） =====
+const BACKUP_ICON_LOCK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><circle cx="18" cy="21.5" r="1.8" fill="#c9a96e"/><rect x="17.2" y="23" width="1.6" height="4" rx="0.8" fill="#c9a96e"/></svg>`;
+const BACKUP_ICON_CHECK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><path d="M14.5 21.5 L17 24 L22 18.5" stroke="#c9a96e" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const BACKUP_ICON_RESTORE = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><path d="M8 18 Q8 10 18 10 Q28 10 28 18" stroke="#7a4f35" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M8 18 L11 15 M8 18 L11 21" stroke="#7a4f35" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="18" width="12" height="10" rx="2" fill="#f5ede6" stroke="#c9a96e" stroke-width="1.5"/><circle cx="18" cy="23" r="1.6" fill="#7a4f35"/></svg>`;
+
+let backupFlowContext = null; // 'onboarding' | 'menu'
+let pendingPin1 = '';
+
+function proceedToBackupSetup() {
+  backupFlowContext = 'onboarding';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  showBackupChoice();
+}
+
+function openBackupFromMenu() {
+  closeDrawer();
+  backupFlowContext = 'menu';
+  document.getElementById('onboarding').style.display = 'flex';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  if(localStorage.getItem('backup_pin')) {
+    showBackupAlready();
+  } else {
+    showBackupSetPin1();
+  }
+}
+
+function showBackupChoice() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
+    <div class="ob-title">データを守るために</div>
+    <div class="ob-desc">端末の不具合に備えて、<br>暗証番号でデータを守れます。</div>
+  `;
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = 'はじめる';
+  btn.onclick = showBackupSetPin1;
+  const link = document.getElementById('ob-link');
+  link.style.display = 'block';
+  link.textContent = '暗証番号で復元する';
+  link.onclick = showBackupRestore;
+}
+
+function pinInputsHtml(idPrefix) {
+  let html = `<div class="pin-wrap">`;
+  for(let i=0;i<6;i++) html += `<input class="pin-digit" id="${idPrefix}-${i}" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">`;
+  html += `</div><div class="pin-err" id="${idPrefix}-err"></div>`;
+  return html;
+}
+function bindPinAutoAdvance(idPrefix) {
+  for(let i=0;i<6;i++) {
+    const el = document.getElementById(idPrefix+'-'+i);
+    el.oninput = () => {
+      el.value = el.value.replace(/[^0-9]/g,'').slice(0,1);
+      if(el.value && i<5) document.getElementById(idPrefix+'-'+(i+1)).focus();
+    };
+    el.onkeydown = (e) => {
+      if(e.key==='Backspace' && !el.value && i>0) document.getElementById(idPrefix+'-'+(i-1)).focus();
+    };
+  }
+  document.getElementById(idPrefix+'-0').focus();
+}
+function readPin(idPrefix) {
+  let pin = '';
+  for(let i=0;i<6;i++) pin += document.getElementById(idPrefix+'-'+i).value || '';
+  return pin;
+}
+
+function showBackupSetPin1() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
+    <div class="ob-title">暗証番号を設定</div>
+    <div class="ob-desc">お好きな数字6桁を、<br>自己責任で設定してください。</div>
+    ${pinInputsHtml('setpin1')}
+  `;
+  bindPinAutoAdvance('setpin1');
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '次へ';
+  btn.onclick = handleSetPin1Next;
+  document.getElementById('ob-link').style.display = 'none';
+}
+
+async function handleSetPin1Next() {
+  const pin = readPin('setpin1');
+  const errEl = document.getElementById('setpin1-err');
+  errEl.textContent = '';
+  if(!/^[0-9]{6}$/.test(pin)) { errEl.textContent = '6桁の数字を入力してください。'; return; }
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>確認しています...';
+  try {
+    const res = await fetch(WORKER_URL+'/backup/check-pin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
+    const data = await res.json();
+    if(data.error==='too_many_attempts') { errEl.textContent='しばらく時間をおいてから、もう一度お試しください。'; }
+    else if(!data.available) { errEl.textContent='その番号はすでに使用されています。別の番号を入力してください。'; }
+    else { pendingPin1 = pin; showBackupSetPin2(); return; }
+  } catch(e) {
+    errEl.textContent = '通信に失敗しました。もう一度お試しください。';
+  }
+  btn.disabled = false;
+  btn.textContent = '次へ';
+}
+
+function showBackupSetPin2() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_CHECK}</div>
+    <div class="ob-title">もう一度入力</div>
+    <div class="ob-desc">同じ番号を入力してください。</div>
+    ${pinInputsHtml('setpin2')}
+  `;
+  bindPinAutoAdvance('setpin2');
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '設定してはじめる';
+  btn.onclick = handleSetPin2Confirm;
+}
+
+async function handleSetPin2Confirm() {
+  const pin2 = readPin('setpin2');
+  const errEl = document.getElementById('setpin2-err');
+  errEl.textContent = '';
+  if(pin2 !== pendingPin1) { errEl.textContent = '番号が一致しません。もう一度入力してください。'; return; }
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>設定しています...';
+  localStorage.setItem('backup_pin', pendingPin1);
+  await sendBackup();
+  finishBackupFlow();
+}
+
+function showBackupRestore() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_RESTORE}</div>
+    <div class="ob-title">暗証番号を入力</div>
+    <div class="ob-desc">以前設定した6桁を<br>入力してください。</div>
+    ${pinInputsHtml('restorepin')}
+  `;
+  bindPinAutoAdvance('restorepin');
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '復元する';
+  btn.onclick = handleRestoreConfirm;
+  const link = document.getElementById('ob-link');
+  link.style.display = 'block';
+  link.textContent = 'はじめるに戻る';
+  link.onclick = showBackupChoice;
+}
+
+async function handleRestoreConfirm() {
+  const pin = readPin('restorepin');
+  const errEl = document.getElementById('restorepin-err');
+  errEl.textContent = '';
+  if(!/^[0-9]{6}$/.test(pin)) { errEl.textContent = '6桁の数字を入力してください。'; return; }
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>確認しています...';
+  try {
+    const res = await fetch(WORKER_URL+'/backup/restore', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
+    const data = await res.json();
+    if(data.error==='too_many_attempts') { errEl.textContent='しばらく時間をおいてから、もう一度お試しください。'; }
+    else if(!data.found) { errEl.textContent='データが見つかりませんでした。番号をご確認のうえ、もう一度お試しください。'; }
+    else {
+      restoreDataToLocalStorage(data.data);
+      localStorage.setItem('backup_pin', pin);
+      finishBackupFlow();
+      return;
+    }
+  } catch(e) {
+    errEl.textContent = '通信に失敗しました。もう一度お試しください。';
+  }
+  btn.disabled = false;
+  btn.textContent = '復元する';
+}
+
+function showBackupAlready() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_CHECK}</div>
+    <div class="ob-title">設定済みです</div>
+    <div class="ob-desc">暗証番号をお忘れにならないよう<br>保管してください。</div>
+  `;
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '閉じる';
+  btn.onclick = finishBackupFlow;
+  document.getElementById('ob-link').style.display = 'none';
+}
+
+function finishBackupFlow() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('ob-dots').style.display = '';
+  document.getElementById('ob-skip').style.display = '';
+  document.getElementById('ob-link').style.display = 'none';
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '次へ';
+  btn.onclick = nextOb;
+  if(backupFlowContext === 'onboarding') closeOb();
+  backupFlowContext = null;
+}
+
+function restoreDataToLocalStorage(data) {
+  Object.keys(data).forEach(key => { localStorage.setItem(key, data[key]); });
+}
+
+// バックアップ対象キーのスナップショットを作成
+function getBackupSnapshot() {
+  const snapshot = {};
+  ['profile','goal','pfc','rules','rule_streak','streak_last_date'].forEach(k => {
+    const v = localStorage.getItem(k);
+    if(v !== null) snapshot[k] = v;
+  });
+  Object.keys(localStorage).forEach(k => {
+    if(k.startsWith('meals_') || k.startsWith('today_checks_') || k.startsWith('week_')) {
+      snapshot[k] = localStorage.getItem(k);
+    }
+  });
+  return snapshot;
+}
+
+// 進行系データ（プロフィール・目標・PFC・ルール・streak）：保存の都度送信
+async function sendBackup() {
+  const pin = localStorage.getItem('backup_pin');
+  if(!pin) return;
+  try {
+    await fetch(WORKER_URL+'/backup/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ pin, data:getBackupSnapshot() }) });
+  } catch(e) { /* 送信失敗時は次回の保存操作時に再送されるため、ここでは何もしない */ }
+}
+
+// カロリー・PFCデータ（食事記録・ルールチェック）：日付が変わったときのみ送信
+function sendBackupDaily() {
+  const pin = localStorage.getItem('backup_pin');
+  if(!pin) return;
+  const today = formatDate(new Date());
+  const lastSent = localStorage.getItem('backup_last_sent_date');
+  if(lastSent === today) return;
+  localStorage.setItem('backup_last_sent_date', today);
+  sendBackup();
+}
 
 function loadProfileForm() {
   const p = JSON.parse(localStorage.getItem('profile')||'{}');
@@ -1569,6 +1818,7 @@ function saveProfile() {
     tone: document.querySelector('#tone-tags .tag.on')?.dataset.tone||'フレンドリー',
   };
   localStorage.setItem('profile', JSON.stringify(data));
+  sendBackup();
   return true;
 }
 
@@ -1595,6 +1845,7 @@ function saveGoal(requireMotivation) {
   };
   localStorage.setItem('goal', JSON.stringify(data));
   calcPFC();
+  sendBackup();
   return true;
 }
 
@@ -1610,6 +1861,8 @@ function saveRules() {
     localStorage.setItem(weekKey, JSON.stringify(init));
   }
   localStorage.setItem('today_checks_'+formatDate(new Date()), JSON.stringify([]));
+  sendBackup();
+  sendBackupDaily();
 }
 
 // ===== ルールテンプレート =====
@@ -2136,6 +2389,7 @@ function deleteMeal(idx) {
   const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
   meals.splice(idx,1);
   localStorage.setItem(todayKey,JSON.stringify(meals));
+  sendBackupDaily();
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
   renderMeals(meals,pfc);
 }
@@ -2166,6 +2420,7 @@ JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":�
       const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
       meals.push(meal);
       localStorage.setItem(todayKey,JSON.stringify(meals));
+      sendBackupDaily();
       const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
       renderMeals(meals,pfc);
       document.getElementById('meal-txt').value='';
@@ -2228,6 +2483,8 @@ function toggleRuleCheck(rule,rules) {
   }
   localStorage.setItem(todayKey,JSON.stringify(checks));
   localStorage.setItem(weekKey,JSON.stringify(weekData));
+  sendBackup();
+  sendBackupDaily();
   renderRules(rules);
 }
 
