@@ -391,13 +391,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .ob-title{font-size:18px;font-weight:500;color:#111;text-align:center;margin-bottom:8px;}
 .ob-desc{font-size:13px;color:#7a6050;line-height:1.7;text-align:center;}
 .ob-btn{width:100%;padding:14px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:20px;}
-.ob-btn:disabled{opacity:0.6;}
 .ob-skip{width:100%;padding:10px;border-radius:6px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px;}
-.ob-link{width:100%;text-align:center;padding:10px;border-radius:6px;border:none;background:none;color:#7a4f35;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px;text-decoration:underline;text-underline-offset:3px;}
-.pin-wrap{display:flex;justify-content:center;gap:8px;margin-top:18px;}
-.pin-digit{width:38px;height:46px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:20px;font-weight:600;text-align:center;color:#111;font-family:inherit;transition:border-color 0.15s;}
-.pin-digit:focus{outline:none;border-color:#7a4f35;background:#fff;}
-.pin-err{font-size:11px;color:#dc2626;text-align:center;margin-top:10px;line-height:1.6;min-height:14px;}
 
 /* アラート */
 .alert-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
@@ -422,7 +416,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <!-- オンボーディング -->
 <div class="onboarding" id="onboarding">
   <div class="onboarding-card">
-    <div class="ob-dots" id="ob-dots">
+    <div class="ob-dots">
       <div class="ob-dot on" id="od0"></div>
       <div class="ob-dot" id="od1"></div>
       <div class="ob-dot" id="od2"></div>
@@ -434,8 +428,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="ob-desc">体組成データ × トレーナー知見 × AI生成で、<br>あなたを24時間伴走サポートします。</div>
     </div>
     <button class="ob-btn" id="ob-btn" onclick="nextOb()">次へ</button>
-    <button class="ob-skip" id="ob-skip" onclick="proceedToBackupSetup()">スキップ</button>
-    <button class="ob-link" id="ob-link" style="display:none;"></button>
+    <button class="ob-skip" onclick="closeOb()">スキップ</button>
   </div>
 </div>
 
@@ -471,7 +464,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
     <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
-    <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
     <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
   </div>
 </div>
@@ -661,13 +653,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag" onclick="selectTag(this,'exercise-tags')">ほぼ毎日</span>
         </div>
       </div></div>
-      <div class="g1"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
+      <div class="g1" id="exercise-intensity-group"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
         <div class="tags" id="exercise-intensity-tags">
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">運動していない</span>
-          <div style="flex-basis:100%;height:0;"></div>
-          <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（ウォーキング・ヨガ等）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（ジョギング・軽い筋トレ等）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（ジム高負荷・HIIT・登山等）</span>
+          <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（ウォーキング（普通のペース）、ヨガ、ストレッチ）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（早歩き、軽い筋トレ）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（ジョギング（時速8km迄）、水泳、通常の筋トレ、ピラティス）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">非常に高強度（ランニング（時速8km超）、HIIT、登山、ジムでの高負荷トレーニング、競技スポーツ）</span>
+        </div>
+      </div></div>
+      <div class="g1" id="exercise-time-group"><div class="fld"><label>運動時間 <span class="req-mark">*</span></label>
+        <div style="font-size:11px;color:#999;margin-bottom:4px;">1回あたりの運動時間の目安</div>
+        <div class="tags" id="exercise-time-tags">
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">30分未満</span>
+          <span class="tag on" onclick="selectTag(this,'exercise-time-tags')">30分〜1時間</span>
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">1〜2時間</span>
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">2〜4時間</span>
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">4時間以上</span>
         </div>
       </div></div>
       <div class="g1"><div class="fld"><label>1日の食事回数 <span class="req-mark">*</span></label>
@@ -1249,7 +1250,7 @@ const obSteps = [
 let obIdx = 0;
 function nextOb() {
   obIdx++;
-  if(obIdx >= obSteps.length) { proceedToBackupSetup(); return; }
+  if(obIdx >= obSteps.length) { closeOb(); return; }
   const s = obSteps[obIdx];
   document.getElementById('ob-content').innerHTML = `<div class="ob-icon">${s.icon}</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div>${s.extra||''}`;
   document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obIdx));
@@ -1257,247 +1258,6 @@ function nextOb() {
 }
 function closeOb() { document.getElementById('onboarding').style.display='none'; localStorage.setItem('ob_done','1'); localStorage.setItem('ob_done_date',formatDate(new Date())); }
 if(localStorage.getItem('ob_done')) { closeOb(); checkAlert(); }
-
-// ===== バックアップ機能（暗証番号方式） =====
-const BACKUP_ICON_LOCK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><circle cx="18" cy="21.5" r="1.8" fill="#c9a96e"/><rect x="17.2" y="23" width="1.6" height="4" rx="0.8" fill="#c9a96e"/></svg>`;
-const BACKUP_ICON_CHECK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><path d="M14.5 21.5 L17 24 L22 18.5" stroke="#c9a96e" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const BACKUP_ICON_RESTORE = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><path d="M8 18 Q8 10 18 10 Q28 10 28 18" stroke="#7a4f35" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M8 18 L11 15 M8 18 L11 21" stroke="#7a4f35" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="18" width="12" height="10" rx="2" fill="#f5ede6" stroke="#c9a96e" stroke-width="1.5"/><circle cx="18" cy="23" r="1.6" fill="#7a4f35"/></svg>`;
-
-let backupFlowContext = null; // 'onboarding' | 'menu'
-let pendingPin1 = '';
-
-function proceedToBackupSetup() {
-  backupFlowContext = 'onboarding';
-  document.getElementById('ob-dots').style.display = 'none';
-  document.getElementById('ob-skip').style.display = 'none';
-  showBackupChoice();
-}
-
-function openBackupFromMenu() {
-  closeDrawer();
-  backupFlowContext = 'menu';
-  document.getElementById('onboarding').style.display = 'flex';
-  document.getElementById('ob-dots').style.display = 'none';
-  document.getElementById('ob-skip').style.display = 'none';
-  if(localStorage.getItem('backup_pin')) {
-    showBackupAlready();
-  } else {
-    showBackupSetPin1();
-  }
-}
-
-function showBackupChoice() {
-  document.getElementById('ob-content').innerHTML = `
-    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
-    <div class="ob-title">データを守るために</div>
-    <div class="ob-desc">端末の不具合に備えて、<br>暗証番号でデータを守れます。</div>
-  `;
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = false;
-  btn.textContent = 'はじめる';
-  btn.onclick = showBackupSetPin1;
-  const link = document.getElementById('ob-link');
-  link.style.display = 'block';
-  link.textContent = '暗証番号で復元する';
-  link.onclick = showBackupRestore;
-}
-
-function pinInputsHtml(idPrefix) {
-  let html = `<div class="pin-wrap">`;
-  for(let i=0;i<6;i++) html += `<input class="pin-digit" id="${idPrefix}-${i}" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">`;
-  html += `</div><div class="pin-err" id="${idPrefix}-err"></div>`;
-  return html;
-}
-function bindPinAutoAdvance(idPrefix) {
-  for(let i=0;i<6;i++) {
-    const el = document.getElementById(idPrefix+'-'+i);
-    el.oninput = () => {
-      el.value = el.value.replace(/[^0-9]/g,'').slice(0,1);
-      if(el.value && i<5) document.getElementById(idPrefix+'-'+(i+1)).focus();
-    };
-    el.onkeydown = (e) => {
-      if(e.key==='Backspace' && !el.value && i>0) document.getElementById(idPrefix+'-'+(i-1)).focus();
-    };
-  }
-  document.getElementById(idPrefix+'-0').focus();
-}
-function readPin(idPrefix) {
-  let pin = '';
-  for(let i=0;i<6;i++) pin += document.getElementById(idPrefix+'-'+i).value || '';
-  return pin;
-}
-
-function showBackupSetPin1() {
-  document.getElementById('ob-content').innerHTML = `
-    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
-    <div class="ob-title">暗証番号を設定</div>
-    <div class="ob-desc">お好きな数字6桁を、<br>自己責任で設定してください。</div>
-    ${pinInputsHtml('setpin1')}
-  `;
-  bindPinAutoAdvance('setpin1');
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = false;
-  btn.textContent = '次へ';
-  btn.onclick = handleSetPin1Next;
-  document.getElementById('ob-link').style.display = 'none';
-}
-
-async function handleSetPin1Next() {
-  const pin = readPin('setpin1');
-  const errEl = document.getElementById('setpin1-err');
-  errEl.textContent = '';
-  if(!/^[0-9]{6}$/.test(pin)) { errEl.textContent = '6桁の数字を入力してください。'; return; }
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading-spinner"></span>確認しています...';
-  try {
-    const res = await fetch(WORKER_URL+'/backup/check-pin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
-    const data = await res.json();
-    if(data.error==='too_many_attempts') { errEl.textContent='しばらく時間をおいてから、もう一度お試しください。'; }
-    else if(!data.available) { errEl.textContent='その番号はすでに使用されています。別の番号を入力してください。'; }
-    else { pendingPin1 = pin; showBackupSetPin2(); return; }
-  } catch(e) {
-    errEl.textContent = '通信に失敗しました。もう一度お試しください。';
-  }
-  btn.disabled = false;
-  btn.textContent = '次へ';
-}
-
-function showBackupSetPin2() {
-  document.getElementById('ob-content').innerHTML = `
-    <div class="ob-icon">${BACKUP_ICON_CHECK}</div>
-    <div class="ob-title">もう一度入力</div>
-    <div class="ob-desc">同じ番号を入力してください。</div>
-    ${pinInputsHtml('setpin2')}
-  `;
-  bindPinAutoAdvance('setpin2');
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = false;
-  btn.textContent = '設定してはじめる';
-  btn.onclick = handleSetPin2Confirm;
-}
-
-async function handleSetPin2Confirm() {
-  const pin2 = readPin('setpin2');
-  const errEl = document.getElementById('setpin2-err');
-  errEl.textContent = '';
-  if(pin2 !== pendingPin1) { errEl.textContent = '番号が一致しません。もう一度入力してください。'; return; }
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading-spinner"></span>設定しています...';
-  localStorage.setItem('backup_pin', pendingPin1);
-  await sendBackup();
-  finishBackupFlow();
-}
-
-function showBackupRestore() {
-  document.getElementById('ob-content').innerHTML = `
-    <div class="ob-icon">${BACKUP_ICON_RESTORE}</div>
-    <div class="ob-title">暗証番号を入力</div>
-    <div class="ob-desc">以前設定した6桁を<br>入力してください。</div>
-    ${pinInputsHtml('restorepin')}
-  `;
-  bindPinAutoAdvance('restorepin');
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = false;
-  btn.textContent = '復元する';
-  btn.onclick = handleRestoreConfirm;
-  const link = document.getElementById('ob-link');
-  link.style.display = 'block';
-  link.textContent = 'はじめるに戻る';
-  link.onclick = showBackupChoice;
-}
-
-async function handleRestoreConfirm() {
-  const pin = readPin('restorepin');
-  const errEl = document.getElementById('restorepin-err');
-  errEl.textContent = '';
-  if(!/^[0-9]{6}$/.test(pin)) { errEl.textContent = '6桁の数字を入力してください。'; return; }
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading-spinner"></span>確認しています...';
-  try {
-    const res = await fetch(WORKER_URL+'/backup/restore', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
-    const data = await res.json();
-    if(data.error==='too_many_attempts') { errEl.textContent='しばらく時間をおいてから、もう一度お試しください。'; }
-    else if(!data.found) { errEl.textContent='データが見つかりませんでした。番号をご確認のうえ、もう一度お試しください。'; }
-    else {
-      restoreDataToLocalStorage(data.data);
-      localStorage.setItem('backup_pin', pin);
-      finishBackupFlow();
-      return;
-    }
-  } catch(e) {
-    errEl.textContent = '通信に失敗しました。もう一度お試しください。';
-  }
-  btn.disabled = false;
-  btn.textContent = '復元する';
-}
-
-function showBackupAlready() {
-  document.getElementById('ob-content').innerHTML = `
-    <div class="ob-icon">${BACKUP_ICON_CHECK}</div>
-    <div class="ob-title">設定済みです</div>
-    <div class="ob-desc">暗証番号をお忘れにならないよう<br>保管してください。</div>
-  `;
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = false;
-  btn.textContent = '閉じる';
-  btn.onclick = finishBackupFlow;
-  document.getElementById('ob-link').style.display = 'none';
-}
-
-function finishBackupFlow() {
-  document.getElementById('onboarding').style.display = 'none';
-  document.getElementById('ob-dots').style.display = '';
-  document.getElementById('ob-skip').style.display = '';
-  document.getElementById('ob-link').style.display = 'none';
-  const btn = document.getElementById('ob-btn');
-  btn.disabled = false;
-  btn.textContent = '次へ';
-  btn.onclick = nextOb;
-  if(backupFlowContext === 'onboarding') closeOb();
-  backupFlowContext = null;
-}
-
-function restoreDataToLocalStorage(data) {
-  Object.keys(data).forEach(key => { localStorage.setItem(key, data[key]); });
-}
-
-// バックアップ対象キーのスナップショットを作成
-function getBackupSnapshot() {
-  const snapshot = {};
-  ['profile','goal','pfc','rules','rule_streak','streak_last_date'].forEach(k => {
-    const v = localStorage.getItem(k);
-    if(v !== null) snapshot[k] = v;
-  });
-  Object.keys(localStorage).forEach(k => {
-    if(k.startsWith('meals_') || k.startsWith('today_checks_') || k.startsWith('week_')) {
-      snapshot[k] = localStorage.getItem(k);
-    }
-  });
-  return snapshot;
-}
-
-// 進行系データ（プロフィール・目標・PFC・ルール・streak）：保存の都度送信
-async function sendBackup() {
-  const pin = localStorage.getItem('backup_pin');
-  if(!pin) return;
-  try {
-    await fetch(WORKER_URL+'/backup/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ pin, data:getBackupSnapshot() }) });
-  } catch(e) { /* 送信失敗時は次回の保存操作時に再送されるため、ここでは何もしない */ }
-}
-
-// カロリー・PFCデータ（食事記録・ルールチェック）：日付が変わったときのみ送信
-function sendBackupDaily() {
-  const pin = localStorage.getItem('backup_pin');
-  if(!pin) return;
-  const today = formatDate(new Date());
-  const lastSent = localStorage.getItem('backup_last_sent_date');
-  if(lastSent === today) return;
-  localStorage.setItem('backup_last_sent_date', today);
-  sendBackup();
-}
 
 function loadProfileForm() {
   const p = JSON.parse(localStorage.getItem('profile')||'{}');
@@ -1580,6 +1340,14 @@ function swTab(name,el) {
 function selectTag(el, groupId) {
   document.querySelectorAll('#'+groupId+' .tag').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+  if(groupId==='exercise-tags') toggleExerciseSubFields(el.textContent);
+}
+function toggleExerciseSubFields(exerciseValue) {
+  const show = exerciseValue !== 'なし';
+  const intensityGroup = document.getElementById('exercise-intensity-group');
+  const timeGroup = document.getElementById('exercise-time-group');
+  if(intensityGroup) intensityGroup.style.display = show ? '' : 'none';
+  if(timeGroup) timeGroup.style.display = show ? '' : 'none';
 }
 function toggleTag(el) { el.classList.toggle('on'); }
 
@@ -1721,6 +1489,18 @@ function resetProject() {
 }
 
 // ===== PFC自動計算（JS） =====
+// 運動頻度の代表値（週あたりの回数）
+const EXERCISE_FREQ_MAP = {'なし':0, '週1〜2回':1.5, '週3〜4回':3.5, 'ほぼ毎日':6};
+// 運動強度の代表MET値
+const EXERCISE_MET_MAP = {
+  '軽度（ウォーキング（普通のペース）、ヨガ、ストレッチ）':3.5,
+  '中程度（早歩き、軽い筋トレ）':5.0,
+  '高強度（ジョギング（時速8km迄）、水泳、通常の筋トレ、ピラティス）':7.5,
+  '非常に高強度（ランニング（時速8km超）、HIIT、登山、ジムでの高負荷トレーニング、競技スポーツ）':11.0
+};
+// 運動時間の代表値（時間）
+const EXERCISE_TIME_MAP = {'30分未満':20/60, '30分〜1時間':45/60, '1〜2時間':90/60, '2〜4時間':180/60, '4時間以上':300/60};
+
 function calcPFC() {
   const profile = JSON.parse(localStorage.getItem('profile')||'{}');
   const goalData = JSON.parse(localStorage.getItem('goal')||'{}');
@@ -1730,6 +1510,8 @@ function calcPFC() {
   const gender = profile.gender||'女性';
   const actFactor = parseFloat(profile.activity||'1.375');
   const exercise = profile.exercise||'週1〜2回';
+  const exerciseIntensity = profile.exercise_intensity||'中程度（早歩き、軽い筋トレ）';
+  const exerciseTime = profile.exercise_time||'30分〜1時間';
   const goalFat = parseFloat(goalData.goal_fat||document.getElementById('goal_fat')?.value||0);
   const period = goalData.goal_period||document.getElementById('goal_period')?.value||'6ヶ月';
 
@@ -1739,11 +1521,15 @@ function calcPFC() {
   else bmr = 10*weight + 6.25*height - 5*age - 161;
   if(profile.bmr) bmr = parseFloat(profile.bmr);
 
-  // TDEE
-  let act = actFactor;
-  if(exercise==='週3〜4回') act += 0.175;
-  else if(exercise==='ほぼ毎日') act += 0.35;
-  const tdee = Math.round(bmr * act);
+  // 運動による週の運動量（MET-時間/週）と1日あたりの追加消費カロリー
+  const freqCount = EXERCISE_FREQ_MAP[exercise] ?? 1.5;
+  const metVal = EXERCISE_MET_MAP[exerciseIntensity] ?? 5.0;
+  const timeHours = EXERCISE_TIME_MAP[exerciseTime] ?? 0.75;
+  const weeklyMetHours = exercise==='なし' ? 0 : metVal * timeHours * freqCount;
+  const dailyExtraKcal = exercise==='なし' ? 0 : ((metVal-1) * weight * timeHours * 1.05 * freqCount) / 7;
+
+  // TDEE（職業活動係数×BMR＋運動による追加消費カロリー。二重計上を避けるため運動加算は別建て）
+  const tdee = Math.round(bmr * actFactor + dailyExtraKcal);
 
   // 期間から1日の赤字
   const months = period==='3ヶ月'?3:period==='6ヶ月'?6:period==='1年'?12:18;
@@ -1751,14 +1537,22 @@ function calcPFC() {
   const deficit = goalFat>0 ? Math.round((goalFat * 7200) / days) : 300;
   const goalKcal = Math.max(Math.round(bmr), tdee - deficit);
 
-  // PFC比率
-  const isActive = exercise==='週3〜4回'||exercise==='ほぼ毎日';
-  const pRatio = isActive ? 0.35 : 0.30;
-  const fRatio = 0.20;
-  const cRatio = 1 - pRatio - fRatio;
-  const goalP = Math.round((goalKcal * pRatio) / 4);
-  const goalF = Math.round((goalKcal * fRatio) / 9);
-  const goalC = Math.round((goalKcal * cRatio) / 4);
+  // タンパク質：連続スケーリング方式（0.8〜2.3g/kg、46 MET-時間/週で上限到達）
+  const proteinCoef = 0.8 + 1.5 * Math.min(weeklyMetHours/46, 1);
+  const goalP = Math.round(proteinCoef * weight);
+  const goalPKcal = goalP * 4;
+
+  // 脂質：目標カロリー×20%÷9 と 必須脂肪酸目安13gの、大きい方
+  const goalF = Math.round(Math.max((goalKcal*0.20)/9, 13));
+  const goalFKcal = goalF * 9;
+
+  // 炭水化物：残りカロリーを充当
+  const goalC = Math.max(0, Math.round((goalKcal - goalPKcal - goalFKcal) / 4));
+  const goalCKcal = goalC * 4;
+  // 表示用バーの比率（実際のカロリー配分から算出）
+  const pRatio = goalKcal>0 ? goalPKcal/goalKcal : 0;
+  const fRatio = goalKcal>0 ? goalFKcal/goalKcal : 0;
+  const cRatio = goalKcal>0 ? goalCKcal/goalKcal : 0;
 
   const el_kcal = document.getElementById('goal-kcal-display');
   const el_p = document.getElementById('goal-p');
@@ -1818,7 +1612,6 @@ function saveProfile() {
     tone: document.querySelector('#tone-tags .tag.on')?.dataset.tone||'フレンドリー',
   };
   localStorage.setItem('profile', JSON.stringify(data));
-  sendBackup();
   return true;
 }
 
@@ -1826,6 +1619,21 @@ function saveGoal(requireMotivation) {
   if(requireMotivation && !document.getElementById('motivation').value) {
     alert('「達成後にやりたいこと・なりたい姿」は必須項目です。入力してください。');
     return false;
+  }
+  // セーフティライン：週1%（体重比）を超える減量ペースはブロック
+  const profile = JSON.parse(localStorage.getItem('profile')||'{}');
+  const weight = parseFloat(profile.weight||60);
+  const goalFatInput = parseFloat(document.getElementById('goal_fat').value||0);
+  const periodInput = document.getElementById('goal_period').value||'6ヶ月';
+  if(goalFatInput > 0) {
+    const monthsCheck = periodInput==='3ヶ月'?3:periodInput==='6ヶ月'?6:periodInput==='1年'?12:18;
+    const weeksCheck = monthsCheck * 30 / 7;
+    const weeklyLossKg = goalFatInput / weeksCheck;
+    const maxWeeklyLossKg = weight * 0.01;
+    if(weeklyLossKg > maxWeeklyLossKg) {
+      alert('このペースは、厚生労働省が紹介する医学的に推奨される安全な減量速度を超えています。急激な減量は、筋肉量の減少・リバウンドのリスクを高めます。無理のない目標に見直してください。');
+      return false;
+    }
   }
   const existingGoal = JSON.parse(localStorage.getItem('goal')||'{}');
   const data = {
@@ -1845,7 +1653,6 @@ function saveGoal(requireMotivation) {
   };
   localStorage.setItem('goal', JSON.stringify(data));
   calcPFC();
-  sendBackup();
   return true;
 }
 
@@ -1861,8 +1668,6 @@ function saveRules() {
     localStorage.setItem(weekKey, JSON.stringify(init));
   }
   localStorage.setItem('today_checks_'+formatDate(new Date()), JSON.stringify([]));
-  sendBackup();
-  sendBackupDaily();
 }
 
 // ===== ルールテンプレート =====
@@ -2389,7 +2194,6 @@ function deleteMeal(idx) {
   const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
   meals.splice(idx,1);
   localStorage.setItem(todayKey,JSON.stringify(meals));
-  sendBackupDaily();
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
   renderMeals(meals,pfc);
 }
@@ -2420,7 +2224,6 @@ JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":�
       const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
       meals.push(meal);
       localStorage.setItem(todayKey,JSON.stringify(meals));
-      sendBackupDaily();
       const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
       renderMeals(meals,pfc);
       document.getElementById('meal-txt').value='';
@@ -2483,8 +2286,6 @@ function toggleRuleCheck(rule,rules) {
   }
   localStorage.setItem(todayKey,JSON.stringify(checks));
   localStorage.setItem(weekKey,JSON.stringify(weekData));
-  sendBackup();
-  sendBackupDaily();
   renderRules(rules);
 }
 
@@ -2533,11 +2334,16 @@ function coachIconSVG(tone, strokeColor){
 
 async function generateReport() {
   const btn=document.getElementById('gen-btn');
-  btn.innerHTML='<span class="loading-spinner"></span>生成中...';
-  btn.disabled=true;
   const profile=JSON.parse(localStorage.getItem('profile')||'{}');
   const goal=JSON.parse(localStorage.getItem('goal')||'{}');
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
+  // 目標カロリー・PFCが未設定の場合は、AIを呼び出さず案内を表示して終了
+  if(!pfc.goalKcal || !pfc.goalP || !pfc.goalF || !pfc.goalC) {
+    document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">目標カロリー・PFCがまだ設定されていません。まずはプロフィール画面で「目標カロリー・PFCを自動計算する」を行ってください。</div>';
+    return;
+  }
+  btn.innerHTML='<span class="loading-spinner"></span>生成中...';
+  btn.disabled=true;
   const rules=JSON.parse(localStorage.getItem('rules')||'[]');
   const todayKey='meals_'+formatDate(new Date());
   const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
@@ -2552,6 +2358,11 @@ async function generateReport() {
     '王子様':'優雅で甘く、あなたを特別な存在として扱う王子様のように'
   };
   const mealSummary=meals.length>0?meals.map(m=>m.name+'(kcal:'+m.kcal+' P:'+m.p+'g F:'+m.f+'g C:'+m.c+'g)').join('、'):'記録なし';
+  // 今日の合計摂取量（AIに暗算させず、正確な数値を渡す）
+  const totalKcal=meals.reduce((s,m)=>s+(m.kcal||0),0);
+  const totalP=meals.reduce((s,m)=>s+(m.p||0),0);
+  const totalF=meals.reduce((s,m)=>s+(m.f||0),0);
+  const totalC=meals.reduce((s,m)=>s+(m.c||0),0);
   const ruleSummary=rules.map(r=>r+(checks.includes(r)?'→達成':'→未達')).join('、');
   const hasBloodData = goal.blood_sugar || goal.triglyceride || goal.hdl || goal.ldl;
   let bloodInfo = '';
@@ -2564,7 +2375,14 @@ async function generateReport() {
     bloodInfo = "\n- 血液検査データ：" + refs.join('、') + "\n- 既往歴：" + ((goal.diseases&&goal.diseases.length)?goal.diseases.join('、'):'特になし');
   }
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
-  const lifestyleInfo=`\n- 生活習慣（参考）：運動${profile.exercise||'週1〜2回'}・強度${profile.exercise_intensity||'軽度（ウォーキング・ヨガ等）'}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
+    ? '運動習慣：なし'
+    : `運動：${profile.exercise}（強度：${profile.exercise_intensity||'中程度（早歩き、軽い筋トレ）'}、1回${profile.exercise_time||'30分〜1時間'}）`;
+  const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const goalInfo=`\n【今日の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g\n【今日の合計摂取量】\n- カロリー：${totalKcal}kcal／タンパク質${totalP}g／脂質${totalF}g／炭水化物${totalC}g`;
+  const weightForCheck = parseFloat(profile.weight||60);
+  const proteinPerKg = weightForCheck>0 ? (pfc.goalP/weightForCheck) : 0;
+  const needsPerformanceFuel = proteinPerKg >= 1.6;
   const toneConditions={
     'フレンドリー':`- 好きな食べ物・推しと目標を同等に絡める
 - PFCの数値に軽く触れる
@@ -2601,6 +2419,7 @@ async function generateReport() {
 - 達成後にやりたいこと：${goal.motivation||'未設定'}
 - 身体の悩み・改善したいこと：${profile.body_concern}
 ${bodyInfo}${lifestyleInfo}${bloodInfo}
+${goalInfo}
 
 【今日の記録】
 - 食事（PFC含む）：${mealSummary}
@@ -2608,19 +2427,22 @@ ${bodyInfo}${lifestyleInfo}${bloodInfo}
 
 【文章構成】以下の順序で構成してください
 1. 目標と現在地の再確認（できていることをメインに褒める、できていないことは僅かに伝える）
-2. PFCに触れる（数値）＋カロリーは補足程度
-3. その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
-4. 具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
-5. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
+2. PFCに触れる（目標カロリー・目標PFCと、今日の合計摂取量を具体的に比較する）＋脂質については量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+3. 運動状況（頻度・強度・時間）に触れる。運動習慣がない場合は、取り入れることを軽く勧める一言を入れる
+4. その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
+5. 具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
+6. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
 【条件】
-- 6文以内・400文字以内で収める
+- 8文以内・500文字以内で収める
 - 長すぎず短すぎず、簡潔・端的に
 - 絵文字を1〜2個使う
 - 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
-- 生活習慣（参考）は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
-- 運動頻度・強度が高い場合（週3回以上×中〜高強度）は、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない
-- 運動頻度が低い、または強度が軽い場合は、間食・糖質量への意識づけを重視する
+- 目標カロリー・目標PFCの数値には、必ず言及すること
+- 運動状況（頻度・強度・時間）には、必ず言及すること
+- 脂質については、量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも必ず言及すること
+- 生活習慣（参考）のうち飲酒・間食・ストレス過食は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
+${needsPerformanceFuel ? '- 運動量が多いため、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない' : '- 間食・糖質量への意識づけを重視する'}
 - プロフィールの飲酒頻度・量が多い場合（週3回以上、または1回あたり多め）、当日の食事記録に飲酒に関する内容が含まれるときは、脅すのではなく事実として軽く触れる
 - プロフィールの間食頻度が多い場合（週3回以上）、当日の食事記録に間食に関する内容が含まれるときは、目標達成との関連について軽く触れる
 - 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
