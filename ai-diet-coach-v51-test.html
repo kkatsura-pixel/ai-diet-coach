@@ -1462,6 +1462,20 @@ function startProject() {
     alert('体組成データ（体重・体脂肪率）が未入力のため、プロジェクトを開始できません。プロフィールを先に保存してください。');
     return;
   }
+  // セーフティライン：週1%（体重比）を超える減量ペースはブロック
+  const weightForSafety = parseFloat(profile.weight||60);
+  const goalFatInput = parseFloat(document.getElementById('goal_fat').value||0);
+  const periodInput = document.getElementById('goal_period').value||'6ヶ月';
+  if(goalFatInput > 0) {
+    const monthsCheck = periodInput==='3ヶ月'?3:periodInput==='6ヶ月'?6:periodInput==='1年'?12:18;
+    const weeksCheck = monthsCheck * 30 / 7;
+    const weeklyLossKg = goalFatInput / weeksCheck;
+    const maxWeeklyLossKg = weightForSafety * 0.01;
+    if(weeklyLossKg > maxWeeklyLossKg) {
+      alert('このペースは、厚生労働省が紹介する医学的に推奨される安全な減量速度を超えています。急激な減量は、筋肉量の減少・リバウンドのリスクを高めます。無理のない目標に見直してください。');
+      return;
+    }
+  }
   const fatKg = profile.fat_kg || (parseFloat(profile.weight)*parseFloat(profile.fat_pct)/100).toFixed(1);
   const goal = JSON.parse(localStorage.getItem('goal')||'{}');
   goal.goal_fat = document.getElementById('goal_fat').value;
