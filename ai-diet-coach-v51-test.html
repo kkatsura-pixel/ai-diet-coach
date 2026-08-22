@@ -1272,6 +1272,7 @@ function loadProfileForm() {
   if(p.gender) { document.querySelectorAll('#gender-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.gender); }); }
   if(p.exercise) { document.querySelectorAll('#exercise-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise); }); }
   if(p.exercise_intensity) { document.querySelectorAll('#exercise-intensity-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_intensity); }); }
+  if(p.exercise_time) { document.querySelectorAll('#exercise-time-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_time); }); }
   if(p.meal_freq) { document.querySelectorAll('#meal-freq-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.meal_freq); }); }
   if(p.snack) { document.querySelectorAll('#snack-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.snack); }); }
   if(p.stress) { document.querySelectorAll('#stress-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.stress); }); }
@@ -1611,7 +1612,8 @@ function saveProfile() {
     bmr: document.getElementById('bmr').value,
     activity: document.getElementById('activity').value,
     exercise: document.querySelector('#exercise-tags .tag.on')?.textContent||'週1〜2回',
-    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.textContent||'軽度（ウォーキング・ヨガ等）',
+    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.textContent||'軽度（ウォーキング（普通のペース）、ヨガ、ストレッチ）',
+    exercise_time: document.querySelector('#exercise-time-tags .tag.on')?.textContent||'30分〜1時間',
     meal_freq: document.querySelector('#meal-freq-tags .tag.on')?.textContent||'3食',
     sleep: document.getElementById('sleep').value,
     water: document.getElementById('water').value,
