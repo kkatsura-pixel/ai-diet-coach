@@ -261,6 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .coach-mode{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;letter-spacing:0.05em;}
 .coach-body{background:#fdf8f5;border:1.5px solid #e8d5c4;border-top:none;border-radius:0 0 8px 8px;padding:16px 18px;}
 .coach-msg{font-size:15px;color:#000;line-height:1.85;white-space:pre-line;}
+.coach-msg-heading{display:block;font-size:13px;font-weight:600;color:#7a4f35;border-left:3px solid #a8843a;padding-left:8px;margin:14px 0 4px;line-height:1.4;}
 .coach-msg em{font-style:normal;color:#7a4f35;font-weight:500;}
 .coach-placeholder{font-size:14px;color:#aaa;line-height:1.7;}
 .coach-gen-btn{width:100%;margin-top:14px;padding:13px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
@@ -2678,11 +2679,11 @@ async function generateReport() {
     'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - PFCの数値で現実を突きつける
 - 体への影響で危機感を煽る1文を入れる
-- 厳しく追い込む口調で`,
+- 高い要求をするが、自覚を促し、判断は本人に委ねる口調で（「〜だろう」「〜次第だ」のような、問いかけ・委ねる言い切り方）`,
     'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - PFCの数値で現実を突きつける
 - 体への影響で危機感を煽る1文を入れる
-- 辛口でシャープに、愛のある追い込む口調で`
+- 基本は「〜しろ」「〜やれ」のような命令口調で、強く要求する（判断を委ねず、強制する）。ただし、できている部分（運動の継続・ルール達成など）があれば、そこだけは素っ気なくでも褒め、厳しさの中にごくたまに飴を挟む。「〜わよ」「〜わね」のような、性別を感じさせる言葉づかい（オネエ口調・女性言葉）は使わない`
   };
   const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}フィードバックしてください。
 
@@ -2711,8 +2712,8 @@ ${goalInfo}
 8. 締めのあいさつ（見出しなし）：問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
 【条件】
-- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・550文字以内で収める
-- 見出しは、指定した6つの言葉（目標と現在地／カロリーとPFC／ビタミン・ミネラル／運動について／このままだと／解決策）を、そのまま使う。見出し自体は文字数（8文・550字）にカウントしない
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- 見出しは、指定した6つの言葉（目標と現在地／カロリーとPFC／ビタミン・ミネラル／運動について／このままだと／解決策）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
 - 見出しは記号（##など）で装飾せず、単独の1行として置く
 - 端的に
 - 絵文字を1〜2個使う
@@ -2723,7 +2724,7 @@ ${goalInfo}
 - プロフィールの間食頻度が多い場合（週3回以上）、当日の食事記録に間食に関する内容が含まれるときは、目標達成との関連について軽く触れる
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
-- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#b91c1c'>〜</span>で囲む。特に「このままだと」の見出しの内容は、該当箇所の大部分を赤字にする${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#e11d1d'>〜</span>で囲む。特に「このままだと」の見出しの内容は、該当箇所の大部分を赤字にする${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
 
   try {
     const RETRIABLE_STATUS=[429,500,502,503,504];
@@ -2739,7 +2740,7 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
         }
         const data=await res.json();
         const msg=data.candidates[0].content.parts[0].text;
-        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${decorateCoachHeadings(msg)}</div>`;
         document.getElementById('line-share-btn').style.display='flex';
         document.getElementById('line-share-btn').setAttribute('data-msg', msg);
         succeeded=true;
@@ -2910,10 +2911,10 @@ async function generateWeeklyReport() {
 - 分析・論理的な口調で`,
     'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - 週間データで現実を突きつける
-- 厳しく追い込む口調で`,
+- 高い要求をするが、自覚を促し、判断は本人に委ねる口調で（「〜だろう」「〜次第だ」のような、問いかけ・委ねる言い切り方）`,
     'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - 週間データで現実を突きつける
-- 辛口でシャープに、愛のある追い込む口調で`
+- 基本は「〜しろ」「〜やれ」のような命令口調で、強く要求する（判断を委ねず、強制する）。ただし、できている部分（運動の継続・ルール達成など）があれば、そこだけは素っ気なくでも褒め、厳しさの中にごくたまに飴を挟む。「〜わよ」「〜わね」のような、性別を感じさせる言葉づかい（オネエ口調・女性言葉）は使わない`
   };
 
   const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}、今週1週間の習慣についてフィードバックしてください。単日の食事内容ではなく、週を通じた傾向・習慣化の観点で評価してください。
@@ -2956,7 +2957,7 @@ ${dailySummaries.join('\n')}
 - 危機感を煽る際も、頭ごなしに責めるのではなく、理由→リスク→改善提案→励ましの順で伝える
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
-- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#b91c1c'>〜</span>で囲む。特に「このままだと未来は」の見出しの内容は、該当箇所の大部分を赤字にする`;
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#e11d1d'>〜</span>で囲む。特に「このままだと未来は」の見出しの内容は、該当箇所の大部分を赤字にする`;
 
   try {
     const RETRIABLE_STATUS=[429,500,502,503,504];
@@ -2972,7 +2973,7 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
         }
         const data=await res.json();
         const msg=data.candidates[0].content.parts[0].text;
-        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${decorateCoachHeadings(msg)}</div>`;
         document.getElementById('weekly-line-share-btn').style.display='flex';
         document.getElementById('weekly-line-share-btn').setAttribute('data-msg', msg);
         succeeded=true;
@@ -3003,6 +3004,17 @@ function selSz(el) { document.querySelectorAll('.sz').forEach(s=>s.classList.rem
 
 // ===== ユーティリティ =====
 function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// AIレポートの生成文中の見出し（行頭に単独で出現する指定ワード）を装飾する
+const COACH_MSG_HEADINGS = ['目標と現在地','カロリーとPFC','ビタミン・ミネラル','運動について','このままだと','解決策','記録とルールの継続状況','継続に関して','今週のカロリーとPFC','今週のビタミン・ミネラル','今週の運動と栄養','このままだと未来は','今すぐできる事'];
+function decorateCoachHeadings(msg) {
+  let result = msg;
+  COACH_MSG_HEADINGS.forEach(h => {
+    const escaped = h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp('(^|\\n)'+escaped+'(?=\\n|$)', 'g'), `$1<span class="coach-msg-heading">${h}</span>`);
+  });
+  return result;
+}
 function getWeek(d) { const s=new Date(d.getFullYear(),0,1); return Math.ceil(((d-s)/86400000+s.getDay()+1)/7); }
 
 // ===== 起動カウント =====
