@@ -113,7 +113,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .g1{margin-bottom:10px;}
 .fld{display:flex;flex-direction:column;gap:5px;}
 .fld label{font-size:11px;font-weight:500;color:#555;}
-.fld input,.fld select,.fld textarea{font-size:14px;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;color:#111;width:100%;font-family:inherit;transition:border-color 0.15s;}
+.fld input,.fld select,.fld textarea{font-size:14px;line-height:1.4;-webkit-appearance:none;appearance:none;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;color:#111;width:100%;font-family:inherit;transition:border-color 0.15s;}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:#7a4f35;background:#fff;}
 .fld textarea{resize:none;line-height:1.65;}
 .fld select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:#faf9f7;padding-right:36px;}
@@ -121,14 +121,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .req-mark{color:#dc2626;margin-left:2px;}
 
 /* タグ */
-.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+.tags{display:flex;flex-wrap:wrap;gap:7px;}
 #tone-tags{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .tag.coach-pick{border:1.5px solid #e0dcd6;border-radius:8px;padding:12px 6px 10px;text-align:center;background:#faf9f7;cursor:pointer;transition:all 0.15s;}
 .tag.coach-pick.on{border-color:#a8843a;background:#f5ede6;}
 .coach-pick svg{width:38px;height:38px;}
 .coach-pick .nm{font-size:11px;font-weight:600;color:#111;margin-top:5px;}
 .coach-pick .ds{font-size:9px;color:#999;margin-top:2px;line-height:1.3;}
-.tag{font-size:12px;font-weight:500;padding:7px 15px;border-radius:4px;border:1.5px solid #e0dcd6;color:#555;cursor:pointer;background:#faf9f7;transition:all 0.15s;}
+.tag{font-size:14px;line-height:1.4;font-weight:500;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;color:#555;cursor:pointer;background:#faf9f7;transition:all 0.15s;}
 .tag.on{background:#f5ede6;border-color:#7a4f35;color:#7a4f35;}
 
 /* インフォボックス */
@@ -260,7 +260,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .coach-name{font-size:13px;font-weight:500;color:#fff;}
 .coach-mode{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;letter-spacing:0.05em;}
 .coach-body{background:#fdf8f5;border:1.5px solid #e8d5c4;border-top:none;border-radius:0 0 8px 8px;padding:16px 18px;}
-.coach-msg{font-size:15px;color:#111;line-height:1.85;white-space:pre-line;}
+.coach-msg{font-size:15px;color:#000;line-height:1.85;white-space:pre-line;}
+.coach-msg-heading{display:block;font-size:13px;font-weight:600;color:#7a4f35;border-left:3px solid #a8843a;padding-left:8px;margin:14px 0 4px;line-height:1.4;}
 .coach-msg em{font-style:normal;color:#7a4f35;font-weight:500;}
 .coach-placeholder{font-size:14px;color:#aaa;line-height:1.7;}
 .coach-gen-btn{width:100%;margin-top:14px;padding:13px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
@@ -628,9 +629,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div>
       <div class="g1"><div class="fld"><label>ニックネーム（アプリ内表示名）<span class="req-mark">*</span></label><input type="text" id="nickname" placeholder="例：美咲、みーちゃん"></div></div>
       <div class="g2">
-        <div class="fld"><label>年齢 <span class="req-mark">*</span></label><input type="number" id="age" placeholder="28"></div>
+        <div class="fld"><label>年齢 <span class="req-mark">*</span></label><input type="text" inputmode="numeric" pattern="[0-9]*" id="age" placeholder="28"></div>
         <div class="fld"><label>性別 <span class="req-mark">*</span></label>
-          <div class="tags" id="gender-tags" style="margin-top:8px;">
+          <div class="tags" id="gender-tags">
             <span class="tag on" onclick="selectTag(this,'gender-tags')">女性</span>
             <span class="tag" onclick="selectTag(this,'gender-tags')">男性</span>
           </div>
@@ -663,13 +664,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag" onclick="selectTag(this,'exercise-tags')">ほぼ毎日</span>
         </div>
       </div></div>
-      <div class="g1"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
+      <div class="g1" id="exercise-intensity-group"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
         <div class="tags" id="exercise-intensity-tags">
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">運動していない</span>
-          <div style="flex-basis:100%;height:0;"></div>
-          <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（ウォーキング・ヨガ等）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（ジョギング・軽い筋トレ等）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（ジム高負荷・HIIT・登山等）</span>
+          <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（ウォーキング（普通のペース）、ヨガ、ストレッチ）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（早歩き、軽い筋トレ）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（ジョギング（時速8km迄）、水泳、通常の筋トレ、ピラティス）</span>
+          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">非常に高強度（ランニング（時速8km超）、HIIT、登山、ジムでの高負荷トレーニング、競技スポーツ）</span>
+        </div>
+      </div></div>
+      <div class="g1" id="exercise-time-group"><div class="fld"><label>運動時間 <span class="req-mark">*</span></label>
+        <div style="font-size:11px;color:#999;margin-bottom:4px;">1回あたりの運動時間の目安</div>
+        <div class="tags" id="exercise-time-tags">
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">30分未満</span>
+          <span class="tag on" onclick="selectTag(this,'exercise-time-tags')">30分〜1時間</span>
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">1〜2時間</span>
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">2〜4時間</span>
+          <span class="tag" onclick="selectTag(this,'exercise-time-tags')">4時間以上</span>
         </div>
       </div></div>
       <div class="g1"><div class="fld"><label>1日の食事回数 <span class="req-mark">*</span></label>
@@ -1514,6 +1524,7 @@ function loadProfileForm() {
   if(p.gender) { document.querySelectorAll('#gender-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.gender); }); }
   if(p.exercise) { document.querySelectorAll('#exercise-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise); }); }
   if(p.exercise_intensity) { document.querySelectorAll('#exercise-intensity-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_intensity); }); }
+  if(p.exercise_time) { document.querySelectorAll('#exercise-time-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_time); }); }
   if(p.meal_freq) { document.querySelectorAll('#meal-freq-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.meal_freq); }); }
   if(p.snack) { document.querySelectorAll('#snack-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.snack); }); }
   if(p.stress) { document.querySelectorAll('#stress-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.stress); }); }
@@ -1582,6 +1593,14 @@ function swTab(name,el) {
 function selectTag(el, groupId) {
   document.querySelectorAll('#'+groupId+' .tag').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+  if(groupId==='exercise-tags') toggleExerciseSubFields(el.textContent);
+}
+function toggleExerciseSubFields(exerciseValue) {
+  const show = exerciseValue !== 'なし';
+  const intensityGroup = document.getElementById('exercise-intensity-group');
+  const timeGroup = document.getElementById('exercise-time-group');
+  if(intensityGroup) intensityGroup.style.display = show ? '' : 'none';
+  if(timeGroup) timeGroup.style.display = show ? '' : 'none';
 }
 function toggleTag(el) { el.classList.toggle('on'); }
 
@@ -1696,6 +1715,20 @@ function startProject() {
     alert('体組成データ（体重・体脂肪率）が未入力のため、プロジェクトを開始できません。プロフィールを先に保存してください。');
     return;
   }
+  // セーフティライン：週1%（体重比）を超える減量ペースはブロック
+  const weightForSafety = parseFloat(profile.weight||60);
+  const goalFatInput = parseFloat(document.getElementById('goal_fat').value||0);
+  const periodInput = document.getElementById('goal_period').value||'6ヶ月';
+  if(goalFatInput > 0) {
+    const monthsCheck = periodInput==='3ヶ月'?3:periodInput==='6ヶ月'?6:periodInput==='1年'?12:18;
+    const weeksCheck = monthsCheck * 30 / 7;
+    const weeklyLossKg = goalFatInput / weeksCheck;
+    const maxWeeklyLossKg = weightForSafety * 0.01;
+    if(weeklyLossKg > maxWeeklyLossKg) {
+      alert('このペースは、厚生労働省が紹介する医学的に推奨される安全な減量速度を超えています。急激な減量は、筋肉量の減少・リバウンドのリスクを高めます。無理のない目標に見直してください。');
+      return;
+    }
+  }
   const fatKg = profile.fat_kg || (parseFloat(profile.weight)*parseFloat(profile.fat_pct)/100).toFixed(1);
   const goal = JSON.parse(localStorage.getItem('goal')||'{}');
   goal.goal_fat = document.getElementById('goal_fat').value;
@@ -1723,6 +1756,18 @@ function resetProject() {
 }
 
 // ===== PFC自動計算（JS） =====
+// 運動頻度の代表値（週あたりの回数）
+const EXERCISE_FREQ_MAP = {'なし':0, '週1〜2回':1.5, '週3〜4回':3.5, 'ほぼ毎日':6};
+// 運動強度の代表MET値
+const EXERCISE_MET_MAP = {
+  '軽度（ウォーキング（普通のペース）、ヨガ、ストレッチ）':3.5,
+  '中程度（早歩き、軽い筋トレ）':5.0,
+  '高強度（ジョギング（時速8km迄）、水泳、通常の筋トレ、ピラティス）':7.5,
+  '非常に高強度（ランニング（時速8km超）、HIIT、登山、ジムでの高負荷トレーニング、競技スポーツ）':11.0
+};
+// 運動時間の代表値（時間）
+const EXERCISE_TIME_MAP = {'30分未満':20/60, '30分〜1時間':45/60, '1〜2時間':90/60, '2〜4時間':180/60, '4時間以上':300/60};
+
 function calcPFC() {
   const profile = JSON.parse(localStorage.getItem('profile')||'{}');
   const goalData = JSON.parse(localStorage.getItem('goal')||'{}');
@@ -1732,6 +1777,8 @@ function calcPFC() {
   const gender = profile.gender||'女性';
   const actFactor = parseFloat(profile.activity||'1.375');
   const exercise = profile.exercise||'週1〜2回';
+  const exerciseIntensity = profile.exercise_intensity||'中程度（早歩き、軽い筋トレ）';
+  const exerciseTime = profile.exercise_time||'30分〜1時間';
   const goalFat = parseFloat(goalData.goal_fat||document.getElementById('goal_fat')?.value||0);
   const period = goalData.goal_period||document.getElementById('goal_period')?.value||'6ヶ月';
 
@@ -1741,11 +1788,15 @@ function calcPFC() {
   else bmr = 10*weight + 6.25*height - 5*age - 161;
   if(profile.bmr) bmr = parseFloat(profile.bmr);
 
-  // TDEE
-  let act = actFactor;
-  if(exercise==='週3〜4回') act += 0.175;
-  else if(exercise==='ほぼ毎日') act += 0.35;
-  const tdee = Math.round(bmr * act);
+  // 運動による週の運動量（MET-時間/週）と1日あたりの追加消費カロリー
+  const freqCount = EXERCISE_FREQ_MAP[exercise] ?? 1.5;
+  const metVal = EXERCISE_MET_MAP[exerciseIntensity] ?? 5.0;
+  const timeHours = EXERCISE_TIME_MAP[exerciseTime] ?? 0.75;
+  const weeklyMetHours = exercise==='なし' ? 0 : metVal * timeHours * freqCount;
+  const dailyExtraKcal = exercise==='なし' ? 0 : ((metVal-1) * weight * timeHours * 1.05 * freqCount) / 7;
+
+  // TDEE（職業活動係数×BMR＋運動による追加消費カロリー。二重計上を避けるため運動加算は別建て）
+  const tdee = Math.round(bmr * actFactor + dailyExtraKcal);
 
   // 期間から1日の赤字
   const months = period==='3ヶ月'?3:period==='6ヶ月'?6:period==='1年'?12:18;
@@ -1753,14 +1804,22 @@ function calcPFC() {
   const deficit = goalFat>0 ? Math.round((goalFat * 7200) / days) : 300;
   const goalKcal = Math.max(Math.round(bmr), tdee - deficit);
 
-  // PFC比率
-  const isActive = exercise==='週3〜4回'||exercise==='ほぼ毎日';
-  const pRatio = isActive ? 0.35 : 0.30;
-  const fRatio = 0.20;
-  const cRatio = 1 - pRatio - fRatio;
-  const goalP = Math.round((goalKcal * pRatio) / 4);
-  const goalF = Math.round((goalKcal * fRatio) / 9);
-  const goalC = Math.round((goalKcal * cRatio) / 4);
+  // タンパク質：連続スケーリング方式（0.8〜2.3g/kg、46 MET-時間/週で上限到達）
+  const proteinCoef = 0.8 + 1.5 * Math.min(weeklyMetHours/46, 1);
+  const goalP = Math.round(proteinCoef * weight);
+  const goalPKcal = goalP * 4;
+
+  // 脂質：目標カロリー×20%÷9 と 必須脂肪酸目安13gの、大きい方
+  const goalF = Math.round(Math.max((goalKcal*0.20)/9, 13));
+  const goalFKcal = goalF * 9;
+
+  // 炭水化物：残りカロリーを充当
+  const goalC = Math.max(0, Math.round((goalKcal - goalPKcal - goalFKcal) / 4));
+  const goalCKcal = goalC * 4;
+  // 表示用バーの比率（実際のカロリー配分から算出）
+  const pRatio = goalKcal>0 ? goalPKcal/goalKcal : 0;
+  const fRatio = goalKcal>0 ? goalFKcal/goalKcal : 0;
+  const cRatio = goalKcal>0 ? goalCKcal/goalKcal : 0;
 
   const el_kcal = document.getElementById('goal-kcal-display');
   const el_p = document.getElementById('goal-p');
@@ -1805,7 +1864,8 @@ function saveProfile() {
     bmr: document.getElementById('bmr').value,
     activity: document.getElementById('activity').value,
     exercise: document.querySelector('#exercise-tags .tag.on')?.textContent||'週1〜2回',
-    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.textContent||'軽度（ウォーキング・ヨガ等）',
+    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.textContent||'軽度（ウォーキング（普通のペース）、ヨガ、ストレッチ）',
+    exercise_time: document.querySelector('#exercise-time-tags .tag.on')?.textContent||'30分〜1時間',
     meal_freq: document.querySelector('#meal-freq-tags .tag.on')?.textContent||'3食',
     sleep: document.getElementById('sleep').value,
     water: document.getElementById('water').value,
@@ -1828,6 +1888,21 @@ function saveGoal(requireMotivation) {
   if(requireMotivation && !document.getElementById('motivation').value) {
     alert('「達成後にやりたいこと・なりたい姿」は必須項目です。入力してください。');
     return false;
+  }
+  // セーフティライン：週1%（体重比）を超える減量ペースはブロック
+  const profileForSafety = JSON.parse(localStorage.getItem('profile')||'{}');
+  const weightForSafety2 = parseFloat(profileForSafety.weight||60);
+  const goalFatInputForSafety = parseFloat(document.getElementById('goal_fat').value||0);
+  const periodInputForSafety = document.getElementById('goal_period').value||'6ヶ月';
+  if(goalFatInputForSafety > 0) {
+    const monthsCheck2 = periodInputForSafety==='3ヶ月'?3:periodInputForSafety==='6ヶ月'?6:periodInputForSafety==='1年'?12:18;
+    const weeksCheck2 = monthsCheck2 * 30 / 7;
+    const weeklyLossKg2 = goalFatInputForSafety / weeksCheck2;
+    const maxWeeklyLossKg2 = weightForSafety2 * 0.01;
+    if(weeklyLossKg2 > maxWeeklyLossKg2) {
+      alert('このペースは、厚生労働省が紹介する医学的に推奨される安全な減量速度を超えています。急激な減量は、筋肉量の減少・リバウンドのリスクを高めます。無理のない目標に見直してください。');
+      return false;
+    }
   }
   const existingGoal = JSON.parse(localStorage.getItem('goal')||'{}');
   const data = {
@@ -2535,11 +2610,16 @@ function coachIconSVG(tone, strokeColor){
 
 async function generateReport() {
   const btn=document.getElementById('gen-btn');
-  btn.innerHTML='<span class="loading-spinner"></span>生成中...';
-  btn.disabled=true;
   const profile=JSON.parse(localStorage.getItem('profile')||'{}');
   const goal=JSON.parse(localStorage.getItem('goal')||'{}');
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
+  // 目標カロリー・PFCが未設定の場合は、AIを呼び出さず案内を表示して終了
+  if(!pfc.goalKcal || !pfc.goalP || !pfc.goalF || !pfc.goalC) {
+    document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">目標カロリー・PFCがまだ設定されていません。まずはプロフィール画面で「目標カロリー・PFCを自動計算する」を行ってください。</div>';
+    return;
+  }
+  btn.innerHTML='<span class="loading-spinner"></span>生成中...';
+  btn.disabled=true;
   const rules=JSON.parse(localStorage.getItem('rules')||'[]');
   const todayKey='meals_'+formatDate(new Date());
   const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
@@ -2554,6 +2634,11 @@ async function generateReport() {
     '王子様':'優雅で甘く、あなたを特別な存在として扱う王子様のように'
   };
   const mealSummary=meals.length>0?meals.map(m=>m.name+'(kcal:'+m.kcal+' P:'+m.p+'g F:'+m.f+'g C:'+m.c+'g)').join('、'):'記録なし';
+  // 今日の合計摂取量（AIに暗算させず、正確な数値を渡す）
+  const totalKcal=meals.reduce((s,m)=>s+(m.kcal||0),0);
+  const totalP=meals.reduce((s,m)=>s+(m.p||0),0);
+  const totalF=meals.reduce((s,m)=>s+(m.f||0),0);
+  const totalC=meals.reduce((s,m)=>s+(m.c||0),0);
   const ruleSummary=rules.map(r=>r+(checks.includes(r)?'→達成':'→未達')).join('、');
   const hasBloodData = goal.blood_sugar || goal.triglyceride || goal.hdl || goal.ldl;
   let bloodInfo = '';
@@ -2566,7 +2651,14 @@ async function generateReport() {
     bloodInfo = "\n- 血液検査データ：" + refs.join('、') + "\n- 既往歴：" + ((goal.diseases&&goal.diseases.length)?goal.diseases.join('、'):'特になし');
   }
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
-  const lifestyleInfo=`\n- 生活習慣（参考）：運動${profile.exercise||'週1〜2回'}・強度${profile.exercise_intensity||'軽度（ウォーキング・ヨガ等）'}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
+    ? '運動習慣：なし'
+    : `運動：${profile.exercise}（強度：${profile.exercise_intensity||'中程度（早歩き、軽い筋トレ）'}、1回${profile.exercise_time||'30分〜1時間'}）`;
+  const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const goalInfo=`\n【今日の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g\n【今日の合計摂取量】\n- カロリー：${totalKcal}kcal／タンパク質${totalP}g／脂質${totalF}g／炭水化物${totalC}g`;
+  const weightForCheck = parseFloat(profile.weight||60);
+  const proteinPerKg = weightForCheck>0 ? (pfc.goalP/weightForCheck) : 0;
+  const needsPerformanceFuel = proteinPerKg >= 1.6;
   const toneConditions={
     'フレンドリー':`- 好きな食べ物・推しと目標を同等に絡める
 - PFCの数値に軽く触れる
@@ -2587,11 +2679,11 @@ async function generateReport() {
     'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - PFCの数値で現実を突きつける
 - 体への影響で危機感を煽る1文を入れる
-- 厳しく追い込む口調で`,
+- 高い要求をするが、自覚を促し、判断は本人に委ねる口調で（「〜だろう」「〜次第だ」のような、問いかけ・委ねる言い切り方）`,
     'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - PFCの数値で現実を突きつける
 - 体への影響で危機感を煽る1文を入れる
-- 辛口でシャープに、愛のある追い込む口調で`
+- 基本は「〜しろ」「〜やれ」のような命令口調で、強く要求する（判断を委ねず、強制する）。ただし、できている部分（運動の継続・ルール達成など）があれば、そこだけは素っ気なくでも褒め、厳しさの中にごくたまに飴を挟む。文末は「〜だ」「〜だろう」のような、男性的な言い切り方に統一し、「〜わ」「〜わよ」「〜わね」のような、女性言葉は一切使わない`
   };
   const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}フィードバックしてください。
 
@@ -2603,32 +2695,36 @@ async function generateReport() {
 - 達成後にやりたいこと：${goal.motivation||'未設定'}
 - 身体の悩み・改善したいこと：${profile.body_concern}
 ${bodyInfo}${lifestyleInfo}${bloodInfo}
+${goalInfo}
 
 【今日の記録】
 - 食事（PFC含む）：${mealSummary}
 - ルール：${ruleSummary}
 
-【文章構成】以下の順序で構成してください
-1. 目標と現在地の再確認（できていることをメインに褒める、できていないことは僅かに伝える）
-2. PFCに触れる（数値）＋カロリーは補足程度
-3. その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
-4. 具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
-5. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
+【文章構成】以下の順序で構成してください。②〜⑦は、それぞれの内容の直前に見出しを1行入れる（見出しの後に改行し、本文を続ける。見出しの文言は指定のものをそのまま使う）
+1. あいさつ（見出しなし）：短い挨拶のみ
+2. 見出し「目標と現在地」：できていることをメインに褒める、できていないことは僅かに伝える
+3. 見出し「カロリーとPFC」：目標カロリー・目標PFCと、今日の合計摂取量を具体的に比較する＋脂質については量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+4. 見出し「ビタミン・ミネラル」：今日の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。それを補える具体的な食材名も挙げる
+5. 見出し「運動について」：運動状況（頻度・強度・時間）に触れる。その運動状況に応じて、意識すべき栄養面のポイントを1点添える（例：運動頻度や運動時間が多い場合は炭水化物を極端に減らさないよう伝える、筋力トレーニングや高負荷運動を行っている場合はタンパク質を十分に確保するよう伝える、運動量・負荷ともに高い場合は炭水化物・タンパク質の両方に触れる）。運動習慣がない場合は、無理のない範囲で運動を取り入れることを軽く勧める一言を入れる。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
+6. 見出し「このままだと」：その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
+7. 見出し「解決策」：具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
+8. 締めのあいさつ（見出しなし）：問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
 【条件】
-- 6文以内・400文字以内で収める
-- 長すぎず短すぎず、簡潔・端的に
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- 見出しは、指定した6つの言葉（目標と現在地／カロリーとPFC／ビタミン・ミネラル／運動について／このままだと／解決策）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
+- 見出しは記号（##など）で装飾せず、単独の1行として置く
+- 端的に
 - 絵文字を1〜2個使う
-- 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
-- 生活習慣（参考）は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
-- 運動頻度・強度が高い場合（週3回以上×中〜高強度）は、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない
-- 運動頻度が低い、または強度が軽い場合は、間食・糖質量への意識づけを重視する
+- マークダウン記法（##、###などの見出し記号、**による太字など）は一切使わない。指定された<span>タグ以外の記号・装飾は使わず、プレーンな文章として出力する
+- 目標カロリー・目標PFCの数値には、必ず言及すること
+- 生活習慣（参考）のうち飲酒・間食・ストレス過食は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
 - プロフィールの飲酒頻度・量が多い場合（週3回以上、または1回あたり多め）、当日の食事記録に飲酒に関する内容が含まれるときは、脅すのではなく事実として軽く触れる
 - プロフィールの間食頻度が多い場合（週3回以上）、当日の食事記録に間食に関する内容が含まれるときは、目標達成との関連について軽く触れる
-- 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
-- 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#e11d1d'>〜</span>で囲む。特に「このままだと」の見出しの内容は、該当箇所の大部分を赤字にする${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
 
   try {
     const RETRIABLE_STATUS=[429,500,502,503,504];
@@ -2644,7 +2740,7 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
         }
         const data=await res.json();
         const msg=data.candidates[0].content.parts[0].text;
-        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${decorateCoachHeadings(msg)}</div>`;
         document.getElementById('line-share-btn').style.display='flex';
         document.getElementById('line-share-btn').setAttribute('data-msg', msg);
         succeeded=true;
@@ -2790,7 +2886,16 @@ async function generateWeeklyReport() {
   }).join('、');
 
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
-  const lifestyleInfo=`\n- 生活習慣（参考）：運動${profile.exercise||'週1〜2回'}・強度${profile.exercise_intensity||'軽度（ウォーキング・ヨガ等）'}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
+    ? '運動習慣：なし'
+    : `運動：${profile.exercise}（強度：${profile.exercise_intensity||'中程度（早歩き、軽い筋トレ）'}、1回${profile.exercise_time||'30分〜1時間'}）`;
+  const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const goalInfo = (pfc.goalKcal && pfc.goalP && pfc.goalF && pfc.goalC)
+    ? `\n【今週の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g`
+    : '';
+  const weightForCheckWeekly = parseFloat(profile.weight||60);
+  const proteinPerKgWeekly = weightForCheckWeekly>0 ? (pfc.goalP/weightForCheckWeekly) : 0;
+  const needsPerformanceFuelWeekly = proteinPerKgWeekly >= 1.6;
   const toneConditions={
     'フレンドリー':`- 好きな食べ物・推しと目標を同等に絡める
 - 体への影響は優しく伝える
@@ -2806,10 +2911,10 @@ async function generateWeeklyReport() {
 - 分析・論理的な口調で`,
     'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - 週間データで現実を突きつける
-- 厳しく追い込む口調で`,
+- 高い要求をするが、自覚を促し、判断は本人に委ねる口調で（「〜だろう」「〜次第だ」のような、問いかけ・委ねる言い切り方）`,
     'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - 週間データで現実を突きつける
-- 辛口でシャープに、愛のある追い込む口調で`
+- 基本は「〜しろ」「〜やれ」のような命令口調で、強く要求する（判断を委ねず、強制する）。ただし、できている部分（運動の継続・ルール達成など）があれば、そこだけは素っ気なくでも褒め、厳しさの中にごくたまに飴を挟む。文末は「〜だ」「〜だろう」のような、男性的な言い切り方に統一し、「〜わ」「〜わよ」「〜わね」のような、女性言葉は一切使わない`
   };
 
   const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}、今週1週間の習慣についてフィードバックしてください。単日の食事内容ではなく、週を通じた傾向・習慣化の観点で評価してください。
@@ -2822,32 +2927,36 @@ async function generateWeeklyReport() {
 - 達成後にやりたいこと：${goal.motivation||'未設定'}
 - 身体の悩み・改善したいこと：${profile.body_concern}
 ${bodyInfo}${lifestyleInfo}
+${goalInfo}
 
 【今週の記録（記録日数：${recordedDays}/7日）】
 ${dailySummaries.join('\n')}
 - ルール達成状況：${ruleSummary||'ルール未設定'}
 
-【文章構成】以下の順序で構成してください
-1. 記録日数・ルール達成状況の再確認（7日中何日記録できたか、ルールを何日守れたかを具体的な数字で示す。できていた日・できていなかった日のムラ＝継続できなかったことに触れる）
-2. なぜそれが問題なのか、理由を伝える（「守れたり守れなかったり」「記録したりしなかったり」という不安定さそのものが、成果が出にくい最大の原因であることを伝える）
-3. 今週のカロリー・PFCの傾向に触れる（カロリー・タンパク質・脂質・炭水化物それぞれについて、日によるムラ、または一貫した傾向が見られる場合は必ず言及する）
-4. このまま（継続のムラ＋栄養傾向）を続けた場合のリスク・未来を、まとめて伝える（継続できないこと、栄養バランスの偏りの両方が重なることで目標達成がどれだけ遠のくかを理論・危機感として伝える。「身体の悩み・改善したいこと」に関連づけて、このままだとどうなるかを伝える）
-5. 来週、具体的に何をどう改善すべきかを提案する
-6. 励まし、当事者意識を持たせる問いかけで締める（習慣化としてのルールの意識）
+【文章構成】以下の順序で構成してください。②〜⑦は、それぞれの内容の直前に見出しを1行入れる（見出しの後に改行し、本文を続ける。見出しの文言は指定のものをそのまま使う）
+1. あいさつ（見出しなし）：短い挨拶のみ
+2. 見出し「記録とルールの継続状況」：7日中何日記録できたか、ルールを何日守れたかを、具体的な数字で示す。できていた日・できていなかった日のムラに触れる。さらに、なぜそれが問題なのか、理由も続けて伝える（「守れたり守れなかったり」という不安定さそのものが、成果が出にくい最大の原因であることを伝える）
+3. 見出し「今週のカロリーとPFC」：目標カロリー・目標PFCがある場合はそれとの比較で、カロリー・タンパク質・脂質・炭水化物それぞれについて日によるムラ、または一貫した傾向が見られる場合は必ず言及する。脂質は量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+4. 見出し「今週のビタミン・ミネラル」：今週の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。それを補える具体的な食材名も挙げる
+5. 見出し「今週の運動と栄養」：今週の運動状況（頻度・強度・時間）に触れる。その運動状況に応じて、意識すべき栄養面のポイントを1点添える（例：運動頻度や運動時間が多い場合は炭水化物を極端に減らさないよう伝える、筋力トレーニングや高負荷運動を行っている場合はタンパク質を十分に確保するよう伝える、運動量・負荷ともに高い場合は炭水化物・タンパク質の両方に触れる）。運動習慣がない場合は、無理のない範囲で運動を取り入れることを軽く勧める一言を入れる。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
+6. 見出し「このままだと未来は」：継続のムラ・栄養の傾向・運動状況を続けた場合のリスク・未来を、まとめて伝える。「身体の悩み・改善したいこと」に関連づけて理由を伝える
+7. 見出し「今すぐできる事」：来週、具体的に何をどう改善すべきかを提案する
+8. 締めのあいさつ（見出しなし）：励まし、当事者意識を持たせる問いかけで締める（習慣化としてのルールの意識）
 
 【条件】
-- 6文以内・400文字以内で収める
-- 長すぎず短すぎず、簡潔・端的に
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- 見出しは、指定した6つの言葉（記録とルールの継続状況／今週のカロリーとPFC／今週のビタミン・ミネラル／今週の運動と栄養／このままだと未来は／今すぐできる事）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
+- 見出しは記号（##など）で装飾せず、単独の1行として置く
+- 端的に
 - 絵文字を1〜2個使う
-- 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
+- マークダウン記法（##、###などの見出し記号、**による太字など）は一切使わない。指定された<span>タグ以外の記号・装飾は使わず、プレーンな文章として出力する
 - 記録日数（7日中○日）とルール達成日数を、必ず具体的な数字で言及する
 - 「守れた日と守れなかった日のムラ」「記録した日としなかった日のムラ」など、継続性・持続性の観点を必ず盛り込む
 - カロリー・P（タンパク質）・F（脂質）・C（炭水化物）それぞれについて、日によるムラ、または一貫した傾向（毎日通して多い/少ない）が見られる場合は、必ず言及する
 - 危機感を煽る際も、頭ごなしに責めるのではなく、理由→リスク→改善提案→励ましの順で伝える
-- 食事内容から、不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は、一般的な情報として必ず1点触れる（例:「ビタミンCを意識すると良いかもしれません」）。ただし「あなたは○○が不足しています」という断定は避け、「〜かもしれません」「〜と言われています」という一般的な表現に留め、病名や体調不良と直接結びつけない
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
-- 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む`;
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#e11d1d'>〜</span>で囲む。特に「このままだと未来は」の見出しの内容は、該当箇所の大部分を赤字にする`;
 
   try {
     const RETRIABLE_STATUS=[429,500,502,503,504];
@@ -2863,7 +2972,7 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
         }
         const data=await res.json();
         const msg=data.candidates[0].content.parts[0].text;
-        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${decorateCoachHeadings(msg)}</div>`;
         document.getElementById('weekly-line-share-btn').style.display='flex';
         document.getElementById('weekly-line-share-btn').setAttribute('data-msg', msg);
         succeeded=true;
@@ -2894,6 +3003,17 @@ function selSz(el) { document.querySelectorAll('.sz').forEach(s=>s.classList.rem
 
 // ===== ユーティリティ =====
 function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// AIレポートの生成文中の見出し（行頭に単独で出現する指定ワード）を装飾する
+const COACH_MSG_HEADINGS = ['目標と現在地','カロリーとPFC','ビタミン・ミネラル','運動について','このままだと','解決策','記録とルールの継続状況','今週のカロリーとPFC','今週のビタミン・ミネラル','今週の運動と栄養','このままだと未来は','今すぐできる事'];
+function decorateCoachHeadings(msg) {
+  let result = msg;
+  COACH_MSG_HEADINGS.forEach(h => {
+    const escaped = h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp('(^|\\n)'+escaped+'(?=\\n|$)', 'g'), `$1<span class="coach-msg-heading">${h}</span>`);
+  });
+  return result;
+}
 function getWeek(d) { const s=new Date(d.getFullYear(),0,1); return Math.ceil(((d-s)/86400000+s.getDay()+1)/7); }
 
 // ===== 起動カウント =====
