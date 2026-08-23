@@ -1293,25 +1293,46 @@ function openBackupFromMenu() {
   document.getElementById('ob-skip').style.display = 'none';
   if(localStorage.getItem('backup_pin')) {
     showBackupAlready();
+  } else if(localStorage.getItem('backup_consent') !== '1') {
+    showBackupChoice();
   } else {
     showBackupSetPin1();
   }
 }
 
 function showBackupChoice() {
+  const consented = localStorage.getItem('backup_consent') === '1';
   document.getElementById('ob-content').innerHTML = `
     <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
     <div class="ob-title">データを守るために</div>
     <div class="ob-desc">端末の不具合に備えて、<br>暗証番号でデータを守れます。</div>
+    ${consented ? '' : `
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:18px;cursor:pointer;">
+      <input type="checkbox" id="backup_consent_chk" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+      <span>体重・食事記録などのデータを、暗証番号によるサーバーバックアップに保存することに同意します</span>
+    </label>
+    <div id="backup-consent-alert" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#b91c1c;line-height:1.6;margin-top:10px;">バックアップ機能のご利用には同意が必要です。上のチェックボックスにご同意のうえ、もう一度お試しください。</div>`}
   `;
   const btn = document.getElementById('ob-btn');
   btn.disabled = false;
   btn.textContent = 'はじめる';
-  btn.onclick = showBackupSetPin1;
+  btn.onclick = () => handleBackupConsentGate(showBackupSetPin1);
   const link = document.getElementById('ob-link');
   link.style.display = 'block';
   link.textContent = '暗証番号で復元する';
-  link.onclick = showBackupRestore;
+  link.onclick = () => handleBackupConsentGate(showBackupRestore);
+}
+
+function handleBackupConsentGate(nextFn) {
+  const chk = document.getElementById('backup_consent_chk');
+  if(chk) {
+    if(!chk.checked) {
+      document.getElementById('backup-consent-alert').style.display = 'block';
+      return;
+    }
+    localStorage.setItem('backup_consent', '1');
+  }
+  nextFn();
 }
 
 function pinInputsHtml(idPrefix) {
