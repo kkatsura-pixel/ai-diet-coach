@@ -860,13 +860,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
       <div class="sep"></div>
       <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">血液検査データ<span class="opt-badge">任意</span></span></div>
+
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-bottom:10px;cursor:pointer;">
+        <input type="checkbox" id="blood_consent" onchange="toggleBloodFieldsEnabled(this.checked)" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+        <span>血液検査データ・生活習慣病の有無（既往歴）を入力し、AIによる個別アドバイス生成に利用することに同意します。この同意がない場合、以下の項目は入力できません。</span>
+      </label>
+
+      <div id="blood-fields-wrap">
       <div class="g2">
-        <div class="fld"><label>血糖値 mg/dL</label><input type="number" id="blood_sugar" placeholder="95"></div>
-        <div class="fld"><label>中性脂肪 mg/dL</label><input type="number" id="triglyceride" placeholder="120"></div>
+        <div class="fld"><label>血糖値 mg/dL</label><input type="number" id="blood_sugar" placeholder="95" disabled></div>
+        <div class="fld"><label>中性脂肪 mg/dL</label><input type="number" id="triglyceride" placeholder="120" disabled></div>
       </div>
       <div class="g2">
-        <div class="fld"><label>HDLコレステロール</label><input type="number" id="hdl" placeholder="60"></div>
-        <div class="fld"><label>LDLコレステロール</label><input type="number" id="ldl" placeholder="110"></div>
+        <div class="fld"><label>HDLコレステロール</label><input type="number" id="hdl" placeholder="60" disabled></div>
+        <div class="fld"><label>LDLコレステロール</label><input type="number" id="ldl" placeholder="110" disabled></div>
       </div>
       <div class="g1"><div class="fld"><label>生活習慣病・既往歴<span class="opt-badge">任意</span></label>
         <div class="tags" id="disease-tags">
@@ -876,11 +883,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag on" onclick="toggleTag(this)">特になし</span>
         </div>
       </div></div>
-
-      <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:10px;cursor:pointer;">
-        <input type="checkbox" id="blood_consent" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
-        <span>入力した血液検査データ・既往歴を、AIによる個別アドバイス生成に利用することに同意します</span>
-      </label>
+      </div>
 
       <button class="pbtn" onclick="if(saveGoal(true))showView('setup3',null)">
         <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -1309,7 +1312,7 @@ function showBackupChoice() {
     ${consented ? '' : `
     <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:18px;cursor:pointer;">
       <input type="checkbox" id="backup_consent_chk" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
-      <span>体重・食事記録などのデータを、暗証番号によるサーバーバックアップに保存することに同意します</span>
+      <span>体重・食事記録・既往歴等のデータを、暗証番号によるサーバーバックアップに保存することに同意します</span>
     </label>
     <div id="backup-consent-alert" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#b91c1c;line-height:1.6;margin-top:10px;">バックアップ機能のご利用には同意が必要です。上のチェックボックスにご同意のうえ、もう一度お試しください。</div>`}
   `;
@@ -1569,6 +1572,7 @@ function loadGoalForm() {
     const consentEl = document.getElementById('blood_consent');
     if(consentEl) consentEl.checked = !!g.blood_consent;
   }
+  toggleBloodFieldsEnabled(!!(document.getElementById('blood_consent')&&document.getElementById('blood_consent').checked));
   // プロジェクトボタンの表示・開始体重目標体重プレビューを、画面表示時に必ず初期化する
   calcGoalWeight();
 }
@@ -1622,6 +1626,16 @@ function toggleExerciseSubFields(exerciseValue) {
   const timeGroup = document.getElementById('exercise-time-group');
   if(intensityGroup) intensityGroup.style.display = show ? '' : 'none';
   if(timeGroup) timeGroup.style.display = show ? '' : 'none';
+}
+function toggleBloodFieldsEnabled(enabled) {
+  const wrap = document.getElementById('blood-fields-wrap');
+  if(!wrap) return;
+  wrap.querySelectorAll('input').forEach(el => el.disabled = !enabled);
+  wrap.querySelectorAll('#disease-tags .tag').forEach(el => {
+    el.style.pointerEvents = enabled ? 'auto' : 'none';
+    el.style.opacity = enabled ? '1' : '0.45';
+  });
+  wrap.style.opacity = enabled ? '1' : '0.55';
 }
 function toggleTag(el) { el.classList.toggle('on'); }
 
@@ -1867,6 +1881,11 @@ function saveProfile() {
   const bmrVal = document.getElementById('bmr').value;
   if(!document.getElementById('age').value || !document.getElementById('height').value || !document.getElementById('weight').value || !document.getElementById('fat_pct').value || !bmrVal || !document.getElementById('body_concern').value || !document.getElementById('fav_food').value || !document.getElementById('hobby').value) {
     alert('必須項目（*）をすべて入力してください。\n基礎代謝kcal、身体の悩み・特に改善したいこと、好きな食べ物、推し・趣味の入力も必須です。');
+    return false;
+  }
+  const ageVal = parseInt(document.getElementById('age').value, 10);
+  if(!isNaN(ageVal) && ageVal < 18) {
+    alert('本サービスは18歳未満の方はご利用いただけません。');
     return false;
   }
   // 脂肪量kgは入力欄を持たず、常に体重×体脂肪率%から自動計算する
