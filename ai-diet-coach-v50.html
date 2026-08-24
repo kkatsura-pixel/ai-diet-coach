@@ -437,7 +437,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="ob-desc">体組成データ × トレーナー知見 × AI生成で、<br>あなたを24時間伴走サポートします。</div>
     </div>
     <button class="ob-btn" id="ob-btn" onclick="nextOb()">次へ</button>
-    <button class="ob-skip" id="ob-skip" onclick="proceedToBackupSetup()">スキップ</button>
+    <button class="ob-skip" id="ob-skip" onclick="proceedToLegalConsent()">スキップ</button>
     <button class="ob-link" id="ob-link" style="display:none;"></button>
   </div>
 </div>
@@ -475,6 +475,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
     <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
+    <div class="drawer-item" id="di-legal" onclick="openLegalFromMenu()"><div class="drawer-dot done"></div>利用規約・プライバシーポリシー</div>
     <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
   </div>
 </div>
@@ -1028,7 +1029,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         </div>
         <div class="meal-input-box">
           <label>食事を記録する</label>
-          <div style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;">1日の記録回数には上限があります。「ごはん、お味噌汁、納豆、さば塩焼き」のように、1食分をまとめて入力しましょう</div>
+          <div id="meal-usage-note" style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;"></div>
           <textarea id="meal-txt" rows="2" placeholder="例：昼12時、ごはん・お味噌汁・納豆・さば塩焼き"></textarea>
           <div class="meal-bottom">
             <div class="sz-wrap"><div class="sz-lbl">量の目安</div><div class="sz-row"><span class="sz" onclick="selSz(this)">少なめ</span><span class="sz on" onclick="selSz(this)">ふつう</span><span class="sz" onclick="selSz(this)">多め</span></div></div>
@@ -1076,6 +1077,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
             <div id="coach-msg-area">
               <div class="coach-placeholder">ボタンを押してレポートを生成してください。</div>
             </div>
+            <div id="report-usage-note" style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;"></div>
             <button class="coach-gen-btn" id="gen-btn" onclick="generateReport()">
               <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               今日のレポートを生成する
@@ -1105,6 +1107,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
             <div id="weekly-coach-msg-area">
               <div class="coach-placeholder">ボタンを押して今週のレポートを生成してください。</div>
             </div>
+            <div id="weekly-report-usage-note" style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;"></div>
             <button class="coach-gen-btn" id="weekly-gen-btn" onclick="generateWeeklyReport()">
               <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               今週のレポートを生成する
@@ -1265,7 +1268,7 @@ const obSteps = [
 let obIdx = 0;
 function nextOb() {
   obIdx++;
-  if(obIdx >= obSteps.length) { proceedToBackupSetup(); return; }
+  if(obIdx >= obSteps.length) { proceedToLegalConsent(); return; }
   const s = obSteps[obIdx];
   document.getElementById('ob-content').innerHTML = `<div class="ob-icon">${s.icon}</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div>${s.extra||''}`;
   document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obIdx));
@@ -1273,6 +1276,86 @@ function nextOb() {
 }
 function closeOb() { document.getElementById('onboarding').style.display='none'; localStorage.setItem('ob_done','1'); localStorage.setItem('ob_done_date',formatDate(new Date())); }
 if(localStorage.getItem('ob_done')) { closeOb(); checkAlert(); }
+
+// ===== 利用規約・プライバシーポリシー同意 =====
+const LEGAL_VERSION = '2026-09-01';
+const LEGAL_URL = 'https://kkatsura-pixel.github.io/ai-diet-coach/legal.html';
+let legalFlowContext = null; // 'onboarding' | 'menu'
+
+function proceedToLegalConsent() {
+  legalFlowContext = 'onboarding';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  showLegalConsent();
+}
+
+function openLegalFromMenu() {
+  closeDrawer();
+  legalFlowContext = 'menu';
+  document.getElementById('onboarding').style.display = 'flex';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  showLegalConsent();
+}
+
+function showLegalConsent() {
+  const consented = localStorage.getItem('legal_consent_version') === LEGAL_VERSION;
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
+    <div class="ob-title">利用規約・プライバシーポリシー</div>
+    <div class="ob-desc">本サービスのご利用にあたり、<br>内容をご確認の上、同意をお願いします。</div>
+    ${consented ? '' : `
+    <div style="margin-top:14px;text-align:center;">
+      <a href="${LEGAL_URL}#terms" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">利用規約を確認する</a>
+      <span style="color:#ccc;font-size:12px;"> ／ </span>
+      <a href="${LEGAL_URL}#privacy" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">プライバシーポリシーを確認する</a>
+    </div>
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:16px;cursor:pointer;text-align:left;">
+      <input type="checkbox" id="legal_consent_chk" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+      <span>利用規約及びプライバシーポリシーの内容を確認し、同意します</span>
+    </label>
+    <div id="legal-consent-alert" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#b91c1c;line-height:1.6;margin-top:10px;">ご利用には、利用規約及びプライバシーポリシーへの同意が必要です。</div>`}
+    ${consented ? `<div style="margin-top:14px;text-align:center;">
+      <a href="${LEGAL_URL}#terms" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">利用規約を確認する</a>
+      <span style="color:#ccc;font-size:12px;"> ／ </span>
+      <a href="${LEGAL_URL}#privacy" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">プライバシーポリシーを確認する</a>
+    </div>` : ''}
+  `;
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = consented ? (legalFlowContext === 'menu' ? '閉じる' : 'はじめる') : '同意してはじめる';
+  btn.onclick = handleLegalConsentGate;
+  const link = document.getElementById('ob-link');
+  if(link) link.style.display = 'none';
+}
+
+function handleLegalConsentGate() {
+  const chk = document.getElementById('legal_consent_chk');
+  if(chk) {
+    if(!chk.checked) {
+      document.getElementById('legal-consent-alert').style.display = 'block';
+      return;
+    }
+    localStorage.setItem('legal_consent_version', LEGAL_VERSION);
+    localStorage.setItem('legal_consent_date', formatDate(new Date()));
+  }
+  if(legalFlowContext === 'menu') {
+    finishLegalFlow();
+  } else {
+    proceedToBackupSetup();
+  }
+}
+
+function finishLegalFlow() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('ob-dots').style.display = '';
+  document.getElementById('ob-skip').style.display = '';
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '次へ';
+  btn.onclick = nextOb;
+  legalFlowContext = null;
+}
 
 // ===== バックアップ機能（暗証番号方式） =====
 const BACKUP_ICON_LOCK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><circle cx="18" cy="21.5" r="1.8" fill="#c9a96e"/><rect x="17.2" y="23" width="1.6" height="4" rx="0.8" fill="#c9a96e"/></svg>`;
@@ -2180,6 +2263,7 @@ function renderWeeklyChart(tab){
   }
 }
 function loadMain() {
+  updateReportUsageNote();
   const profile = JSON.parse(localStorage.getItem('profile')||'{}');
   const goal = JSON.parse(localStorage.getItem('goal')||'{}');
   const pfc = JSON.parse(localStorage.getItem('pfc')||'{}');
@@ -2406,6 +2490,7 @@ function loadWeekRules(rules) {
 
 // ===== 食事記録 =====
 function renderMeals(meals, pfc) {
+  updateMealUsageNote();
   const list=document.getElementById('meal-list');
   const empty=document.getElementById('meal-empty');
   if(meals.length===0){empty.style.display='block';} else {empty.style.display='none';}
@@ -2515,10 +2600,15 @@ function deleteMeal(idx) {
 async function recordMeal() {
   const txt=document.getElementById('meal-txt').value.trim();
   if(!txt) return;
+  if(!canUseMealAnalysis()) {
+    alert('本日の食事記録の利用回数上限（'+DAILY_MEAL_LIMIT+'回）に達しました。明日また記録できます。\n複数の品目はまとめて1回で入力すると、上限に達しにくくなります。');
+    return;
+  }
   const btn=document.getElementById('rec-btn');
   btn.innerHTML='<span class="loading-spinner"></span>解析中...';
   btn.disabled=true;
   const size=document.querySelector('.sz.on')?.textContent||'ふつう';
+  incrementMealUsage();
   const prompt=`以下の食事内容のカロリーとPFCを推定してください。
 食事：${txt}
 量：${size}
@@ -2651,6 +2741,10 @@ function coachIconSVG(tone, strokeColor){
 
 async function generateReport() {
   const btn=document.getElementById('gen-btn');
+  if(!canUseReport()) {
+    document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">本日のレポート生成の利用回数上限（'+DAILY_REPORT_LIMIT+'回）に達しました。明日また生成できます。</div>';
+    return;
+  }
   const profile=JSON.parse(localStorage.getItem('profile')||'{}');
   const goal=JSON.parse(localStorage.getItem('goal')||'{}');
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
@@ -2659,6 +2753,8 @@ async function generateReport() {
     document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">目標カロリー・PFCがまだ設定されていません。まずはプロフィール画面で「目標カロリー・PFCを自動計算する」を行ってください。</div>';
     return;
   }
+  incrementReportUsage();
+  updateReportUsageNote();
   btn.innerHTML='<span class="loading-spinner"></span>生成中...';
   btn.disabled=true;
   const rules=JSON.parse(localStorage.getItem('rules')||'[]');
@@ -2878,6 +2974,12 @@ function updateBodyData() {
 // ===== 今週のレポート生成 =====
 async function generateWeeklyReport() {
   const btn=document.getElementById('weekly-gen-btn');
+  if(!canUseReport()) {
+    document.getElementById('weekly-coach-msg-area').innerHTML='<div class="coach-placeholder">本日のレポート生成の利用回数上限（'+DAILY_REPORT_LIMIT+'回）に達しました。明日また生成できます。</div>';
+    return;
+  }
+  incrementReportUsage();
+  updateReportUsageNote();
   btn.innerHTML='<span class="loading-spinner"></span>生成中...';
   btn.disabled=true;
   const profile=JSON.parse(localStorage.getItem('profile')||'{}');
@@ -3044,6 +3146,45 @@ function selSz(el) { document.querySelectorAll('.sz').forEach(s=>s.classList.rem
 
 // ===== ユーティリティ =====
 function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ===== AI利用回数の管理（食事解析：22回/日、レポート生成：3回/日） =====
+const DAILY_MEAL_LIMIT = 22;
+const DAILY_REPORT_LIMIT = 3;
+function getUsageToday() {
+  const today = formatDate(new Date());
+  const stored = JSON.parse(localStorage.getItem('ai_usage') || '{}');
+  if(stored.date !== today) return { date: today, meal: 0, report: 0 };
+  return stored;
+}
+function canUseMealAnalysis() { return getUsageToday().meal < DAILY_MEAL_LIMIT; }
+function canUseReport() { return getUsageToday().report < DAILY_REPORT_LIMIT; }
+function incrementMealUsage() {
+  const u = getUsageToday(); u.meal++; localStorage.setItem('ai_usage', JSON.stringify(u));
+}
+function incrementReportUsage() {
+  const u = getUsageToday(); u.report++; localStorage.setItem('ai_usage', JSON.stringify(u));
+}
+function updateMealUsageNote() {
+  const el = document.getElementById('meal-usage-note');
+  if(!el) return;
+  const remain = DAILY_MEAL_LIMIT - getUsageToday().meal;
+  if(remain <= 0) {
+    el.textContent = '本日の記録回数は上限に達しました（明日また記録できます）';
+    el.style.color = '#e11d1d';
+  } else {
+    el.textContent = `本日の記録：あと${remain}回（「ごはん、お味噌汁、納豆、さば塩焼き」のように、1食分をまとめて入力しましょう）`;
+    el.style.color = remain <= 5 ? '#e11d1d' : '#999';
+  }
+}
+function updateReportUsageNote() {
+  const remain = DAILY_REPORT_LIMIT - getUsageToday().report;
+  const text = remain <= 0 ? '本日のレポート生成は上限に達しました（明日また生成できます）' : `本日のレポート生成：あと${remain}回`;
+  const color = remain <= 1 ? '#e11d1d' : '#999';
+  ['report-usage-note','weekly-report-usage-note'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.textContent = text; el.style.color = color; }
+  });
+}
 
 // AIレポートの生成文中の見出し（行頭に単独で出現する指定ワード）を装飾する
 const COACH_MSG_HEADINGS = ['目標と現在地','カロリーとPFC','ビタミン・ミネラル','運動について','このままだと','解決策','記録とルールの継続状況','今週のカロリーとPFC','今週のビタミン・ミネラル','今週の運動と栄養','このままだと未来は','今すぐできる事'];
