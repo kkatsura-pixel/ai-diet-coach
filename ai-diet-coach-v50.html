@@ -1028,7 +1028,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         </div>
         <div class="meal-input-box">
           <label>食事を記録する</label>
-          <textarea id="meal-txt" rows="2" placeholder="例：昼12時、カレーライス、サラダ"></textarea>
+          <div style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;">1日の記録回数には上限があります。「ごはん、お味噌汁、納豆、さば塩焼き」のように、1食分をまとめて入力しましょう</div>
+          <textarea id="meal-txt" rows="2" placeholder="例：昼12時、ごはん・お味噌汁・納豆・さば塩焼き"></textarea>
           <div class="meal-bottom">
             <div class="sz-wrap"><div class="sz-lbl">量の目安</div><div class="sz-row"><span class="sz" onclick="selSz(this)">少なめ</span><span class="sz on" onclick="selSz(this)">ふつう</span><span class="sz" onclick="selSz(this)">多め</span></div></div>
             <button class="rec-btn" id="rec-btn" onclick="recordMeal()">記録する</button>
