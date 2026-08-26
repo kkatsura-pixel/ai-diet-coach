@@ -45,8 +45,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 /* スプラッシュ */
 #splash{position:fixed;inset:0;background:#FFFCF5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.4s ease;}
 #splash.fade-out{opacity:0;pointer-events:none;}
-#splash-img{width:100%;height:100%;object-fit:cover;transform:scale(0.667);}
+#splash-img{width:150%;height:auto;display:block;transform:scale(0.667);}
 #splash-img.frame1{transform:none;}
+#splash-img.home-standalone.frame1{transform:translateY(-6.27vw);}
+#splash-img.home-standalone:not(.frame1){transform:translateY(-6.37vw) scale(0.667);}
 #splash.fade-out{opacity:0;pointer-events:none;}
 .splash-logo-wrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
 .splash-logo{width:140px;height:140px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:0;animation:splashFadeUp 0.7s ease forwards;animation-delay:0.15s;position:relative;z-index:1;}
@@ -111,7 +113,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .g1{margin-bottom:10px;}
 .fld{display:flex;flex-direction:column;gap:5px;}
 .fld label{font-size:11px;font-weight:500;color:#555;}
-.fld input,.fld select,.fld textarea{font-size:14px;line-height:1.4;-webkit-appearance:none;appearance:none;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;color:#111;width:100%;font-family:inherit;transition:border-color 0.15s;}
+.fld input,.fld select,.fld textarea{font-size:14px;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;color:#111;width:100%;font-family:inherit;transition:border-color 0.15s;}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:#7a4f35;background:#fff;}
 .fld textarea{resize:none;line-height:1.65;}
 .fld select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:#faf9f7;padding-right:36px;}
@@ -126,7 +128,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .coach-pick svg{width:38px;height:38px;}
 .coach-pick .nm{font-size:11px;font-weight:600;color:#111;margin-top:5px;}
 .coach-pick .ds{font-size:9px;color:#999;margin-top:2px;line-height:1.3;}
-.tag{font-size:14px;line-height:1.4;font-weight:500;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;color:#555;cursor:pointer;background:#faf9f7;transition:all 0.15s;}
+.tag{font-size:14px;font-weight:500;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;color:#555;cursor:pointer;background:#faf9f7;transition:all 0.15s;}
 .tag.on{background:#f5ede6;border-color:#7a4f35;color:#7a4f35;}
 
 /* インフォボックス */
@@ -258,7 +260,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .coach-name{font-size:13px;font-weight:500;color:#fff;}
 .coach-mode{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;letter-spacing:0.05em;}
 .coach-body{background:#fdf8f5;border:1.5px solid #e8d5c4;border-top:none;border-radius:0 0 8px 8px;padding:16px 18px;}
-.coach-msg{font-size:15px;color:#111;line-height:1.85;white-space:pre-line;}
+.coach-msg{font-size:15px;color:#000;line-height:1.85;white-space:pre-line;}
+.coach-msg-heading{display:block;font-size:13px;font-weight:600;color:#7a4f35;border-left:3px solid #a8843a;padding-left:8px;margin:14px 0 4px;line-height:1.4;}
 .coach-msg em{font-style:normal;color:#7a4f35;font-weight:500;}
 .coach-placeholder{font-size:14px;color:#aaa;line-height:1.7;}
 .coach-gen-btn{width:100%;margin-top:14px;padding:13px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
@@ -391,7 +394,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .ob-title{font-size:18px;font-weight:500;color:#111;text-align:center;margin-bottom:8px;}
 .ob-desc{font-size:13px;color:#7a6050;line-height:1.7;text-align:center;}
 .ob-btn{width:100%;padding:14px;border-radius:6px;background:#7a4f35;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:20px;}
+.ob-btn:disabled{opacity:0.6;}
 .ob-skip{width:100%;padding:10px;border-radius:6px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px;}
+.ob-link{width:100%;text-align:center;padding:10px;border-radius:6px;border:none;background:none;color:#7a4f35;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px;text-decoration:underline;text-underline-offset:3px;}
+.pin-wrap{display:flex;justify-content:center;gap:8px;margin-top:18px;}
+.pin-digit{width:38px;height:46px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:20px;font-weight:600;text-align:center;color:#111;font-family:inherit;transition:border-color 0.15s;}
+.pin-digit:focus{outline:none;border-color:#7a4f35;background:#fff;}
+.pin-err{font-size:11px;color:#dc2626;text-align:center;margin-top:10px;line-height:1.6;min-height:14px;}
 
 /* アラート */
 .alert-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
@@ -416,7 +425,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 <!-- オンボーディング -->
 <div class="onboarding" id="onboarding">
   <div class="onboarding-card">
-    <div class="ob-dots">
+    <div class="ob-dots" id="ob-dots">
       <div class="ob-dot on" id="od0"></div>
       <div class="ob-dot" id="od1"></div>
       <div class="ob-dot" id="od2"></div>
@@ -428,7 +437,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="ob-desc">体組成データ × トレーナー知見 × AI生成で、<br>あなたを24時間伴走サポートします。</div>
     </div>
     <button class="ob-btn" id="ob-btn" onclick="nextOb()">次へ</button>
-    <button class="ob-skip" onclick="closeOb()">スキップ</button>
+    <button class="ob-skip" id="ob-skip" onclick="proceedToLegalConsent()">スキップ</button>
+    <button class="ob-link" id="ob-link" style="display:none;"></button>
   </div>
 </div>
 
@@ -441,6 +451,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="alert-title" id="alert-title"></div>
     <div class="alert-desc" id="alert-desc"></div>
     <button class="alert-btn" id="alert-btn" onclick="closeAlert()"></button>
+  </div>
+</div>
+
+<!-- ライセンスブロック画面 -->
+<div class="alert-overlay" id="license-block-overlay" style="display:none;z-index:250;">
+  <div class="alert-card">
+    <div class="alert-icon-wrap">
+      <svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><circle cx="18" cy="21.5" r="1.8" fill="#c9a96e"/><rect x="17.2" y="23" width="1.6" height="4" rx="0.8" fill="#c9a96e"/></svg>
+    </div>
+    <div class="alert-title" id="lb-title" style="color:#7a4f35;">無料期間が終了しました</div>
+    <div class="alert-desc" id="lb-desc">引き続きご利用いただくには、今すぐご購入いただくか、お持ちのコードを入力してください。</div>
+    <button class="alert-btn" id="lb-purchase-btn" onclick="startPurchase()">今すぐ購入する（月350円）</button>
+    <div style="margin-top:16px;">
+      <input type="text" id="lb-code-input" placeholder="コードをお持ちの方はこちら" style="width:100%;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:14px;font-family:inherit;color:#111;">
+      <button onclick="submitLicenseCode()" style="width:100%;margin-top:8px;padding:11px;border-radius:6px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">コードを送信する</button>
+      <div class="pin-err" id="lb-code-err"></div>
+    </div>
+    <button id="lb-close-btn" onclick="closeLicenseBlock()" style="display:none;width:100%;margin-top:10px;padding:8px;border-radius:6px;border:none;background:none;color:#aaa;font-size:12px;cursor:pointer;font-family:inherit;">閉じる</button>
   </div>
 </div>
 
@@ -464,6 +492,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
     <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
+    <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
+    <div class="drawer-item" id="di-license" onclick="closeDrawer();openLicenseFromMenu()"><div class="drawer-dot done"></div>コードを入力する</div>
+    <div class="drawer-item" id="di-legal" onclick="openLegalFromMenu()"><div class="drawer-dot done"></div>利用規約・プライバシーポリシー</div>
     <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
   </div>
 </div>
@@ -849,13 +880,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
       <div class="sep"></div>
       <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">血液検査データ<span class="opt-badge">任意</span></span></div>
+
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-bottom:10px;cursor:pointer;">
+        <input type="checkbox" id="blood_consent" onchange="toggleBloodFieldsEnabled(this.checked)" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+        <span>血液検査データ・生活習慣病の有無（既往歴）を入力し、AIによる個別アドバイス生成に利用することに同意します。この同意がない場合、以下の項目は入力できません。</span>
+      </label>
+
+      <div id="blood-fields-wrap">
       <div class="g2">
-        <div class="fld"><label>血糖値 mg/dL</label><input type="number" id="blood_sugar" placeholder="95"></div>
-        <div class="fld"><label>中性脂肪 mg/dL</label><input type="number" id="triglyceride" placeholder="120"></div>
+        <div class="fld"><label>血糖値 mg/dL</label><input type="number" id="blood_sugar" placeholder="95" disabled></div>
+        <div class="fld"><label>中性脂肪 mg/dL</label><input type="number" id="triglyceride" placeholder="120" disabled></div>
       </div>
       <div class="g2">
-        <div class="fld"><label>HDLコレステロール</label><input type="number" id="hdl" placeholder="60"></div>
-        <div class="fld"><label>LDLコレステロール</label><input type="number" id="ldl" placeholder="110"></div>
+        <div class="fld"><label>HDLコレステロール</label><input type="number" id="hdl" placeholder="60" disabled></div>
+        <div class="fld"><label>LDLコレステロール</label><input type="number" id="ldl" placeholder="110" disabled></div>
       </div>
       <div class="g1"><div class="fld"><label>生活習慣病・既往歴<span class="opt-badge">任意</span></label>
         <div class="tags" id="disease-tags">
@@ -865,11 +903,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag on" onclick="toggleTag(this)">特になし</span>
         </div>
       </div></div>
-
-      <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:10px;cursor:pointer;">
-        <input type="checkbox" id="blood_consent" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
-        <span>入力した血液検査データ・既往歴を、AIによる個別アドバイス生成に利用することに同意します</span>
-      </label>
+      </div>
 
       <button class="pbtn" onclick="if(saveGoal(true))showView('setup3',null)">
         <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -1014,7 +1048,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         </div>
         <div class="meal-input-box">
           <label>食事を記録する</label>
-          <textarea id="meal-txt" rows="2" placeholder="例：昼12時、カレーライス、サラダ"></textarea>
+          <div id="meal-usage-note" style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;"></div>
+          <textarea id="meal-txt" rows="2" placeholder="例：昼12時、ごはん・お味噌汁・納豆・さば塩焼き"></textarea>
           <div class="meal-bottom">
             <div class="sz-wrap"><div class="sz-lbl">量の目安</div><div class="sz-row"><span class="sz" onclick="selSz(this)">少なめ</span><span class="sz on" onclick="selSz(this)">ふつう</span><span class="sz" onclick="selSz(this)">多め</span></div></div>
             <button class="rec-btn" id="rec-btn" onclick="recordMeal()">記録する</button>
@@ -1061,6 +1096,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
             <div id="coach-msg-area">
               <div class="coach-placeholder">ボタンを押してレポートを生成してください。</div>
             </div>
+            <div id="report-usage-note" style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;"></div>
             <button class="coach-gen-btn" id="gen-btn" onclick="generateReport()">
               <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               今日のレポートを生成する
@@ -1090,6 +1126,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
             <div id="weekly-coach-msg-area">
               <div class="coach-placeholder">ボタンを押して今週のレポートを生成してください。</div>
             </div>
+            <div id="weekly-report-usage-note" style="font-size:11px;color:#999;margin-bottom:6px;line-height:1.6;"></div>
             <button class="coach-gen-btn" id="weekly-gen-btn" onclick="generateWeeklyReport()">
               <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               今週のレポートを生成する
@@ -1239,6 +1276,135 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
 <script>
 const WORKER_URL = 'https://ai-diet-coach-proxy.koshiro-katsura.workers.dev';
+const STRIPE_PAYMENT_LINK_URL = 'https://buy.stripe.com/5kQ6oAcZFgoCf7W9Ot0sU00';
+
+// ===== ライセンスコード方式 =====
+function getDeviceId() {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    id = 'dev-' + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2)));
+    localStorage.setItem('device_id', id);
+  }
+  return id;
+}
+function getLicenseCode() { return localStorage.getItem('license_code'); }
+function setLicenseCode(code, type) {
+  localStorage.setItem('license_code', code);
+  if (type) localStorage.setItem('license_type', type);
+}
+
+// 無料期間の自動trialコード発行（既にコードを持っていれば何もしない）
+async function ensureLicenseCode() {
+  const existing = getLicenseCode();
+  if (existing) return existing;
+  try {
+    const res = await fetch(WORKER_URL + '/license/trial-register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId: getDeviceId() })
+    });
+    const data = await res.json();
+    if (data && data.code) { setLicenseCode(data.code, 'trial'); return data.code; }
+  } catch (e) { /* 通信失敗時は次回呼び出し時に再試行される */ }
+  return null;
+}
+
+// Stripe決済完了後、?session_id=... で戻ってきた場合の自動コード発行
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (!sessionId) return;
+  // URLはすぐにきれいにしておく（リロード時の二重処理を防止）
+  window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+  try {
+    const res = await fetch(WORKER_URL + '/license/claim', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, deviceId: getDeviceId() })
+    });
+    const data = await res.json();
+    if (data && data.code) {
+      setLicenseCode(data.code, 'paid');
+      closeLicenseBlock();
+      alert('ご購入ありがとうございます。引き続きAI Diet Coachをご利用いただけます。');
+    } else {
+      alert('決済の確認に失敗しました。時間をおいてもう一度お試しいただくか、公式LINEまでご連絡ください。');
+    }
+  } catch (e) {
+    alert('決済の確認中にエラーが発生しました。時間をおいてもう一度お試しください。');
+  }
+}
+
+// サーバーからの利用ブロック応答(429)を種類ごとに振り分け
+function handleLicenseGateError(errorCode) {
+  if (errorCode === 'usage_limit_reached') {
+    alert('本日のご利用回数の上限に達しました。明日また記録できます。');
+  } else if (errorCode === 'trial_expired') {
+    showLicenseBlock('trial_expired');
+  } else if (errorCode === 'license_inactive' || errorCode === 'license_not_found' || errorCode === 'invalid_license') {
+    showLicenseBlock('license_invalid');
+  } else {
+    alert('ご利用状況の確認でエラーが発生しました。時間をおいて再度お試しください。');
+  }
+}
+
+let licenseBlockClosable = false;
+function showLicenseBlock(reason) {
+  const titleEl = document.getElementById('lb-title');
+  const descEl = document.getElementById('lb-desc');
+  if (reason === 'trial_expired') {
+    titleEl.textContent = '無料期間が終了しました';
+    descEl.textContent = '無料期間（7日間）が終了しました。引き続きご利用いただくには、今すぐご購入いただくか、お持ちのコードを入力してください。';
+  } else {
+    titleEl.textContent = 'コードの確認が必要です';
+    descEl.textContent = 'ご利用の確認ができませんでした。今すぐご購入いただくか、お持ちのコードを入力してください。';
+  }
+  document.getElementById('lb-code-input').value = '';
+  document.getElementById('lb-code-err').textContent = '';
+  document.getElementById('lb-close-btn').style.display = licenseBlockClosable ? '' : 'none';
+  document.getElementById('license-block-overlay').style.display = 'flex';
+}
+function closeLicenseBlock() {
+  document.getElementById('license-block-overlay').style.display = 'none';
+}
+// ドロワーメニューの「コードを入力する」から開いた場合は、閉じるボタンを表示する
+function openLicenseFromMenu() {
+  licenseBlockClosable = true;
+  showLicenseBlock('menu');
+  document.getElementById('lb-title').textContent = 'コードを入力する';
+  document.getElementById('lb-desc').textContent = 'お持ちのコードを入力してください。ご購入がまだの方は「今すぐ購入する」からお進みください。';
+}
+function startPurchase() {
+  window.location.href = STRIPE_PAYMENT_LINK_URL;
+}
+async function submitLicenseCode() {
+  const input = document.getElementById('lb-code-input');
+  const errEl = document.getElementById('lb-code-err');
+  const code = input.value.trim();
+  errEl.textContent = '';
+  if (!code) { errEl.textContent = 'コードを入力してください。'; return; }
+  try {
+    const res = await fetch(WORKER_URL + '/license/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, deviceId: getDeviceId() })
+    });
+    const data = await res.json();
+    if (data && data.valid) {
+      setLicenseCode(code, data.type);
+      licenseBlockClosable = false;
+      closeLicenseBlock();
+      alert('コードが確認できました。引き続きご利用いただけます。');
+    } else {
+      const msgs = {
+        invalid_format: 'コードの形式が正しくありません。',
+        not_found: 'コードが見つかりません。入力内容をご確認ください。',
+        inactive: 'このコードは現在無効です。',
+        device_mismatch: 'このコードは別の端末で既に使用されています。'
+      };
+      errEl.textContent = msgs[data && data.error] || 'コードを確認できませんでした。入力内容をご確認ください。';
+    }
+  } catch (e) {
+    errEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
+  }
+}
 
 // ===== オンボーディング =====
 const obSteps = [
@@ -1250,7 +1416,7 @@ const obSteps = [
 let obIdx = 0;
 function nextOb() {
   obIdx++;
-  if(obIdx >= obSteps.length) { closeOb(); return; }
+  if(obIdx >= obSteps.length) { proceedToLegalConsent(); return; }
   const s = obSteps[obIdx];
   document.getElementById('ob-content').innerHTML = `<div class="ob-icon">${s.icon}</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div>${s.extra||''}`;
   document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obIdx));
@@ -1258,6 +1424,348 @@ function nextOb() {
 }
 function closeOb() { document.getElementById('onboarding').style.display='none'; localStorage.setItem('ob_done','1'); localStorage.setItem('ob_done_date',formatDate(new Date())); }
 if(localStorage.getItem('ob_done')) { closeOb(); checkAlert(); }
+
+// ===== 利用規約・プライバシーポリシー同意 =====
+const LEGAL_VERSION = '2026-09-01';
+const LEGAL_URL = 'https://kkatsura-pixel.github.io/ai-diet-coach/legal.html';
+let legalFlowContext = null; // 'onboarding' | 'menu'
+
+function proceedToLegalConsent() {
+  legalFlowContext = 'onboarding';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  showLegalConsent();
+}
+
+function openLegalFromMenu() {
+  closeDrawer();
+  legalFlowContext = 'menu';
+  document.getElementById('onboarding').style.display = 'flex';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  showLegalConsent();
+}
+
+function showLegalConsent() {
+  const consented = localStorage.getItem('legal_consent_version') === LEGAL_VERSION;
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
+    <div class="ob-title">利用規約・プライバシーポリシー</div>
+    <div class="ob-desc">本サービスのご利用にあたり、<br>内容をご確認の上、同意をお願いします。</div>
+    ${consented ? '' : `
+    <div style="margin-top:14px;text-align:center;">
+      <a href="${LEGAL_URL}#terms" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">利用規約を確認する</a>
+      <span style="color:#ccc;font-size:12px;"> ／ </span>
+      <a href="${LEGAL_URL}#privacy" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">プライバシーポリシーを確認する</a>
+    </div>
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:16px;cursor:pointer;text-align:left;">
+      <input type="checkbox" id="legal_consent_chk" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+      <span>利用規約及びプライバシーポリシーの内容を確認し、同意します</span>
+    </label>
+    <div id="legal-consent-alert" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#b91c1c;line-height:1.6;margin-top:10px;">ご利用には、利用規約及びプライバシーポリシーへの同意が必要です。</div>`}
+    ${consented ? `<div style="margin-top:14px;text-align:center;">
+      <a href="${LEGAL_URL}#terms" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">利用規約を確認する</a>
+      <span style="color:#ccc;font-size:12px;"> ／ </span>
+      <a href="${LEGAL_URL}#privacy" target="_blank" style="color:#7a4f35;font-size:12px;text-decoration:underline;">プライバシーポリシーを確認する</a>
+    </div>` : ''}
+  `;
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = consented ? (legalFlowContext === 'menu' ? '閉じる' : 'はじめる') : '同意してはじめる';
+  btn.onclick = handleLegalConsentGate;
+  const link = document.getElementById('ob-link');
+  if(link) link.style.display = 'none';
+}
+
+function handleLegalConsentGate() {
+  const chk = document.getElementById('legal_consent_chk');
+  if(chk) {
+    if(!chk.checked) {
+      document.getElementById('legal-consent-alert').style.display = 'block';
+      return;
+    }
+    localStorage.setItem('legal_consent_version', LEGAL_VERSION);
+    localStorage.setItem('legal_consent_date', formatDate(new Date()));
+  }
+  if(legalFlowContext === 'menu') {
+    finishLegalFlow();
+  } else {
+    proceedToBackupSetup();
+  }
+}
+
+function finishLegalFlow() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('ob-dots').style.display = '';
+  document.getElementById('ob-skip').style.display = '';
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '次へ';
+  btn.onclick = nextOb;
+  legalFlowContext = null;
+}
+
+// ===== バックアップ機能（暗証番号方式） =====
+const BACKUP_ICON_LOCK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><circle cx="18" cy="21.5" r="1.8" fill="#c9a96e"/><rect x="17.2" y="23" width="1.6" height="4" rx="0.8" fill="#c9a96e"/></svg>`;
+const BACKUP_ICON_CHECK = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><path d="M14.5 21.5 L17 24 L22 18.5" stroke="#c9a96e" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const BACKUP_ICON_RESTORE = `<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><path d="M8 18 Q8 10 18 10 Q28 10 28 18" stroke="#7a4f35" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M8 18 L11 15 M8 18 L11 21" stroke="#7a4f35" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="18" width="12" height="10" rx="2" fill="#f5ede6" stroke="#c9a96e" stroke-width="1.5"/><circle cx="18" cy="23" r="1.6" fill="#7a4f35"/></svg>`;
+
+let backupFlowContext = null; // 'onboarding' | 'menu'
+let pendingPin1 = '';
+
+function proceedToBackupSetup() {
+  backupFlowContext = 'onboarding';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  showBackupChoice();
+}
+
+function openBackupFromMenu() {
+  closeDrawer();
+  backupFlowContext = 'menu';
+  document.getElementById('onboarding').style.display = 'flex';
+  document.getElementById('ob-dots').style.display = 'none';
+  document.getElementById('ob-skip').style.display = 'none';
+  if(localStorage.getItem('backup_pin')) {
+    showBackupAlready();
+  } else if(localStorage.getItem('backup_consent') !== '1') {
+    showBackupChoice();
+  } else {
+    showBackupSetPin1();
+  }
+}
+
+function showBackupChoice() {
+  const consented = localStorage.getItem('backup_consent') === '1';
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
+    <div class="ob-title">データを守るために</div>
+    <div class="ob-desc">端末の不具合に備えて、<br>暗証番号でデータを守れます。</div>
+    ${consented ? '' : `
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-top:18px;cursor:pointer;">
+      <input type="checkbox" id="backup_consent_chk" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+      <span>体重・食事記録・既往歴等のデータを、暗証番号によるサーバーバックアップに保存することに同意します</span>
+    </label>
+    <div id="backup-consent-alert" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#b91c1c;line-height:1.6;margin-top:10px;">バックアップ機能のご利用には同意が必要です。上のチェックボックスにご同意のうえ、もう一度お試しください。</div>`}
+  `;
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = 'はじめる';
+  btn.onclick = () => handleBackupConsentGate(showBackupSetPin1);
+  const link = document.getElementById('ob-link');
+  link.style.display = 'block';
+  link.textContent = '暗証番号で復元する';
+  link.onclick = () => handleBackupConsentGate(showBackupRestore);
+}
+
+function handleBackupConsentGate(nextFn) {
+  const chk = document.getElementById('backup_consent_chk');
+  if(chk) {
+    if(!chk.checked) {
+      document.getElementById('backup-consent-alert').style.display = 'block';
+      return;
+    }
+    localStorage.setItem('backup_consent', '1');
+  }
+  nextFn();
+}
+
+function pinInputsHtml(idPrefix) {
+  let html = `<div class="pin-wrap">`;
+  for(let i=0;i<6;i++) html += `<input class="pin-digit" id="${idPrefix}-${i}" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">`;
+  html += `</div><div class="pin-err" id="${idPrefix}-err"></div>`;
+  return html;
+}
+function bindPinAutoAdvance(idPrefix) {
+  for(let i=0;i<6;i++) {
+    const el = document.getElementById(idPrefix+'-'+i);
+    el.oninput = () => {
+      el.value = el.value.replace(/[^0-9]/g,'').slice(0,1);
+      if(el.value && i<5) document.getElementById(idPrefix+'-'+(i+1)).focus();
+    };
+    el.onkeydown = (e) => {
+      if(e.key==='Backspace' && !el.value && i>0) document.getElementById(idPrefix+'-'+(i-1)).focus();
+    };
+  }
+  document.getElementById(idPrefix+'-0').focus();
+}
+function readPin(idPrefix) {
+  let pin = '';
+  for(let i=0;i<6;i++) pin += document.getElementById(idPrefix+'-'+i).value || '';
+  return pin;
+}
+
+function showBackupSetPin1() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_LOCK}</div>
+    <div class="ob-title">暗証番号を設定</div>
+    <div class="ob-desc">お好きな数字6桁を、<br>自己責任で設定してください。</div>
+    ${pinInputsHtml('setpin1')}
+  `;
+  bindPinAutoAdvance('setpin1');
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '次へ';
+  btn.onclick = handleSetPin1Next;
+  document.getElementById('ob-link').style.display = 'none';
+}
+
+async function handleSetPin1Next() {
+  const pin = readPin('setpin1');
+  const errEl = document.getElementById('setpin1-err');
+  errEl.textContent = '';
+  if(!/^[0-9]{6}$/.test(pin)) { errEl.textContent = '6桁の数字を入力してください。'; return; }
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>確認しています...';
+  try {
+    const res = await fetch(WORKER_URL+'/backup/check-pin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
+    const data = await res.json();
+    if(data.error==='too_many_attempts') { errEl.textContent='しばらく時間をおいてから、もう一度お試しください。'; }
+    else if(!data.available) { errEl.textContent='その番号はすでに使用されています。別の番号を入力してください。'; }
+    else { pendingPin1 = pin; showBackupSetPin2(); return; }
+  } catch(e) {
+    errEl.textContent = '通信に失敗しました。もう一度お試しください。';
+  }
+  btn.disabled = false;
+  btn.textContent = '次へ';
+}
+
+function showBackupSetPin2() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_CHECK}</div>
+    <div class="ob-title">もう一度入力</div>
+    <div class="ob-desc">同じ番号を入力してください。</div>
+    ${pinInputsHtml('setpin2')}
+  `;
+  bindPinAutoAdvance('setpin2');
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '設定してはじめる';
+  btn.onclick = handleSetPin2Confirm;
+}
+
+async function handleSetPin2Confirm() {
+  const pin2 = readPin('setpin2');
+  const errEl = document.getElementById('setpin2-err');
+  errEl.textContent = '';
+  if(pin2 !== pendingPin1) { errEl.textContent = '番号が一致しません。もう一度入力してください。'; return; }
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>設定しています...';
+  localStorage.setItem('backup_pin', pendingPin1);
+  await sendBackup();
+  finishBackupFlow();
+}
+
+function showBackupRestore() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_RESTORE}</div>
+    <div class="ob-title">暗証番号を入力</div>
+    <div class="ob-desc">以前設定した6桁を<br>入力してください。</div>
+    ${pinInputsHtml('restorepin')}
+  `;
+  bindPinAutoAdvance('restorepin');
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '復元する';
+  btn.onclick = handleRestoreConfirm;
+  const link = document.getElementById('ob-link');
+  link.style.display = 'block';
+  link.textContent = 'はじめるに戻る';
+  link.onclick = showBackupChoice;
+}
+
+async function handleRestoreConfirm() {
+  const pin = readPin('restorepin');
+  const errEl = document.getElementById('restorepin-err');
+  errEl.textContent = '';
+  if(!/^[0-9]{6}$/.test(pin)) { errEl.textContent = '6桁の数字を入力してください。'; return; }
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>確認しています...';
+  try {
+    const res = await fetch(WORKER_URL+'/backup/restore', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin}) });
+    const data = await res.json();
+    if(data.error==='too_many_attempts') { errEl.textContent='しばらく時間をおいてから、もう一度お試しください。'; }
+    else if(!data.found) { errEl.textContent='データが見つかりませんでした。番号をご確認のうえ、もう一度お試しください。'; }
+    else {
+      restoreDataToLocalStorage(data.data);
+      localStorage.setItem('backup_pin', pin);
+      finishBackupFlow();
+      return;
+    }
+  } catch(e) {
+    errEl.textContent = '通信に失敗しました。もう一度お試しください。';
+  }
+  btn.disabled = false;
+  btn.textContent = '復元する';
+}
+
+function showBackupAlready() {
+  document.getElementById('ob-content').innerHTML = `
+    <div class="ob-icon">${BACKUP_ICON_CHECK}</div>
+    <div class="ob-title">設定済みです</div>
+    <div class="ob-desc">暗証番号をお忘れにならないよう<br>保管してください。</div>
+  `;
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '閉じる';
+  btn.onclick = finishBackupFlow;
+  document.getElementById('ob-link').style.display = 'none';
+}
+
+function finishBackupFlow() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('ob-dots').style.display = '';
+  document.getElementById('ob-skip').style.display = '';
+  document.getElementById('ob-link').style.display = 'none';
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = false;
+  btn.textContent = '次へ';
+  btn.onclick = nextOb;
+  if(backupFlowContext === 'onboarding') closeOb();
+  backupFlowContext = null;
+}
+
+function restoreDataToLocalStorage(data) {
+  Object.keys(data).forEach(key => { localStorage.setItem(key, data[key]); });
+}
+
+// バックアップ対象キーのスナップショットを作成
+function getBackupSnapshot() {
+  const snapshot = {};
+  ['profile','goal','pfc','rules','rule_streak','streak_last_date'].forEach(k => {
+    const v = localStorage.getItem(k);
+    if(v !== null) snapshot[k] = v;
+  });
+  Object.keys(localStorage).forEach(k => {
+    if(k.startsWith('meals_') || k.startsWith('today_checks_') || k.startsWith('week_')) {
+      snapshot[k] = localStorage.getItem(k);
+    }
+  });
+  return snapshot;
+}
+
+// 進行系データ（プロフィール・目標・PFC・ルール・streak）：保存の都度送信
+async function sendBackup() {
+  const pin = localStorage.getItem('backup_pin');
+  if(!pin) return;
+  try {
+    await fetch(WORKER_URL+'/backup/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ pin, data:getBackupSnapshot() }) });
+  } catch(e) { /* 送信失敗時は次回の保存操作時に再送されるため、ここでは何もしない */ }
+}
+
+// カロリー・PFCデータ（食事記録・ルールチェック）：日付が変わったときのみ送信
+function sendBackupDaily() {
+  const pin = localStorage.getItem('backup_pin');
+  if(!pin) return;
+  const today = formatDate(new Date());
+  const lastSent = localStorage.getItem('backup_last_sent_date');
+  if(lastSent === today) return;
+  localStorage.setItem('backup_last_sent_date', today);
+  sendBackup();
+}
 
 function loadProfileForm() {
   const p = JSON.parse(localStorage.getItem('profile')||'{}');
@@ -1296,6 +1804,7 @@ function loadGoalForm() {
     const consentEl = document.getElementById('blood_consent');
     if(consentEl) consentEl.checked = !!g.blood_consent;
   }
+  toggleBloodFieldsEnabled(!!(document.getElementById('blood_consent')&&document.getElementById('blood_consent').checked));
   // プロジェクトボタンの表示・開始体重目標体重プレビューを、画面表示時に必ず初期化する
   calcGoalWeight();
 }
@@ -1349,6 +1858,16 @@ function toggleExerciseSubFields(exerciseValue) {
   const timeGroup = document.getElementById('exercise-time-group');
   if(intensityGroup) intensityGroup.style.display = show ? '' : 'none';
   if(timeGroup) timeGroup.style.display = show ? '' : 'none';
+}
+function toggleBloodFieldsEnabled(enabled) {
+  const wrap = document.getElementById('blood-fields-wrap');
+  if(!wrap) return;
+  wrap.querySelectorAll('input').forEach(el => el.disabled = !enabled);
+  wrap.querySelectorAll('#disease-tags .tag').forEach(el => {
+    el.style.pointerEvents = enabled ? 'auto' : 'none';
+    el.style.opacity = enabled ? '1' : '0.45';
+  });
+  wrap.style.opacity = enabled ? '1' : '0.55';
 }
 function toggleTag(el) { el.classList.toggle('on'); }
 
@@ -1596,6 +2115,11 @@ function saveProfile() {
     alert('必須項目（*）をすべて入力してください。\n基礎代謝kcal、身体の悩み・特に改善したいこと、好きな食べ物、推し・趣味の入力も必須です。');
     return false;
   }
+  const ageVal = parseInt(document.getElementById('age').value, 10);
+  if(!isNaN(ageVal) && ageVal < 18) {
+    alert('本サービスは18歳未満の方はご利用いただけません。');
+    return false;
+  }
   // 脂肪量kgは入力欄を持たず、常に体重×体脂肪率%から自動計算する
   const weightVal = parseFloat(document.getElementById('weight').value||0);
   const fatPctVal = parseFloat(document.getElementById('fat_pct').value||0);
@@ -1628,6 +2152,7 @@ function saveProfile() {
     tone: document.querySelector('#tone-tags .tag.on')?.dataset.tone||'フレンドリー',
   };
   localStorage.setItem('profile', JSON.stringify(data));
+  sendBackup();
   return true;
 }
 
@@ -1637,16 +2162,16 @@ function saveGoal(requireMotivation) {
     return false;
   }
   // セーフティライン：週1%（体重比）を超える減量ペースはブロック
-  const profile = JSON.parse(localStorage.getItem('profile')||'{}');
-  const weight = parseFloat(profile.weight||60);
-  const goalFatInput = parseFloat(document.getElementById('goal_fat').value||0);
-  const periodInput = document.getElementById('goal_period').value||'6ヶ月';
-  if(goalFatInput > 0) {
-    const monthsCheck = periodInput==='3ヶ月'?3:periodInput==='6ヶ月'?6:periodInput==='1年'?12:18;
-    const weeksCheck = monthsCheck * 30 / 7;
-    const weeklyLossKg = goalFatInput / weeksCheck;
-    const maxWeeklyLossKg = weight * 0.01;
-    if(weeklyLossKg > maxWeeklyLossKg) {
+  const profileForSafety = JSON.parse(localStorage.getItem('profile')||'{}');
+  const weightForSafety2 = parseFloat(profileForSafety.weight||60);
+  const goalFatInputForSafety = parseFloat(document.getElementById('goal_fat').value||0);
+  const periodInputForSafety = document.getElementById('goal_period').value||'6ヶ月';
+  if(goalFatInputForSafety > 0) {
+    const monthsCheck2 = periodInputForSafety==='3ヶ月'?3:periodInputForSafety==='6ヶ月'?6:periodInputForSafety==='1年'?12:18;
+    const weeksCheck2 = monthsCheck2 * 30 / 7;
+    const weeklyLossKg2 = goalFatInputForSafety / weeksCheck2;
+    const maxWeeklyLossKg2 = weightForSafety2 * 0.01;
+    if(weeklyLossKg2 > maxWeeklyLossKg2) {
       alert('このペースは、厚生労働省が紹介する医学的に推奨される安全な減量速度を超えています。急激な減量は、筋肉量の減少・リバウンドのリスクを高めます。無理のない目標に見直してください。');
       return false;
     }
@@ -1669,6 +2194,7 @@ function saveGoal(requireMotivation) {
   };
   localStorage.setItem('goal', JSON.stringify(data));
   calcPFC();
+  sendBackup();
   return true;
 }
 
@@ -1684,6 +2210,8 @@ function saveRules() {
     localStorage.setItem(weekKey, JSON.stringify(init));
   }
   localStorage.setItem('today_checks_'+formatDate(new Date()), JSON.stringify([]));
+  sendBackup();
+  sendBackupDaily();
 }
 
 // ===== ルールテンプレート =====
@@ -1883,6 +2411,7 @@ function renderWeeklyChart(tab){
   }
 }
 function loadMain() {
+  updateReportUsageNote();
   const profile = JSON.parse(localStorage.getItem('profile')||'{}');
   const goal = JSON.parse(localStorage.getItem('goal')||'{}');
   const pfc = JSON.parse(localStorage.getItem('pfc')||'{}');
@@ -2109,6 +2638,7 @@ function loadWeekRules(rules) {
 
 // ===== 食事記録 =====
 function renderMeals(meals, pfc) {
+  updateMealUsageNote();
   const list=document.getElementById('meal-list');
   const empty=document.getElementById('meal-empty');
   if(meals.length===0){empty.style.display='block';} else {empty.style.display='none';}
@@ -2210,6 +2740,7 @@ function deleteMeal(idx) {
   const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
   meals.splice(idx,1);
   localStorage.setItem(todayKey,JSON.stringify(meals));
+  sendBackupDaily();
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
   renderMeals(meals,pfc);
 }
@@ -2217,10 +2748,16 @@ function deleteMeal(idx) {
 async function recordMeal() {
   const txt=document.getElementById('meal-txt').value.trim();
   if(!txt) return;
+  if(!canUseMealAnalysis()) {
+    alert('本日の食事記録の利用回数上限（'+DAILY_MEAL_LIMIT+'回）に達しました。明日また記録できます。\n複数の品目はまとめて1回で入力すると、上限に達しにくくなります。');
+    return;
+  }
   const btn=document.getElementById('rec-btn');
   btn.innerHTML='<span class="loading-spinner"></span>解析中...';
   btn.disabled=true;
   const size=document.querySelector('.sz.on')?.textContent||'ふつう';
+  const licenseCode = await ensureLicenseCode();
+  incrementMealUsage();
   const prompt=`以下の食事内容のカロリーとPFCを推定してください。
 食事：${txt}
 量：${size}
@@ -2229,7 +2766,13 @@ JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":�
   let success=false;
   for(let attempt=1;attempt<=3;attempt++) {
     try {
-      const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+      const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],licenseCode,usageKind:'meal'})});
+      if(res.status===429) {
+        const errData=await res.json().catch(()=>({}));
+        handleLicenseGateError(errData.error);
+        btn.innerHTML='記録する'; btn.disabled=false;
+        return;
+      }
       const data=await res.json();
       const raw=data.candidates[0].content.parts[0].text;
       const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
@@ -2240,6 +2783,7 @@ JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":�
       const meals=JSON.parse(localStorage.getItem(todayKey)||'[]');
       meals.push(meal);
       localStorage.setItem(todayKey,JSON.stringify(meals));
+      sendBackupDaily();
       const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
       renderMeals(meals,pfc);
       document.getElementById('meal-txt').value='';
@@ -2302,6 +2846,8 @@ function toggleRuleCheck(rule,rules) {
   }
   localStorage.setItem(todayKey,JSON.stringify(checks));
   localStorage.setItem(weekKey,JSON.stringify(weekData));
+  sendBackup();
+  sendBackupDaily();
   renderRules(rules);
 }
 
@@ -2350,6 +2896,10 @@ function coachIconSVG(tone, strokeColor){
 
 async function generateReport() {
   const btn=document.getElementById('gen-btn');
+  if(!canUseReport()) {
+    document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">本日のレポート生成の利用回数上限（'+DAILY_REPORT_LIMIT+'回）に達しました。明日また生成できます。</div>';
+    return;
+  }
   const profile=JSON.parse(localStorage.getItem('profile')||'{}');
   const goal=JSON.parse(localStorage.getItem('goal')||'{}');
   const pfc=JSON.parse(localStorage.getItem('pfc')||'{}');
@@ -2358,6 +2908,9 @@ async function generateReport() {
     document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">目標カロリー・PFCがまだ設定されていません。まずはプロフィール画面で「目標カロリー・PFCを自動計算する」を行ってください。</div>';
     return;
   }
+  const licenseCode = await ensureLicenseCode();
+  incrementReportUsage();
+  updateReportUsageNote();
   btn.innerHTML='<span class="loading-spinner"></span>生成中...';
   btn.disabled=true;
   const rules=JSON.parse(localStorage.getItem('rules')||'[]');
@@ -2419,11 +2972,11 @@ async function generateReport() {
     'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - PFCの数値で現実を突きつける
 - 体への影響で危機感を煽る1文を入れる
-- 厳しく追い込む口調で`,
+- 高い要求をするが、自覚を促し、判断は本人に委ねる口調で（「〜だろう」「〜次第だ」のような、問いかけ・委ねる言い切り方）`,
     'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - PFCの数値で現実を突きつける
 - 体への影響で危機感を煽る1文を入れる
-- 辛口でシャープに、愛のある追い込む口調で`
+- 基本は「〜しろ」「〜やれ」のような命令口調で、強く要求する（判断を委ねず、強制する）。ただし、できている部分（運動の継続・ルール達成など）があれば、そこだけは素っ気なくでも褒め、厳しさの中にごくたまに飴を挟む。文末は「〜だ」「〜だろう」のような、男性的な言い切り方に統一し、「〜わ」「〜わよ」「〜わね」のような、女性言葉は一切使わない`
   };
   const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}フィードバックしてください。
 
@@ -2441,31 +2994,30 @@ ${goalInfo}
 - 食事（PFC含む）：${mealSummary}
 - ルール：${ruleSummary}
 
-【文章構成】以下の順序で構成してください
-1. 目標と現在地の再確認（できていることをメインに褒める、できていないことは僅かに伝える）
-2. PFCに触れる（目標カロリー・目標PFCと、今日の合計摂取量を具体的に比較する）＋脂質については量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる＋今日の食事内容を踏まえ、不足傾向にある栄養素（ビタミン・ミネラル・食物繊維）と、それを補える具体的な食材名を必ず1つ挙げる
-3. 運動状況（頻度・強度・時間）に触れる。運動習慣がない場合は、取り入れることを軽く勧める一言を入れる
-4. その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
-5. 具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
-6. 問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
+【文章構成】以下の順序で構成してください。②〜⑦は、それぞれの内容の直前に見出しを1行入れる（見出しの後に改行し、本文を続ける。見出しの文言は指定のものをそのまま使う）
+1. あいさつ（見出しなし）：短い挨拶のみ
+2. 見出し「目標と現在地」：できていることをメインに褒める、できていないことは僅かに伝える
+3. 見出し「カロリーとPFC」：目標カロリー・目標PFCと、今日の合計摂取量を具体的に比較する＋脂質については量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+4. 見出し「ビタミン・ミネラル」：今日の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。それを補える具体的な食材名も挙げる
+5. 見出し「運動について」：運動状況（頻度・強度・時間）に触れる。その運動状況に応じて、意識すべき栄養面のポイントを1点添える（例：運動頻度や運動時間が多い場合は炭水化物を極端に減らさないよう伝える、筋力トレーニングや高負荷運動を行っている場合はタンパク質を十分に確保するよう伝える、運動量・負荷ともに高い場合は炭水化物・タンパク質の両方に触れる）。運動習慣がない場合は、無理のない範囲で運動を取り入れることを軽く勧める一言を入れる。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
+6. 見出し「このままだと」：その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
+7. 見出し「解決策」：具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
+8. 締めのあいさつ（見出しなし）：問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
 【条件】
-- 8文以内・500文字以内で収める
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- 見出しは、指定した6つの言葉（目標と現在地／カロリーとPFC／ビタミン・ミネラル／運動について／このままだと／解決策）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
+- 見出しは記号（##など）で装飾せず、単独の1行として置く
 - 端的に
 - 絵文字を1〜2個使う
-- 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
 - マークダウン記法（##、###などの見出し記号、**による太字など）は一切使わない。指定された<span>タグ以外の記号・装飾は使わず、プレーンな文章として出力する
 - 目標カロリー・目標PFCの数値には、必ず言及すること
-- 運動状況（頻度・強度・時間）には、必ず言及すること
-- 脂質については、量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも必ず言及すること
 - 生活習慣（参考）のうち飲酒・間食・ストレス過食は、悩みや今日の記録と関連性が高い場合のみ軽く触れる程度でよく、無理に毎回言及する必要はない
-${needsPerformanceFuel ? '- 運動量が多いため、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない' : '- 間食・糖質量への意識づけを重視する'}
 - プロフィールの飲酒頻度・量が多い場合（週3回以上、または1回あたり多め）、当日の食事記録に飲酒に関する内容が含まれるときは、脅すのではなく事実として軽く触れる
 - プロフィールの間食頻度が多い場合（週3回以上）、当日の食事記録に間食に関する内容が含まれるときは、目標達成との関連について軽く触れる
-- 今日の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。栄養素名を伴わない曖昧な表現（「ビタミンやミネラルが不足気味です」等）は禁止する。それを補える、今日の食事内容にはなかった具体的な食材名も、AI自身で考えて1つ挙げる。「不足傾向かもしれません」「不足気味と言われています」という表現は使ってよいが、「あなたは○○が不足しています」という断定的な言い切りは避け、病名や体調不良と直接結びつけない
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
-- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#dc2626'>〜</span>で囲む。特に4番目の構成（体への影響）は、該当箇所の大部分を赤字にする${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#e11d1d'>〜</span>で囲む。特に「このままだと」の見出しの内容は、該当箇所の大部分を赤字にする${bloodInfo?'\n- 血液検査データに触れる場合は、数値と一般的な基準値を比較した事実のみ伝え、病名の断定や治療方針の指示など診断的な表現は使わない\n- 血液検査データに触れた場合は、文末に「※医療的な診断ではありません。気になる値がある場合は医療機関にご相談ください」を必ず付け加える':''}`;
 
   try {
     const RETRIABLE_STATUS=[429,500,502,503,504];
@@ -2474,14 +3026,25 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
     for(let attempt=1; attempt<=maxAttempts; attempt++) {
       if(attempt>1) btn.innerHTML='<span class="loading-spinner"></span>もう一度試しています...';
       try {
-        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],licenseCode,usageKind:'report'})});
+        if(res.status===429) {
+          const errData=await res.json().catch(()=>({}));
+          if(['usage_limit_reached','trial_expired','license_inactive','license_not_found','invalid_license'].includes(errData.error)) {
+            handleLicenseGateError(errData.error);
+            btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今日のレポートを生成する';
+            btn.disabled=false;
+            return;
+          }
+          if(attempt<maxAttempts) continue;
+          break;
+        }
         if(!res.ok) {
           if(RETRIABLE_STATUS.includes(res.status) && attempt<maxAttempts) continue;
           break;
         }
         const data=await res.json();
         const msg=data.candidates[0].content.parts[0].text;
-        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('coach-msg-area').innerHTML=`<div class="coach-msg">${decorateCoachHeadings(msg)}</div>`;
         document.getElementById('line-share-btn').style.display='flex';
         document.getElementById('line-share-btn').setAttribute('data-msg', msg);
         succeeded=true;
@@ -2578,6 +3141,13 @@ function updateBodyData() {
 // ===== 今週のレポート生成 =====
 async function generateWeeklyReport() {
   const btn=document.getElementById('weekly-gen-btn');
+  if(!canUseReport()) {
+    document.getElementById('weekly-coach-msg-area').innerHTML='<div class="coach-placeholder">本日のレポート生成の利用回数上限（'+DAILY_REPORT_LIMIT+'回）に達しました。明日また生成できます。</div>';
+    return;
+  }
+  const licenseCode = await ensureLicenseCode();
+  incrementReportUsage();
+  updateReportUsageNote();
   btn.innerHTML='<span class="loading-spinner"></span>生成中...';
   btn.disabled=true;
   const profile=JSON.parse(localStorage.getItem('profile')||'{}');
@@ -2652,10 +3222,10 @@ async function generateWeeklyReport() {
 - 分析・論理的な口調で`,
     'ストイック':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - 週間データで現実を突きつける
-- 厳しく追い込む口調で`,
+- 高い要求をするが、自覚を促し、判断は本人に委ねる口調で（「〜だろう」「〜次第だ」のような、問いかけ・委ねる言い切り方）`,
     'ドS':`- 目標のみ絡める、推し・好きな食べ物は使わない
 - 週間データで現実を突きつける
-- 辛口でシャープに、愛のある追い込む口調で`
+- 基本は「〜しろ」「〜やれ」のような命令口調で、強く要求する（判断を委ねず、強制する）。ただし、できている部分（運動の継続・ルール達成など）があれば、そこだけは素っ気なくでも褒め、厳しさの中にごくたまに飴を挟む。文末は「〜だ」「〜だろう」のような、男性的な言い切り方に統一し、「〜わ」「〜わよ」「〜わね」のような、女性言葉は一切使わない`
   };
 
   const prompt=`あなたはパーソナルダイエットコーチです。${toneMap[tone]}、今週1週間の習慣についてフィードバックしてください。単日の食事内容ではなく、週を通じた傾向・習慣化の観点で評価してください。
@@ -2674,30 +3244,30 @@ ${goalInfo}
 ${dailySummaries.join('\n')}
 - ルール達成状況：${ruleSummary||'ルール未設定'}
 
-【文章構成】以下の順序で構成してください
-1. 記録日数・ルール達成状況の再確認（7日中何日記録できたか、ルールを何日守れたかを具体的な数字で示す。できていた日・できていなかった日のムラ＝継続できなかったことに触れる）
-2. なぜそれが問題なのか、理由を伝える（「守れたり守れなかったり」「記録したりしなかったり」という不安定さそのものが、成果が出にくい最大の原因であることを伝える）
-3. 今週のカロリー・PFC・脂質・ビタミンミネラルの傾向に触れる（目標カロリー・目標PFCがある場合はそれとの比較で、カロリー・タンパク質・脂質・炭水化物それぞれについて日によるムラ、または一貫した傾向が見られる場合は必ず言及する。脂質は量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる。食事内容から不足しがちな栄養素（ビタミン・ミネラル・食物繊維）が推測できる場合は必ず1点触れる）
-4. 運動との関係に触れる（今週の運動状況（頻度・強度・時間）が、カロリー・PFCの傾向や体への影響とどう関係しているかを伝える。運動習慣がない場合は、取り入れることを軽く勧める一言を入れる）
-5. このまま（継続のムラ＋栄養傾向＋運動状況）を続けた場合のリスク・未来を、まとめて伝える（継続できないこと、栄養バランスの偏りの両方が重なることで目標達成がどれだけ遠のくかを理論・危機感として伝える。「身体の悩み・改善したいこと」に関連づけて、このままだとどうなるかを伝える）
-6. 来週、具体的に何をどう改善すべきかを提案する
-7. 励まし、当事者意識を持たせる問いかけで締める（習慣化としてのルールの意識）
+【文章構成】以下の順序で構成してください。②〜⑦は、それぞれの内容の直前に見出しを1行入れる（見出しの後に改行し、本文を続ける。見出しの文言は指定のものをそのまま使う）
+1. あいさつ（見出しなし）：短い挨拶のみ
+2. 見出し「記録とルールの継続状況」：7日中何日記録できたか、ルールを何日守れたかを、具体的な数字で示す。できていた日・できていなかった日のムラに触れる。さらに、なぜそれが問題なのか、理由も続けて伝える（「守れたり守れなかったり」という不安定さそのものが、成果が出にくい最大の原因であることを伝える）
+3. 見出し「今週のカロリーとPFC」：目標カロリー・目標PFCがある場合はそれとの比較で、カロリー・タンパク質・脂質・炭水化物それぞれについて日によるムラ、または一貫した傾向が見られる場合は必ず言及する。脂質は量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+4. 見出し「今週のビタミン・ミネラル」：今週の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。それを補える具体的な食材名も挙げる
+5. 見出し「今週の運動と栄養」：今週の運動状況（頻度・強度・時間）に触れる。その運動状況に応じて、意識すべき栄養面のポイントを1点添える（例：運動頻度や運動時間が多い場合は炭水化物を極端に減らさないよう伝える、筋力トレーニングや高負荷運動を行っている場合はタンパク質を十分に確保するよう伝える、運動量・負荷ともに高い場合は炭水化物・タンパク質の両方に触れる）。運動習慣がない場合は、無理のない範囲で運動を取り入れることを軽く勧める一言を入れる。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
+6. 見出し「このままだと未来は」：継続のムラ・栄養の傾向・運動状況を続けた場合のリスク・未来を、まとめて伝える。「身体の悩み・改善したいこと」に関連づけて理由を伝える
+7. 見出し「今すぐできる事」：来週、具体的に何をどう改善すべきかを提案する
+8. 締めのあいさつ（見出しなし）：励まし、当事者意識を持たせる問いかけで締める（習慣化としてのルールの意識）
 
 【条件】
-- 7文以内・500文字以内で収める
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- 見出しは、指定した6つの言葉（記録とルールの継続状況／今週のカロリーとPFC／今週のビタミン・ミネラル／今週の運動と栄養／このままだと未来は／今すぐできる事）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
+- 見出しは記号（##など）で装飾せず、単独の1行として置く
 - 端的に
 - 絵文字を1〜2個使う
-- 上記の文章構成の項目ごとに、改行（空行）を入れて段落を分け、読みやすくする
 - マークダウン記法（##、###などの見出し記号、**による太字など）は一切使わない。指定された<span>タグ以外の記号・装飾は使わず、プレーンな文章として出力する
 - 記録日数（7日中○日）とルール達成日数を、必ず具体的な数字で言及する
 - 「守れた日と守れなかった日のムラ」「記録した日としなかった日のムラ」など、継続性・持続性の観点を必ず盛り込む
 - カロリー・P（タンパク質）・F（脂質）・C（炭水化物）それぞれについて、日によるムラ、または一貫した傾向（毎日通して多い/少ない）が見られる場合は、必ず言及する
-${needsPerformanceFuelWeekly ? '- 運動量が多いため、糖質・カロリーの摂取はパフォーマンス維持のために必須であるという意識づけを行い、我慢や制限を勧めない' : '- 間食・糖質量への意識づけを重視する'}
 - 危機感を煽る際も、頭ごなしに責めるのではなく、理由→リスク→改善提案→励ましの順で伝える
-- 今日の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。栄養素名を伴わない曖昧な表現（「ビタミンやミネラルが不足気味です」等）は禁止する。それを補える、今週の食事内容にはなかった具体的な食材名も、AI自身で考えて1つ挙げる。「不足傾向かもしれません」「不足気味と言われています」という表現は使ってよいが、「あなたは○○が不足しています」という断定的な言い切りは避け、病名や体調不良と直接結びつけない
 - カロリー・PFCの推定は、文部科学省「日本食品標準成分表」の数値を優先的に参考にしてください
 ${toneConditions[tone]||toneConditions['フレンドリー']}
-- 警告・重要な指摘（栄養の過不足による体への影響、リスク）の部分は必ず<span style='color:#dc2626'>〜</span>で囲む`;
+- 警告・重要な指摘（栄養の過不足による体への影響、リスク）は、該当する文をできるだけ幅広く<span style='color:#e11d1d'>〜</span>で囲む。特に「このままだと未来は」の見出しの内容は、該当箇所の大部分を赤字にする`;
 
   try {
     const RETRIABLE_STATUS=[429,500,502,503,504];
@@ -2706,14 +3276,25 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
     for(let attempt=1; attempt<=maxAttempts; attempt++) {
       if(attempt>1) btn.innerHTML='<span class="loading-spinner"></span>もう一度試しています...';
       try {
-        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],licenseCode,usageKind:'report'})});
+        if(res.status===429) {
+          const errData=await res.json().catch(()=>({}));
+          if(['usage_limit_reached','trial_expired','license_inactive','license_not_found','invalid_license'].includes(errData.error)) {
+            handleLicenseGateError(errData.error);
+            btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今週のレポートを生成する';
+            btn.disabled=false;
+            return;
+          }
+          if(attempt<maxAttempts) continue;
+          break;
+        }
         if(!res.ok) {
           if(RETRIABLE_STATUS.includes(res.status) && attempt<maxAttempts) continue;
           break;
         }
         const data=await res.json();
         const msg=data.candidates[0].content.parts[0].text;
-        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${msg}</div>`;
+        document.getElementById('weekly-coach-msg-area').innerHTML=`<div class="coach-msg">${decorateCoachHeadings(msg)}</div>`;
         document.getElementById('weekly-line-share-btn').style.display='flex';
         document.getElementById('weekly-line-share-btn').setAttribute('data-msg', msg);
         succeeded=true;
@@ -2744,6 +3325,56 @@ function selSz(el) { document.querySelectorAll('.sz').forEach(s=>s.classList.rem
 
 // ===== ユーティリティ =====
 function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ===== AI利用回数の管理（食事解析：22回/日、レポート生成：3回/日） =====
+const DAILY_MEAL_LIMIT = 22;
+const DAILY_REPORT_LIMIT = 3;
+function getUsageToday() {
+  const today = formatDate(new Date());
+  const stored = JSON.parse(localStorage.getItem('ai_usage') || '{}');
+  if(stored.date !== today) return { date: today, meal: 0, report: 0 };
+  return stored;
+}
+function canUseMealAnalysis() { return getUsageToday().meal < DAILY_MEAL_LIMIT; }
+function canUseReport() { return getUsageToday().report < DAILY_REPORT_LIMIT; }
+function incrementMealUsage() {
+  const u = getUsageToday(); u.meal++; localStorage.setItem('ai_usage', JSON.stringify(u));
+}
+function incrementReportUsage() {
+  const u = getUsageToday(); u.report++; localStorage.setItem('ai_usage', JSON.stringify(u));
+}
+function updateMealUsageNote() {
+  const el = document.getElementById('meal-usage-note');
+  if(!el) return;
+  const remain = DAILY_MEAL_LIMIT - getUsageToday().meal;
+  if(remain <= 0) {
+    el.textContent = '本日の記録回数は上限に達しました（明日また記録できます）';
+    el.style.color = '#e11d1d';
+  } else {
+    el.textContent = `本日の記録：あと${remain}回（「ごはん、お味噌汁、納豆、さば塩焼き」のように、1食分をまとめて入力しましょう）`;
+    el.style.color = remain <= 5 ? '#e11d1d' : '#999';
+  }
+}
+function updateReportUsageNote() {
+  const remain = DAILY_REPORT_LIMIT - getUsageToday().report;
+  const text = remain <= 0 ? '本日のレポート生成は上限に達しました（明日また生成できます）' : `本日のレポート生成：あと${remain}回`;
+  const color = remain <= 1 ? '#e11d1d' : '#999';
+  ['report-usage-note','weekly-report-usage-note'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.textContent = text; el.style.color = color; }
+  });
+}
+
+// AIレポートの生成文中の見出し（行頭に単独で出現する指定ワード）を装飾する
+const COACH_MSG_HEADINGS = ['目標と現在地','カロリーとPFC','ビタミン・ミネラル','運動について','このままだと','解決策','記録とルールの継続状況','今週のカロリーとPFC','今週のビタミン・ミネラル','今週の運動と栄養','このままだと未来は','今すぐできる事'];
+function decorateCoachHeadings(msg) {
+  let result = msg;
+  COACH_MSG_HEADINGS.forEach(h => {
+    const escaped = h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp('(^|\\n)'+escaped+'(?=\\n|$)', 'g'), `$1<span class="coach-msg-heading">${h}</span>`);
+  });
+  return result;
+}
 function getWeek(d) { const s=new Date(d.getFullYear(),0,1); return Math.ceil(((d-s)/86400000+s.getDay()+1)/7); }
 
 // ===== 起動カウント =====
@@ -2755,6 +3386,8 @@ localStorage.setItem('launch_count',lc);
 (function(){
   const splash = document.getElementById('splash');
   const img = document.getElementById('splash-img');
+  // ホーム画面アイコンから起動された場合のみ、専用クラスを付与（ブラウザ表示には一切影響しない）
+  if(window.navigator.standalone === true) { img.classList.add('home-standalone'); }
   // 2枚目の画像を裏側で先読みしておく（切り替え時の読み込み遅延によるズレを防止）
   const preload = new Image();
   preload.src = './IMG_3070.png';
@@ -2811,7 +3444,7 @@ function initLogoImages() {
     }
   });
 })();
-window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); },300); });
+window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
 </script>
 </body>
 </html>
