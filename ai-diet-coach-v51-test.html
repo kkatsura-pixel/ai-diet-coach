@@ -889,7 +889,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">血液検査データ<span class="opt-badge">任意</span></span></div>
 
       <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-bottom:10px;cursor:pointer;">
-        <input type="checkbox" id="blood_consent" onchange="toggleBloodFieldsEnabled(this.checked)" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+        <input type="checkbox" id="blood_consent" onchange="onBloodConsentChanged(this.checked)" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
         <span>血液検査データ・生活習慣病の有無（既往歴）を入力し、AIによる個別アドバイス生成に利用することに同意します。この同意がない場合、以下の項目は入力できません。</span>
       </label>
 
@@ -1540,6 +1540,20 @@ function showLegalConsent() {
   if(link) link.style.display = 'none';
 }
 
+// ライセンスコードと紐付けて、同意内容をサーバーに正式記録する
+async function recordConsentToServer(fields) {
+  try {
+    const code = await ensureLicenseCode();
+    if (!code) return; // コード取得に失敗した場合は無理に送らない（次回の同意操作時に再試行される）
+    await fetch(WORKER_URL + '/consent/record', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ code }, fields))
+    });
+  } catch (e) {
+    // 通信エラーはユーザー操作をブロックしない（同意記録はベストエフォート）
+  }
+}
+
 function handleLegalConsentGate() {
   const chk = document.getElementById('legal_consent_chk');
   if(chk) {
@@ -1549,6 +1563,7 @@ function handleLegalConsentGate() {
     }
     localStorage.setItem('legal_consent_version', LEGAL_VERSION);
     localStorage.setItem('legal_consent_date', formatDate(new Date()));
+    recordConsentToServer({ tosVersion: LEGAL_VERSION, ppVersion: LEGAL_VERSION });
   }
   if(legalFlowContext === 'menu') {
     finishLegalFlow();
@@ -1931,6 +1946,11 @@ function toggleBloodFieldsEnabled(enabled) {
     el.style.opacity = enabled ? '1' : '0.45';
   });
   wrap.style.opacity = enabled ? '1' : '0.55';
+}
+// チェックボックスのonchangeからのみ呼ぶ（ページ読み込み時の再表示と区別するため分離）
+function onBloodConsentChanged(checked) {
+  toggleBloodFieldsEnabled(checked);
+  if (checked) recordConsentToServer({ bloodConsent: true });
 }
 function toggleTag(el) { el.classList.toggle('on'); }
 
