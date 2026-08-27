@@ -494,6 +494,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
     <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
     <div class="drawer-item" id="di-license" onclick="closeDrawer();openLicenseFromMenu()"><div class="drawer-dot done"></div>コードを入力する</div>
+    <div class="drawer-item" id="di-billing" onclick="closeDrawer();openBillingPortal()"><div class="drawer-dot done"></div>契約を管理する（解約する）</div>
     <div class="drawer-item" id="di-legal" onclick="openLegalFromMenu()"><div class="drawer-dot done"></div>利用規約・プライバシーポリシー</div>
     <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
   </div>
@@ -1288,6 +1289,7 @@ function getDeviceId() {
   return id;
 }
 function getLicenseCode() { return localStorage.getItem('license_code'); }
+function getLicenseType() { return localStorage.getItem('license_type'); }
 function setLicenseCode(code, type) {
   localStorage.setItem('license_code', code);
   if (type) localStorage.setItem('license_type', type);
@@ -1375,6 +1377,30 @@ function openLicenseFromMenu() {
 function startPurchase() {
   window.location.href = STRIPE_PAYMENT_LINK_URL;
 }
+// 契約管理（解約・支払い方法変更）：Stripeカスタマーポータルへ遷移
+async function openBillingPortal() {
+  const code = getLicenseCode();
+  if (!code || getLicenseType() !== 'paid') {
+    alert('現在、有料プランでご利用中のコードが確認できません。無料期間中、またはコード未登録の場合はご利用いただけません。');
+    return;
+  }
+  try {
+    const returnUrl = window.location.origin + window.location.pathname;
+    const res = await fetch(WORKER_URL + '/billing/portal', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, returnUrl })
+    });
+    const data = await res.json();
+    if (data && data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('契約管理ページを開けませんでした。時間をおいてもう一度お試しいただくか、公式LINEまでご連絡ください。');
+    }
+  } catch (e) {
+    alert('通信エラーが発生しました。時間をおいて再度お試しください。');
+  }
+}
+
 async function submitLicenseCode() {
   const input = document.getElementById('lb-code-input');
   const errEl = document.getElementById('lb-code-err');
