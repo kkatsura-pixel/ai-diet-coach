@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Diet Coach 顧客一覧</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    background: #f5f3f0;
+    margin: 0;
+    padding: 20px;
+    color: #222;
+  }
+  h1 {
+    font-size: 20px;
+    color: #3d1a08;
+    margin-bottom: 16px;
+  }
+  .login-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 400px;
+    margin: 40px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .login-box input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .login-box button, .toolbar button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #7a4f35;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+  }
+  .toolbar { max-width: 400px; margin: 0 auto 16px; }
+  .error { color: #c0392b; font-size: 14px; margin-top: 8px; }
+  .summary {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 14px;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  th {
+    background: #3d1a08;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  .status-active { color: #2e7d32; font-weight: 600; }
+  .status-canceled_at_period_end { color: #b8860b; font-weight: 600; }
+  .status-canceled { color: #999; font-weight: 600; }
+  .status-trialing { color: #1565c0; font-weight: 600; }
+  .status-past_due, .status-unpaid { color: #c0392b; font-weight: 600; }
+  .empty-cell { color: #bbb; }
+  .code-badge {
+    background: #f0ebe4;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .table-wrap { overflow-x: auto; }
+  .loading { text-align: center; color: #888; padding: 30px; }
+</style>
+</head>
+<body>
+
+<div id="login-view">
+  <h1>AI Diet Coach 顧客一覧</h1>
+  <div class="login-box">
+    <input type="password" id="admin-key-input" placeholder="管理者キーを入力">
+    <button onclick="loadCustomers()">一覧を表示する</button>
+    <div class="error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="list-view" style="display:none;">
+  <h1>AI Diet Coach 顧客一覧</h1>
+  <div class="toolbar">
+    <button onclick="loadCustomers()">再読み込み</button>
+  </div>
+  <div class="summary" id="summary"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>氏名</th>
+          <th>メールアドレス</th>
+          <th>契約状況</th>
+          <th>契約開始日</th>
+          <th>次回請求日／解約予定日</th>
+          <th>コード</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = 'https://ai-diet-coach-proxy.koshiro-katsura.workers.dev';
+
+const STATUS_LABELS = {
+  active: '有効',
+  canceled_at_period_end: '解約予定',
+  canceled: '解約済み',
+  trialing: 'トライアル中',
+  past_due: '支払い遅延',
+  unpaid: '未払い',
+  incomplete: '未完了',
+  incomplete_expired: '期限切れ',
+  paused: '一時停止',
+};
+
+function formatDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return d.getFullYear() + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0');
+}
+
+function cell(value) {
+  if (value === null || value === undefined || value === '') {
+    return '<span class="empty-cell">未収集</span>';
+  }
+  return value;
+}
+
+async function loadCustomers() {
+  const keyInputEl = document.getElementById('admin-key-input');
+  const key = keyInputEl ? keyInputEl.value.trim() : sessionStorage.getItem('admin_key');
+  const errorEl = document.getElementById('login-error');
+  if (errorEl) errorEl.textContent = '';
+
+  if (!key) {
+    if (errorEl) errorEl.textContent = '管理者キーを入力してください。';
+    return;
+  }
+  sessionStorage.setItem('admin_key', key);
+
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('table-body').innerHTML = '<tr><td colspan="6" class="loading">読み込み中...</td></tr>';
+
+  try {
+    const res = await fetch(WORKER_URL + '/admin/list-customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminKey: key })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      document.getElementById('list-view').style.display = 'none';
+      document.getElementById('login-view').style.display = 'block';
+      document.getElementById('login-error').textContent = '取得に失敗しました：' + (data.error || res.status);
+      return;
+    }
+
+    document.getElementById('summary').textContent = '合計 ' + data.count + ' 件';
+
+    const rows = data.customers.map(c => {
+      const statusLabel = STATUS_LABELS[c.status] || c.status;
+      const statusClass = 'status-' + c.status;
+      const codeHtml = c.code ? '<span class="code-badge">' + c.code + '</span>' : '<span class="empty-cell">紐付けなし</span>';
+      return '<tr>' +
+        '<td>' + cell(c.name) + '</td>' +
+        '<td>' + cell(c.email) + '</td>' +
+        '<td class="' + statusClass + '">' + statusLabel + '</td>' +
+        '<td>' + cell(formatDate(c.startDate)) + '</td>' +
+        '<td>' + cell(formatDate(c.periodEnd)) + '</td>' +
+        '<td>' + codeHtml + '</td>' +
+        '</tr>';
+    }).join('');
+
+    document.getElementById('table-body').innerHTML = rows || '<tr><td colspan="6" class="loading">データがありません</td></tr>';
+  } catch (e) {
+    document.getElementById('list-view').style.display = 'none';
+    document.getElementById('login-view').style.display = 'block';
+    document.getElementById('login-error').textContent = '通信エラーが発生しました。';
+  }
+}
+
+// 前回入力した管理者キーが残っていれば自動で読み込む
+window.addEventListener('load', () => {
+  const saved = sessionStorage.getItem('admin_key');
+  if (saved) {
+    document.getElementById('admin-key-input').value = saved;
+  }
+});
+</script>
+
+</body>
+</html>
