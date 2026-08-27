@@ -467,6 +467,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <input type="text" id="lb-code-input" placeholder="コードをお持ちの方はこちら" style="width:100%;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:14px;font-family:inherit;color:#111;">
       <button onclick="submitLicenseCode()" style="width:100%;margin-top:8px;padding:11px;border-radius:6px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">コードを送信する</button>
       <div class="pin-err" id="lb-code-err"></div>
+      <div onclick="toggleEmailLookup()" style="text-align:center;margin-top:14px;font-size:12px;color:#999;text-decoration:underline;cursor:pointer;">コードをお忘れの方はこちら</div>
+      <div id="lb-email-lookup" style="display:none;margin-top:10px;">
+        <input type="email" id="lb-email-input" placeholder="ご購入時のメールアドレス" style="width:100%;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:14px;font-family:inherit;color:#111;">
+        <button onclick="lookupLicenseByEmail()" style="width:100%;margin-top:8px;padding:11px;border-radius:6px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">コードを確認する</button>
+        <div class="pin-err" id="lb-email-result"></div>
+      </div>
     </div>
     <button id="lb-close-btn" onclick="closeLicenseBlock()" style="display:none;width:100%;margin-top:10px;padding:8px;border-radius:6px;border:none;background:none;color:#aaa;font-size:12px;cursor:pointer;font-family:inherit;">閉じる</button>
   </div>
@@ -1326,7 +1332,7 @@ async function handlePaymentReturn() {
     if (data && data.code) {
       setLicenseCode(data.code, 'paid');
       closeLicenseBlock();
-      alert('ご購入ありがとうございます。引き続きAI Diet Coachをご利用いただけます。');
+      alert('ご購入ありがとうございます。引き続きAI Diet Coachをご利用いただけます。\n\n【重要】あなたの引き継ぎコードは「' + data.code + '」です。\n機種変更の際に必要になりますので、必ずスクリーンショット等で保管してください。');
     } else {
       alert('決済の確認に失敗しました。時間をおいてもう一度お試しいただくか、公式LINEまでご連絡ください。');
     }
@@ -1398,6 +1404,37 @@ async function openBillingPortal() {
     }
   } catch (e) {
     alert('通信エラーが発生しました。時間をおいて再度お試しください。');
+  }
+}
+
+function toggleEmailLookup() {
+  const el = document.getElementById('lb-email-lookup');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+async function lookupLicenseByEmail() {
+  const emailInput = document.getElementById('lb-email-input');
+  const resultEl = document.getElementById('lb-email-result');
+  const email = emailInput.value.trim();
+  resultEl.style.color = '';
+  resultEl.textContent = '';
+  if (!email || !email.includes('@')) {
+    resultEl.textContent = 'メールアドレスを正しく入力してください。';
+    return;
+  }
+  try {
+    const res = await fetch(WORKER_URL + '/license/lookup-by-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data && data.found) {
+      resultEl.style.color = '#4a7a4a';
+      resultEl.textContent = 'コードが見つかりました：' + data.codes.join('、');
+    } else {
+      resultEl.textContent = 'このメールアドレスに一致するコードが見つかりませんでした。ご購入時のメールアドレスをご確認いただくか、公式LINEまでご連絡ください。';
+    }
+  } catch (e) {
+    resultEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
   }
 }
 
