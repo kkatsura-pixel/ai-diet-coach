@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>無料コード発行</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    background: #f5f3f0;
+    padding: 20px;
+    color: #222;
+  }
+  .box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 420px;
+    margin: 40px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  h1 { font-size: 18px; color: #3d1a08; margin-bottom: 20px; }
+  input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  button {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    background: #7a4f35;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+  }
+  .result {
+    margin-top: 24px;
+    padding: 20px;
+    background: #f0ebe4;
+    border-radius: 10px;
+    display: none;
+  }
+  .result .code {
+    font-size: 32px;
+    font-weight: 700;
+    color: #3d1a08;
+    font-family: monospace;
+    letter-spacing: 1px;
+  }
+  .result .label { font-size: 13px; color: #888; margin-bottom: 6px; }
+  .error { color: #c0392b; font-size: 14px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h1>既存ユーザー用<br>無料コード発行</h1>
+  <input type="password" id="admin-key" placeholder="管理者キー">
+  <button onclick="issueCode()">新しいコードを1つ発行する</button>
+  <div class="error" id="error-msg"></div>
+
+  <div class="result" id="result-box">
+    <div class="label">このコードを、その場でお伝えください</div>
+    <div class="code" id="issued-code">-</div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = 'https://ai-diet-coach-proxy.koshiro-katsura.workers.dev';
+
+async function issueCode() {
+  const adminKey = document.getElementById('admin-key').value.trim();
+  const errorEl = document.getElementById('error-msg');
+  const resultBox = document.getElementById('result-box');
+  errorEl.textContent = '';
+  resultBox.style.display = 'none';
+
+  if (!adminKey) {
+    errorEl.textContent = '管理者キーを入力してください。';
+    return;
+  }
+
+  try {
+    const res = await fetch(WORKER_URL + '/admin/issue-next-free-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminKey })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      errorEl.textContent = '発行に失敗しました：' + (data.error || res.status);
+      return;
+    }
+
+    document.getElementById('issued-code').textContent = data.code;
+    resultBox.style.display = 'block';
+  } catch (e) {
+    errorEl.textContent = '通信エラーが発生しました。';
+  }
+}
+</script>
+
+</body>
+</html>
