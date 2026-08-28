@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>データ削除実行</title>
+<style>
+  body { font-family: -apple-system, "Hiragino Sans", sans-serif; background: #f5f3f0; padding: 20px; }
+  .box { background: #fff; border-radius: 10px; padding: 20px; max-width: 500px; margin: 20px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  input { width: 100%; padding: 12px; font-size: 16px; border: 1.5px solid #ddd; border-radius: 8px; margin-bottom: 12px; }
+  button { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; background: #c0392b; color: #fff; border: none; border-radius: 8px; }
+  pre { background: #f0f0f0; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>削除実行（管理者用）</h2>
+  <label>管理者キー</label>
+  <input type="password" id="admin-key">
+  <label>削除対象のコード</label>
+  <input type="text" id="target-code">
+  <button onclick="runDelete()">このコードのデータを削除する</button>
+  <pre id="result"></pre>
+</div>
+<script>
+async function runDelete() {
+  const adminKey = document.getElementById('admin-key').value.trim();
+  const code = document.getElementById('target-code').value.trim();
+  const resultEl = document.getElementById('result');
+  resultEl.textContent = '実行中...';
+  try {
+    const res = await fetch('https://ai-diet-coach-proxy.koshiro-katsura.workers.dev/admin/delete-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminKey, code, confirm: true })
+    });
+    const data = await res.json();
+    resultEl.textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    resultEl.textContent = '通信エラー: ' + e.message;
+  }
+}
+</script>
+</body>
+</html>
