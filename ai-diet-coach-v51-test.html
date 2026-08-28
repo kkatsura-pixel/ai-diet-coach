@@ -1644,6 +1644,7 @@ function handleBackupConsentGate(nextFn) {
       return;
     }
     localStorage.setItem('backup_consent', '1');
+    recordConsentToServer({ backupConsent: true });
   }
   nextFn();
 }
