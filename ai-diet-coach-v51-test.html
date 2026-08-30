@@ -498,6 +498,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
     <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
+    <div class="drawer-item" id="di-basics" onclick="showView('basics',null);closeDrawer()"><div class="drawer-dot done"></div>基礎知識</div>
     <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
     <div class="drawer-item" id="di-license" onclick="closeDrawer();openLicenseFromMenu()"><div class="drawer-dot done"></div>コードを入力する</div>
     <div class="drawer-item" id="di-billing" onclick="closeDrawer();openBillingPortal()"><div class="drawer-dot done"></div>契約を管理する（解約する）</div>
@@ -624,6 +625,98 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         <a href="https://lin.ee/RmsHGg8" style="display:block;text-decoration:none;background:linear-gradient(135deg,#c9a96e,#a8843a);color:#fff;font-size:13px;font-weight:700;padding:13px;border-radius:6px;">Body Innovation 公式LINE</a>
         <a href="https://body-innovation.net/ai-diet-coach" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">AI Diet Coach 公式HP</a>
         <a href="https://kkatsura-pixel.github.io/ai-diet-coach/AI_Diet_Coach_取扱説明書.pdf" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">画像付き取扱説明書（PDF）</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== BASICS: 基礎知識 ===== -->
+<div id="view-basics" class="view">
+  <div class="card">
+    <div class="app-hdr">
+      <div class="logo" id="logo-basics"></div>
+      <div class="app-hdr-text">
+        <div class="app-hdr-t1">AI Diet Coach</div>
+        <div class="app-hdr-t2">基礎知識</div>
+      </div>
+      <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div style="padding:24px;">
+
+      <div style="font-size:11px;color:#a8843a;letter-spacing:0.1em;margin-bottom:8px;">はじめに</div>
+      <div style="font-size:12.5px;color:#666;line-height:1.8;margin-bottom:16px;">このページでは、カロリー・PFC・基礎代謝など、アプリを使ううえで知っておくと役立つ基礎知識をまとめています。プロフィール画面の入力項目と合わせて読むと、レポートの数値がより分かりやすくなります。</div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-calorie')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">カロリー・基礎代謝について</span>
+          <svg id="bs-calorie-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-calorie" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">① カロリーってなに？</div>
+          <div>食べ物にはすべて、体を動かすための「エネルギー」が含まれています。そのエネルギーの量を表す単位が「カロリー（kcal）」です。<br>体は、呼吸する・歩く・考える、こうした活動すべてにカロリーを使います。使うカロリーより多く食べれば体重は増え、少なければ体重は減ります。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">② 基礎代謝ってなに？</div>
+          <div>何もせずじっとしていても、呼吸や体温維持、内臓を動かすために体はエネルギーを使っています。これを「基礎代謝」と呼びます。<br>基礎代謝は、体重・身長・年齢によって一人ひとり異なります。プロフィール画面で体重・身長・年齢を入力すると、あなたの基礎代謝が自動計算されます。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">③ 「活動量」ってなに？</div>
+          <div>基礎代謝は「じっとしている時」の消費量です。実際には仕事や日常生活でも体を動かしているため、その分のカロリーも上乗せされます。<br>プロフィール画面の「職業活動」の項目は、仕事中にどれくらい体を動かすか（デスクワーク中心か、立ち仕事か等）を表しており、この上乗せ分の計算に使われます。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">④ 「運動」の項目はなにに使われるの？</div>
+          <div>プロフィール画面で選ぶ運動の「強度」「時間」「頻度」は、③の日常生活の活動量とは別に、運動によって追加で消費するカロリーを計算するために使われます。<br>基礎代謝＋活動量＋運動による消費、この3つを合計したものが、あなたが1日に消費する総カロリーの目安になります。</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-pfc')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">PFCバランスについて</span>
+          <svg id="bs-pfc-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-pfc" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">⑤ PFCってなに？</div>
+          <div>食べ物に含まれる栄養素のうち、体のエネルギー源になる3つを「PFC」と呼びます。</div>
+          <div style="margin-top:8px;padding:8px 10px;background:#faf9f7;border-radius:8px;">
+            <b style="color:#3d1a08;">P（たんぱく質）</b>：筋肉・皮膚・髪など、体を作る材料になります。肉・魚・卵・大豆製品などに多く含まれます。<br><br>
+            <b style="color:#3d1a08;">F（脂質）</b>：効率のよいエネルギー源で、ホルモンや細胞を作るためにも必要です。油・肉の脂身・ナッツなどに多く含まれます。<br><br>
+            <b style="color:#3d1a08;">C（炭水化物）</b>：体と脳がすぐに使えるエネルギー源です。ごはん・パン・麺・いも類などに多く含まれます。
+          </div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">⑥ なぜPFCのバランスが大事なの？</div>
+          <div>カロリーの数字だけを見ていると、「同じ400kcalでも、からあげ1個と野菜炒め定食では体への影響が違う」ということが見えません。<br>PFCのバランスを整えることで、筋肉量を保ちながら体脂肪だけを落とす、体調を崩さず目標に近づく、といったことがしやすくなります。</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-mechanism')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">太る・痩せる仕組み</span>
+          <svg id="bs-mechanism-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-mechanism" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">⑦ なぜ太るの？</div>
+          <div>①〜④で見た「消費カロリー」より、食事から摂る「摂取カロリー」が多い状態が続くと、余った分が脂肪として体に蓄えられ、体重が増えます。<br>これは特定の食べ物が原因というより、摂取と消費のバランスの結果です。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">⑧ どうしたら痩せるの？</div>
+          <div>逆に、消費カロリーより摂取カロリーが少ない状態を続けると、体は蓄えていた脂肪を使うようになり、体重が減ります。<br>ただし、極端にカロリーを減らしすぎると、筋肉も一緒に失われたり、体調を崩したりします。⑤⑥のPFCバランスを保ちながら、無理のないペースで摂取カロリーを消費カロリーより少し下回らせることが、健康的に痩せるための基本です。</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:16px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-record')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">なぜ記録をするの？</span>
+          <svg id="bs-record-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-record" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div>自分が普段どれくらい食べているか、多くの人は正確に把握できていません。感覚だけに頼ると、思っていたより多く食べていた、逆に減らしすぎていた、といったズレが起こりやすくなります。<br><br>記録をつけることで、このズレが見え、①〜⑧で見た「摂取と消費のバランス」を実際の自分の生活に合わせて調整できるようになります。<br><br>また、体重や体脂肪の変化は1日単位では分かりにくいものです。毎日記録を続けることで初めて、自分の体に何が起きているかの流れが見え、正しい方向に進めているかを確認できます。効果を実感し、続けていくためには、まず記録を続けることが土台になります。</div>
+        </div>
+      </div>
+
+      <div style="border-left:3px solid #c9a96e;border-radius:0;padding:14px 16px;background:#faf9f7;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:6px;">このアプリでできること</div>
+        <div style="font-size:12px;color:#666;line-height:1.8;">これまで見てきたように、正しく痩せるためには「自分の基礎代謝・活動量・運動量から、今どれくらい食べていいのか」を把握し、それを記録し続ける必要があります。これを毎日自分で計算し続けるのは、本来とても手間のかかることです。<br><br>このアプリは、その計算と記録をすべて代わりに行い、あなたに合ったカロリー・PFCの目安を毎日示します。さらにAIコーチが、その日・その週の記録をもとに、今の状態と次に何をすればいいかをレポートとして伝えます。<br><br>つまりあなたは、正しい知識やむずかしい計算を自分で抱え込む必要はありません。日々記録を続けるだけで、専門的な視点からのサポートを受けながら、着実に目標に近づいていくことができます。まずは今日の記録から、始めてみてください。</div>
+      </div>
+
+      <div style="font-size:10.5px;color:#aaa;line-height:1.7;margin-bottom:8px;">
+        参考文献：厚生労働省「日本人の食事摂取基準」／厚生労働省 e-ヘルスネット「エネルギー代謝」「基礎代謝量」「たんぱく質」「脂質」「炭水化物」の各項目
       </div>
 
     </div>
@@ -3498,7 +3591,7 @@ function initFutureParticles(){
 
 function openDrawer() {
   document.getElementById('drawer-overlay').classList.add('open');
-  const views = ['setup1','setup2','setup3','main','guide'];
+  const views = ['setup1','setup2','setup3','main','guide','basics'];
   views.forEach(v => { const el = document.getElementById('di-'+v); if(el) el.classList.remove('active'); });
   const cur = document.querySelector('.view.on');
   if(cur) { const id = cur.id.replace('view-',''); const el = document.getElementById('di-'+id); if(el) el.classList.add('active'); }
@@ -3508,7 +3601,7 @@ function closeDrawer() {
 }
 function initLogoImages() {
   const imgSrc = './logo-v50-circle.png';
-  ['logo-s1','logo-s2','logo-s3','logo-main','logo-guide','drawer-logo-img'].forEach(id => {
+  ['logo-s1','logo-s2','logo-s3','logo-main','logo-guide','logo-basics','drawer-logo-img'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
       el.innerHTML = '';
