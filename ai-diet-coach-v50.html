@@ -1482,6 +1482,12 @@ function openLicenseFromMenu() {
   document.getElementById('lb-desc').textContent = 'お持ちのコードを入力してください。ご購入がまだの方は「今すぐ購入する」からお進みください。';
 }
 function startPurchase() {
+  document.getElementById('purchase-confirm-overlay').style.display = 'flex';
+}
+function closePurchaseConfirm() {
+  document.getElementById('purchase-confirm-overlay').style.display = 'none';
+}
+function confirmPurchaseAndProceed() {
   window.location.href = STRIPE_PAYMENT_LINK_URL;
 }
 // 契約管理（解約・支払い方法変更）：Stripeカスタマーポータルへ遷移
@@ -3930,6 +3936,29 @@ window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogo
       <button onclick="closeLegalModal()" style="border:none;background:#f5f0e8;color:#7a4f35;width:32px;height:32px;border-radius:50%;font-size:16px;line-height:1;cursor:pointer;">✕</button>
     </div>
     <div id="legal-modal-body" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px 40px;font-size:13px;color:#333;line-height:1.9;"></div>
+  </div>
+</div>
+<div id="purchase-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:410;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
+  <div style="width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eee;">
+      <div style="font-weight:700;color:#3d1a08;font-size:15px;">お申し込み内容のご確認</div>
+      <button onclick="closePurchaseConfirm()" style="border:none;background:#f5f0e8;color:#7a4f35;width:32px;height:32px;border-radius:50%;font-size:16px;line-height:1;cursor:pointer;">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;font-size:13px;color:#333;line-height:1.9;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="padding:8px 0;color:#999;width:38%;vertical-align:top;">商品</td><td style="padding:8px 0;">AI Diet Coach 月額プラン</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">価格</td><td style="padding:8px 0;">月額350円（税込）</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">支払時期</td><td style="padding:8px 0;">決済完了時点から起算して1か月ごとに自動更新・自動課金されます</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">契約期間</td><td style="padding:8px 0;">期間の定めなし。解約手続きを行わない限り自動更新されます</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">提供時期</td><td style="padding:8px 0;">決済完了後、即時ご利用いただけます</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">利用上限</td><td style="padding:8px 0;">食事解析 22回/日、AIレポート生成 3回/日</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">解約</td><td style="padding:8px 0;">アプリ内のカスタマーポータルから、いつでも解約手続きが可能です。解約後も、既に決済済みの期間の終了日までは引き続きご利用いただけます</td></tr>
+        <tr style="border-top:1px solid #f0ebe5;"><td style="padding:8px 0;color:#999;vertical-align:top;">返金</td><td style="padding:8px 0;">決済完了後の返金・日割り返金は行っておりません</td></tr>
+      </table>
+    </div>
+    <div style="flex-shrink:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid #eee;">
+      <button onclick="confirmPurchaseAndProceed()" style="width:100%;padding:14px;border:none;border-radius:10px;background:#7a4f35;color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;">同意して決済に進む</button>
+    </div>
   </div>
 </div>
 </body>
