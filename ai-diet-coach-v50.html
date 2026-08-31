@@ -454,6 +454,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
   </div>
 </div>
 
+<!-- ライセンスブロック画面 -->
+<div class="alert-overlay" id="license-block-overlay" style="display:none;z-index:250;">
+  <div class="alert-card">
+    <div class="alert-icon-wrap">
+      <svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="10" y="16" width="16" height="14" rx="2.5" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><path d="M13 16 L13 11 Q13 6 18 6 Q23 6 23 11 L23 16" stroke="#7a4f35" stroke-width="1.5" fill="none"/><circle cx="18" cy="21.5" r="1.8" fill="#c9a96e"/><rect x="17.2" y="23" width="1.6" height="4" rx="0.8" fill="#c9a96e"/></svg>
+    </div>
+    <div class="alert-title" id="lb-title" style="color:#7a4f35;">無料期間が終了しました</div>
+    <div class="alert-desc" id="lb-desc">引き続きご利用いただくには、今すぐご購入いただくか、お持ちのコードを入力してください。</div>
+    <button class="alert-btn" id="lb-purchase-btn" onclick="startPurchase()">今すぐ購入する（月350円）</button>
+    <div style="margin-top:16px;">
+      <input type="text" id="lb-code-input" placeholder="コードをお持ちの方はこちら" style="width:100%;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:14px;font-family:inherit;color:#111;">
+      <button onclick="submitLicenseCode()" style="width:100%;margin-top:8px;padding:11px;border-radius:6px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">コードを送信する</button>
+      <div class="pin-err" id="lb-code-err"></div>
+      <div onclick="toggleEmailLookup()" style="text-align:center;margin-top:14px;font-size:12px;color:#999;text-decoration:underline;cursor:pointer;">コードをお忘れの方はこちら</div>
+      <div id="lb-email-lookup" style="display:none;margin-top:10px;">
+        <input type="email" id="lb-email-input" placeholder="ご購入時のメールアドレス" style="width:100%;padding:11px 13px;border-radius:8px;border:1.5px solid #e0dcd6;background:#faf9f7;font-size:14px;font-family:inherit;color:#111;">
+        <button onclick="lookupLicenseByEmail()" style="width:100%;margin-top:8px;padding:11px;border-radius:6px;border:1.5px solid #d8d2ca;background:#faf8f5;color:#7a4f35;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">コードを確認する</button>
+        <div class="pin-err" id="lb-email-result"></div>
+      </div>
+    </div>
+    <button id="lb-close-btn" onclick="closeLicenseBlock()" style="display:none;width:100%;margin-top:10px;padding:8px;border-radius:6px;border:none;background:none;color:#aaa;font-size:12px;cursor:pointer;font-family:inherit;">閉じる</button>
+  </div>
+</div>
+
 <!-- ナビゲーション -->
 <div class="nav-bar">
   <button class="nav-btn on" onclick="showView('setup1',this)">① プロフィール</button>
@@ -474,7 +498,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
     <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
+    <div class="drawer-item" id="di-basics" onclick="showView('basics',null);closeDrawer()"><div class="drawer-dot done"></div>基礎知識</div>
     <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
+    <div class="drawer-item" id="di-license" onclick="closeDrawer();openLicenseFromMenu()"><div class="drawer-dot done"></div>コードを入力する</div>
+    <div class="drawer-item" id="di-billing" onclick="closeDrawer();openBillingPortal()"><div class="drawer-dot done"></div>契約を管理する（解約する）</div>
     <div class="drawer-item" id="di-legal" onclick="openLegalFromMenu()"><div class="drawer-dot done"></div>利用規約・プライバシーポリシー</div>
     <div class="drawer-close" onclick="closeDrawer()">✕ 閉じる</div>
   </div>
@@ -598,6 +625,98 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
         <a href="https://lin.ee/RmsHGg8" style="display:block;text-decoration:none;background:linear-gradient(135deg,#c9a96e,#a8843a);color:#fff;font-size:13px;font-weight:700;padding:13px;border-radius:6px;">Body Innovation 公式LINE</a>
         <a href="https://body-innovation.net/ai-diet-coach" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">AI Diet Coach 公式HP</a>
         <a href="https://kkatsura-pixel.github.io/ai-diet-coach/AI_Diet_Coach_取扱説明書.pdf" style="display:block;text-decoration:none;border:1.5px solid #c9a96e;color:#a8843a;font-size:13px;font-weight:700;padding:12px;border-radius:6px;margin-top:10px;">画像付き取扱説明書（PDF）</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== BASICS: 基礎知識 ===== -->
+<div id="view-basics" class="view">
+  <div class="card">
+    <div class="app-hdr">
+      <div class="logo" id="logo-basics"></div>
+      <div class="app-hdr-text">
+        <div class="app-hdr-t1">AI Diet Coach</div>
+        <div class="app-hdr-t2">基礎知識</div>
+      </div>
+      <button class="ham-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div style="padding:24px;">
+
+      <div style="font-size:11px;color:#a8843a;letter-spacing:0.1em;margin-bottom:8px;">はじめに</div>
+      <div style="font-size:12.5px;color:#666;line-height:1.8;margin-bottom:16px;">このページでは、カロリー・PFC・基礎代謝など、アプリを使ううえで知っておくと役立つ基礎知識をまとめています。プロフィール画面の入力項目と合わせて読むと、レポートの数値がより分かりやすくなります。</div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-calorie')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">カロリー・基礎代謝について</span>
+          <svg id="bs-calorie-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-calorie" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">① カロリーってなに？</div>
+          <div>食べ物にはすべて、体を動かすための「エネルギー」が含まれています。そのエネルギーの量を表す単位が「カロリー（kcal）」です。<br>体は、呼吸する・歩く・考える、こうした活動すべてにカロリーを使います。使うカロリーより多く食べれば体重は増え、少なければ体重は減ります。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">② 基礎代謝ってなに？</div>
+          <div>何もせずじっとしていても、呼吸や体温維持、内臓を動かすために体はエネルギーを使っています。これを「基礎代謝」と呼びます。<br>基礎代謝は、体重・身長・年齢によって一人ひとり異なります。プロフィール画面で体重・身長・年齢を入力すると、あなたの基礎代謝が自動計算されます。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">③ 「活動量」ってなに？</div>
+          <div>基礎代謝は「じっとしている時」の消費量です。実際には仕事や日常生活でも体を動かしているため、その分のカロリーも上乗せされます。<br>プロフィール画面の「職業活動」の項目は、仕事中にどれくらい体を動かすか（デスクワーク中心か、立ち仕事か等）を表しており、この上乗せ分の計算に使われます。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">④ 「運動」の項目はなにに使われるの？</div>
+          <div>プロフィール画面で選ぶ運動の「強度」「時間」「頻度」は、③の日常生活の活動量とは別に、運動によって追加で消費するカロリーを計算するために使われます。<br>基礎代謝＋活動量＋運動による消費、この3つを合計したものが、あなたが1日に消費する総カロリーの目安になります。</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-pfc')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">PFCバランスについて</span>
+          <svg id="bs-pfc-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-pfc" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">⑤ PFCってなに？</div>
+          <div>食べ物に含まれる栄養素のうち、体のエネルギー源になる3つを「PFC」と呼びます。</div>
+          <div style="margin-top:8px;padding:8px 10px;background:#faf9f7;border-radius:8px;">
+            <b style="color:#3d1a08;">P（たんぱく質）</b>：筋肉・皮膚・髪など、体を作る材料になります。肉・魚・卵・大豆製品などに多く含まれます。<br><br>
+            <b style="color:#3d1a08;">F（脂質）</b>：効率のよいエネルギー源で、ホルモンや細胞を作るためにも必要です。油・肉の脂身・ナッツなどに多く含まれます。<br><br>
+            <b style="color:#3d1a08;">C（炭水化物）</b>：体と脳がすぐに使えるエネルギー源です。ごはん・パン・麺・いも類などに多く含まれます。
+          </div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">⑥ なぜPFCのバランスが大事なの？</div>
+          <div>カロリーの数字だけを見ていると、「同じ400kcalでも、からあげ1個と野菜炒め定食では体への影響が違う」ということが見えません。<br>PFCのバランスを整えることで、筋肉量を保ちながら体脂肪だけを落とす、体調を崩さず目標に近づく、といったことがしやすくなります。</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-mechanism')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">太る・痩せる仕組み</span>
+          <svg id="bs-mechanism-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-mechanism" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:10px 0 6px;">⑦ なぜ太るの？</div>
+          <div>①〜④で見た「消費カロリー」より、食事から摂る「摂取カロリー」が多い状態が続くと、余った分が脂肪として体に蓄えられ、体重が増えます。<br>これは特定の食べ物が原因というより、摂取と消費のバランスの結果です。</div>
+
+          <div style="font-size:11px;color:#a8843a;letter-spacing:0.05em;margin:16px 0 6px;">⑧ どうしたら痩せるの？</div>
+          <div>逆に、消費カロリーより摂取カロリーが少ない状態を続けると、体は蓄えていた脂肪を使うようになり、体重が減ります。<br>ただし、極端にカロリーを減らしすぎると、筋肉も一緒に失われたり、体調を崩したりします。⑤⑥のPFCバランスを保ちながら、無理のないペースで摂取カロリーを消費カロリーより少し下回らせることが、健康的に痩せるための基本です。</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #ede8e2;border-radius:8px;margin-bottom:16px;overflow:hidden;">
+        <div onclick="toggleGuide('bs-record')" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <span style="font-size:13px;font-weight:700;color:#3d1a08;">なぜ記録をするの？</span>
+          <svg id="bs-record-ic" viewBox="0 0 24 24" style="width:12px;stroke:#999;fill:none;stroke-width:2;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="bs-record" style="display:none;padding:0 16px 16px;font-size:12px;color:#666;line-height:1.85;">
+          <div>自分が普段どれくらい食べているか、多くの人は正確に把握できていません。感覚だけに頼ると、思っていたより多く食べていた、逆に減らしすぎていた、といったズレが起こりやすくなります。<br><br>記録をつけることで、このズレが見え、①〜⑧で見た「摂取と消費のバランス」を実際の自分の生活に合わせて調整できるようになります。<br><br>また、体重や体脂肪の変化は1日単位では分かりにくいものです。毎日記録を続けることで初めて、自分の体に何が起きているかの流れが見え、正しい方向に進めているかを確認できます。効果を実感し、続けていくためには、まず記録を続けることが土台になります。</div>
+        </div>
+      </div>
+
+      <div style="border-left:3px solid #c9a96e;border-radius:0;padding:14px 16px;background:#faf9f7;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:6px;">このアプリでできること</div>
+        <div style="font-size:12px;color:#666;line-height:1.8;">これまで見てきたように、正しく痩せるためには「自分の基礎代謝・活動量・運動量から、今どれくらい食べていいのか」を把握し、それを記録し続ける必要があります。これを毎日自分で計算し続けるのは、本来とても手間のかかることです。<br><br>このアプリは、その計算と記録をすべて代わりに行い、あなたに合ったカロリー・PFCの目安を毎日示します。さらにAIコーチが、その日・その週の記録をもとに、今の状態と次に何をすればいいかをレポートとして伝えます。<br><br>つまりあなたは、正しい知識やむずかしい計算を自分で抱え込む必要はありません。日々記録を続けるだけで、専門的な視点からのサポートを受けながら、着実に目標に近づいていくことができます。まずは今日の記録から、始めてみてください。</div>
+      </div>
+
+      <div style="font-size:10.5px;color:#aaa;line-height:1.7;margin-bottom:8px;">
+        参考文献：厚生労働省「日本人の食事摂取基準」／厚生労働省 e-ヘルスネット「エネルギー代謝」「基礎代謝量」「たんぱく質」「脂質」「炭水化物」の各項目
       </div>
 
     </div>
@@ -863,7 +982,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="sh"><div class="sh-dot" style="background:#dc2626;"></div><span class="sh-label">血液検査データ<span class="opt-badge">任意</span></span></div>
 
       <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#777;line-height:1.6;margin-bottom:10px;cursor:pointer;">
-        <input type="checkbox" id="blood_consent" onchange="toggleBloodFieldsEnabled(this.checked)" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
+        <input type="checkbox" id="blood_consent" onchange="onBloodConsentChanged(this.checked)" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;">
         <span>血液検査データ・生活習慣病の有無（既往歴）を入力し、AIによる個別アドバイス生成に利用することに同意します。この同意がない場合、以下の項目は入力できません。</span>
       </label>
 
@@ -1257,6 +1376,191 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 
 <script>
 const WORKER_URL = 'https://ai-diet-coach-proxy.koshiro-katsura.workers.dev';
+const STRIPE_PAYMENT_LINK_URL = 'https://buy.stripe.com/5kQ6oAcZFgoCf7W9Ot0sU00';
+
+// ===== ライセンスコード方式 =====
+function getDeviceId() {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    id = 'dev-' + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2)));
+    localStorage.setItem('device_id', id);
+  }
+  return id;
+}
+function getLicenseCode() { return localStorage.getItem('license_code'); }
+function getLicenseType() { return localStorage.getItem('license_type'); }
+function setLicenseCode(code, type) {
+  localStorage.setItem('license_code', code);
+  if (type) localStorage.setItem('license_type', type);
+}
+
+// 無料期間の自動trialコード発行（既にコードを持っていれば何もしない）
+async function ensureLicenseCode() {
+  const existing = getLicenseCode();
+  if (existing) return existing;
+  try {
+    const res = await fetch(WORKER_URL + '/license/trial-register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId: getDeviceId() })
+    });
+    const data = await res.json();
+    if (data && data.code) { setLicenseCode(data.code, 'trial'); return data.code; }
+  } catch (e) { /* 通信失敗時は次回呼び出し時に再試行される */ }
+  return null;
+}
+
+// Stripe決済完了後、?session_id=... で戻ってきた場合の自動コード発行
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (!sessionId) return;
+  // URLはすぐにきれいにしておく（リロード時の二重処理を防止）
+  window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+  try {
+    const res = await fetch(WORKER_URL + '/license/claim', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, deviceId: getDeviceId() })
+    });
+    const data = await res.json();
+    if (data && data.code) {
+      setLicenseCode(data.code, 'paid');
+      closeLicenseBlock();
+      alert('ご購入ありがとうございます。引き続きAI Diet Coachをご利用いただけます。\n\n【重要】あなたの引き継ぎコードは「' + data.code + '」です。\n機種変更の際に必要になりますので、必ずスクリーンショット等で保管してください。');
+    } else {
+      alert('決済の確認に失敗しました。時間をおいてもう一度お試しいただくか、公式LINEまでご連絡ください。');
+    }
+  } catch (e) {
+    alert('決済の確認中にエラーが発生しました。時間をおいてもう一度お試しください。');
+  }
+}
+
+// サーバーからの利用ブロック応答(429)を種類ごとに振り分け
+function handleLicenseGateError(errorCode) {
+  if (errorCode === 'usage_limit_reached') {
+    alert('本日のご利用回数の上限に達しました。明日また記録できます。');
+  } else if (errorCode === 'trial_expired') {
+    showLicenseBlock('trial_expired');
+  } else if (errorCode === 'license_inactive' || errorCode === 'license_not_found' || errorCode === 'invalid_license') {
+    showLicenseBlock('license_invalid');
+  } else {
+    alert('ご利用状況の確認でエラーが発生しました。時間をおいて再度お試しください。');
+  }
+}
+
+let licenseBlockClosable = false;
+function showLicenseBlock(reason) {
+  const titleEl = document.getElementById('lb-title');
+  const descEl = document.getElementById('lb-desc');
+  if (reason === 'trial_expired') {
+    titleEl.textContent = '無料期間が終了しました';
+    descEl.textContent = '無料期間（7日間）が終了しました。引き続きご利用いただくには、今すぐご購入いただくか、お持ちのコードを入力してください。';
+  } else {
+    titleEl.textContent = 'コードの確認が必要です';
+    descEl.textContent = 'ご利用の確認ができませんでした。今すぐご購入いただくか、お持ちのコードを入力してください。';
+  }
+  document.getElementById('lb-code-input').value = '';
+  document.getElementById('lb-code-err').textContent = '';
+  document.getElementById('lb-close-btn').style.display = licenseBlockClosable ? '' : 'none';
+  document.getElementById('license-block-overlay').style.display = 'flex';
+}
+function closeLicenseBlock() {
+  document.getElementById('license-block-overlay').style.display = 'none';
+}
+// ドロワーメニューの「コードを入力する」から開いた場合は、閉じるボタンを表示する
+function openLicenseFromMenu() {
+  licenseBlockClosable = true;
+  showLicenseBlock('menu');
+  document.getElementById('lb-title').textContent = 'コードを入力する';
+  document.getElementById('lb-desc').textContent = 'お持ちのコードを入力してください。ご購入がまだの方は「今すぐ購入する」からお進みください。';
+}
+function startPurchase() {
+  window.location.href = STRIPE_PAYMENT_LINK_URL;
+}
+// 契約管理（解約・支払い方法変更）：Stripeカスタマーポータルへ遷移
+async function openBillingPortal() {
+  const code = getLicenseCode();
+  if (!code || getLicenseType() !== 'paid') {
+    alert('現在、有料プランでご利用中のコードが確認できません。無料期間中、またはコード未登録の場合はご利用いただけません。');
+    return;
+  }
+  try {
+    const returnUrl = window.location.origin + window.location.pathname;
+    const res = await fetch(WORKER_URL + '/billing/portal', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, returnUrl })
+    });
+    const data = await res.json();
+    if (data && data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('契約管理ページを開けませんでした。時間をおいてもう一度お試しいただくか、公式LINEまでご連絡ください。');
+    }
+  } catch (e) {
+    alert('通信エラーが発生しました。時間をおいて再度お試しください。');
+  }
+}
+
+function toggleEmailLookup() {
+  const el = document.getElementById('lb-email-lookup');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+async function lookupLicenseByEmail() {
+  const emailInput = document.getElementById('lb-email-input');
+  const resultEl = document.getElementById('lb-email-result');
+  const email = emailInput.value.trim();
+  resultEl.style.color = '';
+  resultEl.textContent = '';
+  if (!email || !email.includes('@')) {
+    resultEl.textContent = 'メールアドレスを正しく入力してください。';
+    return;
+  }
+  try {
+    const res = await fetch(WORKER_URL + '/license/lookup-by-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data && data.found) {
+      resultEl.style.color = '#4a7a4a';
+      resultEl.textContent = 'コードが見つかりました：' + data.codes.join('、');
+    } else {
+      resultEl.textContent = 'このメールアドレスに一致するコードが見つかりませんでした。ご購入時のメールアドレスをご確認いただくか、公式LINEまでご連絡ください。';
+    }
+  } catch (e) {
+    resultEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
+  }
+}
+
+async function submitLicenseCode() {
+  const input = document.getElementById('lb-code-input');
+  const errEl = document.getElementById('lb-code-err');
+  const code = input.value.trim();
+  errEl.textContent = '';
+  if (!code) { errEl.textContent = 'コードを入力してください。'; return; }
+  try {
+    const res = await fetch(WORKER_URL + '/license/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, deviceId: getDeviceId() })
+    });
+    const data = await res.json();
+    if (data && data.valid) {
+      setLicenseCode(code, data.type);
+      licenseBlockClosable = false;
+      closeLicenseBlock();
+      alert('コードが確認できました。引き続きご利用いただけます。');
+    } else {
+      const msgs = {
+        invalid_format: 'コードの形式が正しくありません。',
+        not_found: 'コードが見つかりません。入力内容をご確認ください。',
+        inactive: 'このコードは現在無効です。',
+        device_mismatch: 'このコードは別の端末で既に使用されています。'
+      };
+      errEl.textContent = msgs[data && data.error] || 'コードを確認できませんでした。入力内容をご確認ください。';
+    }
+  } catch (e) {
+    errEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
+  }
+}
 
 // ===== オンボーディング =====
 const obSteps = [
@@ -1329,6 +1633,20 @@ function showLegalConsent() {
   if(link) link.style.display = 'none';
 }
 
+// ライセンスコードと紐付けて、同意内容をサーバーに正式記録する
+async function recordConsentToServer(fields) {
+  try {
+    const code = await ensureLicenseCode();
+    if (!code) return; // コード取得に失敗した場合は無理に送らない（次回の同意操作時に再試行される）
+    await fetch(WORKER_URL + '/consent/record', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ code }, fields))
+    });
+  } catch (e) {
+    // 通信エラーはユーザー操作をブロックしない（同意記録はベストエフォート）
+  }
+}
+
 function handleLegalConsentGate() {
   const chk = document.getElementById('legal_consent_chk');
   if(chk) {
@@ -1338,6 +1656,7 @@ function handleLegalConsentGate() {
     }
     localStorage.setItem('legal_consent_version', LEGAL_VERSION);
     localStorage.setItem('legal_consent_date', formatDate(new Date()));
+    recordConsentToServer({ tosVersion: LEGAL_VERSION, ppVersion: LEGAL_VERSION });
   }
   if(legalFlowContext === 'menu') {
     finishLegalFlow();
@@ -1418,6 +1737,7 @@ function handleBackupConsentGate(nextFn) {
       return;
     }
     localStorage.setItem('backup_consent', '1');
+    recordConsentToServer({ backupConsent: true });
   }
   nextFn();
 }
@@ -1720,6 +2040,11 @@ function toggleBloodFieldsEnabled(enabled) {
     el.style.opacity = enabled ? '1' : '0.45';
   });
   wrap.style.opacity = enabled ? '1' : '0.55';
+}
+// チェックボックスのonchangeからのみ呼ぶ（ページ読み込み時の再表示と区別するため分離）
+function onBloodConsentChanged(checked) {
+  toggleBloodFieldsEnabled(checked);
+  if (checked) recordConsentToServer({ bloodConsent: true });
 }
 function toggleTag(el) { el.classList.toggle('on'); }
 
@@ -2608,6 +2933,7 @@ async function recordMeal() {
   btn.innerHTML='<span class="loading-spinner"></span>解析中...';
   btn.disabled=true;
   const size=document.querySelector('.sz.on')?.textContent||'ふつう';
+  const licenseCode = await ensureLicenseCode();
   incrementMealUsage();
   const prompt=`以下の食事内容のカロリーとPFCを推定してください。
 食事：${txt}
@@ -2617,7 +2943,13 @@ JSONのみで返してください：{"kcal":数値,"p":数値,"f":数値,"c":�
   let success=false;
   for(let attempt=1;attempt<=3;attempt++) {
     try {
-      const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+      const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],licenseCode,usageKind:'meal'})});
+      if(res.status===429) {
+        const errData=await res.json().catch(()=>({}));
+        handleLicenseGateError(errData.error);
+        btn.innerHTML='記録する'; btn.disabled=false;
+        return;
+      }
       const data=await res.json();
       const raw=data.candidates[0].content.parts[0].text;
       const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
@@ -2753,6 +3085,7 @@ async function generateReport() {
     document.getElementById('coach-msg-area').innerHTML='<div class="coach-placeholder">目標カロリー・PFCがまだ設定されていません。まずはプロフィール画面で「目標カロリー・PFCを自動計算する」を行ってください。</div>';
     return;
   }
+  const licenseCode = await ensureLicenseCode();
   incrementReportUsage();
   updateReportUsageNote();
   btn.innerHTML='<span class="loading-spinner"></span>生成中...';
@@ -2870,7 +3203,18 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
     for(let attempt=1; attempt<=maxAttempts; attempt++) {
       if(attempt>1) btn.innerHTML='<span class="loading-spinner"></span>もう一度試しています...';
       try {
-        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],licenseCode,usageKind:'report'})});
+        if(res.status===429) {
+          const errData=await res.json().catch(()=>({}));
+          if(['usage_limit_reached','trial_expired','license_inactive','license_not_found','invalid_license'].includes(errData.error)) {
+            handleLicenseGateError(errData.error);
+            btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今日のレポートを生成する';
+            btn.disabled=false;
+            return;
+          }
+          if(attempt<maxAttempts) continue;
+          break;
+        }
         if(!res.ok) {
           if(RETRIABLE_STATUS.includes(res.status) && attempt<maxAttempts) continue;
           break;
@@ -2978,6 +3322,7 @@ async function generateWeeklyReport() {
     document.getElementById('weekly-coach-msg-area').innerHTML='<div class="coach-placeholder">本日のレポート生成の利用回数上限（'+DAILY_REPORT_LIMIT+'回）に達しました。明日また生成できます。</div>';
     return;
   }
+  const licenseCode = await ensureLicenseCode();
   incrementReportUsage();
   updateReportUsageNote();
   btn.innerHTML='<span class="loading-spinner"></span>生成中...';
@@ -3108,7 +3453,18 @@ ${toneConditions[tone]||toneConditions['フレンドリー']}
     for(let attempt=1; attempt<=maxAttempts; attempt++) {
       if(attempt>1) btn.innerHTML='<span class="loading-spinner"></span>もう一度試しています...';
       try {
-        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+        const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],licenseCode,usageKind:'report'})});
+        if(res.status===429) {
+          const errData=await res.json().catch(()=>({}));
+          if(['usage_limit_reached','trial_expired','license_inactive','license_not_found','invalid_license'].includes(errData.error)) {
+            handleLicenseGateError(errData.error);
+            btn.innerHTML='<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>今週のレポートを生成する';
+            btn.disabled=false;
+            return;
+          }
+          if(attempt<maxAttempts) continue;
+          break;
+        }
         if(!res.ok) {
           if(RETRIABLE_STATUS.includes(res.status) && attempt<maxAttempts) continue;
           break;
@@ -3235,7 +3591,7 @@ function initFutureParticles(){
 
 function openDrawer() {
   document.getElementById('drawer-overlay').classList.add('open');
-  const views = ['setup1','setup2','setup3','main','guide'];
+  const views = ['setup1','setup2','setup3','main','guide','basics'];
   views.forEach(v => { const el = document.getElementById('di-'+v); if(el) el.classList.remove('active'); });
   const cur = document.querySelector('.view.on');
   if(cur) { const id = cur.id.replace('view-',''); const el = document.getElementById('di-'+id); if(el) el.classList.add('active'); }
@@ -3245,7 +3601,7 @@ function closeDrawer() {
 }
 function initLogoImages() {
   const imgSrc = './logo-v50-circle.png';
-  ['logo-s1','logo-s2','logo-s3','logo-main','logo-guide','drawer-logo-img'].forEach(id => {
+  ['logo-s1','logo-s2','logo-s3','logo-main','logo-guide','logo-basics','drawer-logo-img'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
       el.innerHTML = '';
@@ -3265,7 +3621,7 @@ function initLogoImages() {
     }
   });
 })();
-window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); },300); });
+window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
 </script>
 </body>
 </html>
