@@ -442,7 +442,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
     <div id="ob-content">
       <div class="ob-icon"><svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="4" y="10" width="8" height="18" rx="2" fill="#c9a96e" opacity="0.5"/><rect x="14" y="6" width="8" height="22" rx="2" fill="#7a4f35" opacity="0.7"/><rect x="24" y="14" width="8" height="14" rx="2" fill="#3d1a08" opacity="0.5"/><circle cx="28" cy="10" r="4" fill="#c9a96e" stroke="#7a4f35" stroke-width="1.2"/><text x="28" y="13" text-anchor="middle" font-size="5" fill="#3d1a08" font-weight="bold">AI</text></svg></div>
       <div class="ob-title">AI Diet Coachへようこそ</div>
-      <div class="ob-desc">体組成データ × トレーナー知見 × AI生成で、<br>あなたを24時間伴走サポートします。</div>
+      <div class="ob-desc">体組成データ × 医科学アルゴリズム × AI生成で、<br>あなたを24時間伴走サポートします。</div>
     </div>
     <button class="ob-btn" id="ob-btn" onclick="nextOb()">次へ</button>
     <button class="ob-skip" id="ob-skip" onclick="proceedToLegalConsent()">スキップ</button>
@@ -539,7 +539,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       </div>
       <div style="border-left:3px solid #c9a96e;border-radius:0;padding:9px 12px;background:#faf9f7;margin-bottom:12px;">
         <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:2px;">圧倒的に正確</div>
-        <div style="font-size:11px;color:#888;line-height:1.5;">体組成データ×専門DB×AIで個別最適化されたアドバイス</div>
+        <div style="font-size:11px;color:#888;line-height:1.5;">体組成データ×医科学アルゴリズム×AIで個別最適化されたアドバイス</div>
       </div>
       <div style="border-left:3px solid #c9a96e;border-radius:0;padding:9px 12px;background:#faf9f7;margin-bottom:16px;">
         <div style="font-size:12px;font-weight:700;color:#3d1a08;margin-bottom:2px;">圧倒的な実用性</div>
@@ -1588,7 +1588,7 @@ async function submitLicenseCode() {
 
 // ===== オンボーディング =====
 const obSteps = [
-  {icon:`<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="4" y="10" width="8" height="18" rx="2" fill="#c9a96e" opacity="0.5"/><rect x="14" y="6" width="8" height="22" rx="2" fill="#7a4f35" opacity="0.7"/><rect x="24" y="14" width="8" height="14" rx="2" fill="#3d1a08" opacity="0.5"/><circle cx="28" cy="10" r="4" fill="#c9a96e" stroke="#7a4f35" stroke-width="1.2"/><text x="28" y="13" text-anchor="middle" font-size="5" fill="#3d1a08" font-weight="bold">AI</text></svg>`,title:'AI Diet Coachへようこそ',desc:'体組成データ × トレーナー知見 × AI生成で、<br>あなたを24時間伴走サポートします。'},
+  {icon:`<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><rect x="4" y="10" width="8" height="18" rx="2" fill="#c9a96e" opacity="0.5"/><rect x="14" y="6" width="8" height="22" rx="2" fill="#7a4f35" opacity="0.7"/><rect x="24" y="14" width="8" height="14" rx="2" fill="#3d1a08" opacity="0.5"/><circle cx="28" cy="10" r="4" fill="#c9a96e" stroke="#7a4f35" stroke-width="1.2"/><text x="28" y="13" text-anchor="middle" font-size="5" fill="#3d1a08" font-weight="bold">AI</text></svg>`,title:'AI Diet Coachへようこそ',desc:'体組成データ × 医科学アルゴリズム × AI生成で、<br>あなたを24時間伴走サポートします。'},
   {icon:`<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="13" stroke="#7a4f35" stroke-width="1.5" fill="none"/><path d="M18 10 L18 18 L24 18" stroke="#3d1a08" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="18" r="2" fill="#c9a96e"/></svg>`,title:'毎日3分で完結',desc:'食事記録・ルールチェック・AIコーチの一言。<br>シンプルな習慣が変化をつくります。'},
   {icon:`<svg width="40" height="40" viewBox="0 0 36 36" fill="none"><path d="M6 28 L12 20 L18 23 L24 14 L30 8" stroke="#7a4f35" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M26 8 L30 8 L30 12" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="20" r="2" fill="#c9a96e"/><circle cx="18" cy="23" r="2" fill="#c9a96e"/><circle cx="24" cy="14" r="2" fill="#c9a96e"/></svg>`,title:'あなたの未来へ',desc:'目標までの進捗をYOUR FUTUREで可視化。<br>なりたい自分までの距離が見えます。'},
   {icon:`<svg width="40" height="40" viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="10" fill="#f5ede6" stroke="#7a4f35" stroke-width="1.5"/><rect x="14" y="14" width="8" height="8" rx="2" fill="#7a4f35" opacity="0.6"/><rect x="26" y="14" width="8" height="8" rx="2" fill="#7a4f35" opacity="0.6"/><rect x="14" y="26" width="8" height="8" rx="2" fill="#7a4f35" opacity="0.6"/><rect x="26" y="26" width="8" height="8" rx="2" fill="#c9a96e"/></svg>`,title:'ホーム画面に追加してください',desc:'データを正しく保存するため、<br>必ずホーム画面から起動してください。',extra:`<div style="background:#f7f3ef;border-radius:8px;padding:12px 14px;margin-top:12px;text-align:left;"><div style="font-size:11px;color:#7a4f35;font-weight:500;margin-bottom:6px;">iPhone（Safari）</div><div style="font-size:11px;color:#555;line-height:1.8;">① Safariでこのページを開く<br>② 下部の共有ボタンをタップ<br>③「ホーム画面に追加」を選択</div></div><div style="background:#f7f3ef;border-radius:8px;padding:12px 14px;margin-top:8px;text-align:left;"><div style="font-size:11px;color:#7a4f35;font-weight:500;margin-bottom:6px;">Android（Chrome）</div><div style="font-size:11px;color:#555;line-height:1.8;">① Chromeでこのページを開く<br>② 右上の「︙」メニューをタップ<br>③「ホーム画面に追加」を選択</div></div>`},
