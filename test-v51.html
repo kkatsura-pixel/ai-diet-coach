@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v51テスト</title>
+<style>
+body{font-family:-apple-system,sans-serif;background:#fdf0e8;padding:24px;text-align:center;}
+.box{background:#fff;border-radius:12px;padding:32px 20px;margin-top:40px;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.big{font-size:28px;font-weight:700;color:#7a4f35;margin-bottom:16px;}
+.time{font-size:15px;color:#333;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="big">PWA UPDATE TEST — V51 — 2026-09-01</div>
+  <div class="time">このページの作成日時：<br><strong id="t"></strong></div>
+</div>
+<script>
+document.getElementById('t').textContent = new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'});
+</script>
+</body>
+</html>
