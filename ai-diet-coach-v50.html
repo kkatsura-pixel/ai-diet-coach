@@ -2286,9 +2286,12 @@ function describeIntensity(exerciseTypeText, intensityLevel) {
 }
 // ===== アップデート通知（汎用の仕組み。今回はexercise_type向け。次回別件が発生した場合は本関数の中身を差し替えて流用する） =====
 function checkUpdateNotice() {
+  // オンボーディング未完了（＝新規ユーザーがまだ設定中）の場合は絶対に表示しない
+  if (!localStorage.getItem('ob_done')) return;
   const profile = JSON.parse(localStorage.getItem('profile')||'{}');
-  // 今回の通知条件：運動タイプが未設定（今回のアップデートで新設した項目）
-  if (!profile.exercise_type) {
+  // 今回の通知条件：PFCエンジンv2（今回のアップデート）に未対応のプロフィールかどうか
+  // exercise_typeの有無だけでは判定しない（既に何らかの理由で保存済みのユーザーも対象に含めるため）
+  if (!profile.pfc_engine_v2) {
     showUpdateNotice({
       title: '【重要】アップデートが完了しました',
       bodyHtml: 'アルゴリズムをアップデートして計算精度が向上しました。<br>最新の目標値を反映するため、以下の手順で再設定をお願いします。<br><br>① メニューの「プロフィール」を開く<br>② 「運動タイプ」と「強度」などの運動項目を確認し、該当する内容を選択する<br>③ 画面下部の「次へ」を押す（必須）<br>④ 「目標」画面で「目標カロリー・PFCを自動計算する」を押す<br><br>※この手順を行わずにプロフィールを保存すると、運動タイプが正しく反映されない場合があります',
@@ -2848,6 +2851,7 @@ function saveProfile() {
     exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.dataset.level||'light',
     exercise_type: document.querySelector('#exercise-type-tags .tag.on')?.textContent||'筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）',
     exercise_time: document.querySelector('#exercise-time-tags .tag.on')?.textContent||'30分〜1時間',
+    pfc_engine_v2: true,
     meal_freq: document.querySelector('#meal-freq-tags .tag.on')?.textContent||'3食',
     sleep: document.getElementById('sleep').value,
     water: document.getElementById('water').value,
