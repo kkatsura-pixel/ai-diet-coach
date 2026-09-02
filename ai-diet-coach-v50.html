@@ -792,23 +792,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
           <span class="tag" onclick="selectTag(this,'exercise-tags')">ほぼ毎日</span>
         </div>
       </div></div>
-      <div class="g1" id="exercise-intensity-group"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
-        <div style="font-size:11px;color:#999;margin-bottom:4px;">実際の運動中の感覚に最も近いものを選んでください</div>
-        <div class="tags" id="exercise-intensity-tags">
-          <span class="tag on" onclick="selectTag(this,'exercise-intensity-tags')">軽度（楽に継続でき、息がほとんど上がらない）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">中程度（呼吸はやや増えるが、会話できる）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">高強度（呼吸が大きく増え、会話が難しくなる）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-intensity-tags')">非常に高強度（かなりきつく、長時間継続することが難しい）</span>
-        </div>
-      </div></div>
       <div class="g1" id="exercise-type-group"><div class="fld"><label>運動タイプ <span class="req-mark">*</span></label>
         <div style="font-size:11px;color:#999;margin-bottom:4px;">最も時間を割いている種目を選んでください</div>
         <div class="tags" id="exercise-type-tags">
-          <span class="tag on" onclick="selectTag(this,'exercise-type-tags')">筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-type-tags')">有酸素系（ウォーキング、ジョギング、ランニング、水泳、登山）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-type-tags')">混合系（HIIT、球技、競技スポーツ、クロストレーニング）</span>
-          <span class="tag" onclick="selectTag(this,'exercise-type-tags')">コンディショニング系（ヨガ、ピラティス、ストレッチ）</span>
+          <span class="tag on" onclick="selectExerciseType(this,'resistance')">筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）</span>
+          <span class="tag" onclick="selectExerciseType(this,'aerobic')">有酸素系（ウォーキング、ジョギング、ランニング、水泳、登山）</span>
+          <span class="tag" onclick="selectExerciseType(this,'mixed')">混合系（HIIT、球技、競技スポーツ、クロストレーニング）</span>
+          <span class="tag" onclick="selectExerciseType(this,'conditioning')">コンディショニング系（ヨガ、ピラティス、ストレッチ）</span>
         </div>
+      </div></div>
+      <div class="g1" id="exercise-intensity-group"><div class="fld"><label>運動強度 <span class="req-mark">*</span></label>
+        <div style="font-size:11px;color:#999;margin-bottom:4px;">実際の運動中の感覚に最も近いものを選んでください</div>
+        <div class="tags" id="exercise-intensity-tags"></div>
       </div></div>
       <div class="g1" id="exercise-time-group"><div class="fld"><label>運動時間 <span class="req-mark">*</span></label>
         <div style="font-size:11px;color:#999;margin-bottom:4px;">1回あたりの運動時間の目安</div>
@@ -2268,13 +2263,68 @@ function loadProfileForm() {
   set('fav_food',p.fav_food); set('hobby',p.hobby);
   if(p.gender) { document.querySelectorAll('#gender-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.gender); }); }
   if(p.exercise) { document.querySelectorAll('#exercise-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise); }); }
-  if(p.exercise_intensity) { document.querySelectorAll('#exercise-intensity-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_intensity); }); }
   if(p.exercise_type) { document.querySelectorAll('#exercise-type-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_type); }); }
   if(p.exercise_time) { document.querySelectorAll('#exercise-time-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.exercise_time); }); }
   if(p.meal_freq) { document.querySelectorAll('#meal-freq-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.meal_freq); }); }
   if(p.snack) { document.querySelectorAll('#snack-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.snack); }); }
   if(p.stress) { document.querySelectorAll('#stress-tags .tag').forEach(t=>{ t.classList.toggle('on', t.textContent===p.stress); }); }
   if(p.tone) { document.querySelectorAll('#tone-tags .tag').forEach(t=>{ t.classList.toggle('on', t.dataset.tone===p.tone); }); }
+}
+// 旧日本語形式のexercise_intensityをabstract levelへ変換（idempotent：既に新形式なら何もしない）
+const INTENSITY_MIGRATION_TABLE = {
+  '軽度（楽に継続でき、息がほとんど上がらない）': 'light',
+  '中程度（呼吸はやや増えるが、会話できる）': 'moderate',
+  '高強度（呼吸が大きく増え、会話が難しくなる）': 'high',
+  '非常に高強度（かなりきつく、長時間継続することが難しい）': 'very_high',
+};
+// Intensity Level（abstract値）を、運動タイプの文脈に応じた日本語表示に変換（AIレポート等で使用）
+function describeIntensity(exerciseTypeText, intensityLevel) {
+  const typeKey = EXERCISE_TYPE_KEYS[exerciseTypeText] || 'resistance';
+  const labels = INTENSITY_LABELS_BY_TYPE[typeKey] || INTENSITY_LABELS_BY_TYPE.resistance;
+  const level = INTENSITY_LEVEL_ORDER.includes(intensityLevel) ? intensityLevel : 'light';
+  return labels[level];
+}
+// ===== アップデート通知（汎用の仕組み。今回はexercise_type向け。次回別件が発生した場合は本関数の中身を差し替えて流用する） =====
+function checkUpdateNotice() {
+  const profile = JSON.parse(localStorage.getItem('profile')||'{}');
+  // 今回の通知条件：運動タイプが未設定（今回のアップデートで新設した項目）
+  if (!profile.exercise_type) {
+    showUpdateNotice({
+      title: '【重要】アップデートが完了しました',
+      bodyHtml: 'アルゴリズムをアップデートして計算精度が向上しました。<br>最新の目標値を反映するため、以下の手順で再設定をお願いします。<br><br>① メニューの「プロフィール」を開く<br>② 「運動タイプ」と「強度」などの運動項目を確認し、該当する内容を選択する<br>③ 画面下部の「次へ」を押す（必須）<br>④ 「目標」画面で「目標カロリー・PFCを自動計算する」を押す<br><br>※この手順を行わずにプロフィールを保存すると、運動タイプが正しく反映されない場合があります',
+      ctaAction: () => { closeUpdateNotice(); showView('setup1', null); },
+    });
+  }
+}
+function showUpdateNotice({title, bodyHtml, ctaAction}) {
+  document.getElementById('update-notice-title').textContent = title;
+  document.getElementById('update-notice-body').innerHTML = bodyHtml;
+  window._updateNoticeCTA = ctaAction;
+  document.getElementById('update-notice-overlay').style.display = 'flex';
+}
+function closeUpdateNotice() {
+  document.getElementById('update-notice-overlay').style.display = 'none';
+}
+function handleUpdateNoticeCTA() {
+  if (typeof window._updateNoticeCTA === 'function') window._updateNoticeCTA();
+}
+function migrateExerciseIntensity(profile) {
+  const v = profile.exercise_intensity;
+  if (!v) return null;
+  if (INTENSITY_LEVEL_ORDER.includes(v)) return v; // 既に新形式（idempotent）
+  const migrated = INTENSITY_MIGRATION_TABLE[v];
+  if (migrated) {
+    profile.exercise_intensity = migrated;
+    localStorage.setItem('profile', JSON.stringify(profile));
+    return migrated;
+  }
+  return 'light'; // 万一該当なしの場合の安全側フォールバック
+}
+function initIntensityTagsFromProfile() {
+  const p = JSON.parse(localStorage.getItem('profile')||'{}');
+  const typeKey = EXERCISE_TYPE_KEYS[p.exercise_type] || 'resistance';
+  const level = migrateExerciseIntensity(p) || 'light';
+  renderIntensityTags(typeKey, level);
 }
 function loadRulesForm() {
   const ca = document.getElementById('ca');
@@ -2341,6 +2391,53 @@ function selectTag(el, groupId) {
   document.querySelectorAll('#'+groupId+' .tag').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
   if(groupId==='exercise-tags') toggleExerciseSubFields(el.textContent);
+}
+// タイプ別の強度説明文（承認済み文言）。保存値はabstract level（light/moderate/high/very_high）
+const INTENSITY_LABELS_BY_TYPE = {
+  resistance: {
+    light: '軽度（自重や軽い負荷で、かなり余裕を残して行える）',
+    moderate: '中程度（反復の後半でややきつさを感じるが、フォームは崩れない負荷）',
+    high: '高強度（セット終盤でかなり努力を要する負荷。限界の少し手前）',
+    very_high: '非常に高強度（限界に近い、またはそれ以上反復できない負荷）',
+  },
+  aerobic: {
+    light: '軽度（呼吸はほぼ変わらず、楽に会話できる）',
+    moderate: '中程度（呼吸がやや増えるが、会話はできる）',
+    high: '高強度（呼吸が大きく増え、長い会話が難しい）',
+    very_high: '非常に高強度（呼吸が非常に激しく、会話がほぼ困難）',
+  },
+  mixed: {
+    light: '軽度（呼吸も動きもまだ楽で、余裕を持って続けられる）',
+    moderate: '中程度（呼吸も動きもややきつくなるが、余裕はまだ残っている）',
+    high: '高強度（呼吸が大きく上がり、動きも精一杯に近い）',
+    very_high: '非常に高強度（呼吸・動きともに全力に近く、継続が難しい）',
+  },
+  conditioning: {
+    light: '軽度（動きに余裕があり、楽に続けられる）',
+    moderate: '中程度（筋肉への負荷を感じるが、安定して動作・保持できる）',
+    high: '高強度（筋肉への負荷や全身の疲労が強く、動作・保持にかなり努力を要する）',
+    very_high: '非常に高強度（筋肉への負荷や全身の疲労が非常に強く、動作・保持を続けることが極めて難しい）',
+  },
+};
+const INTENSITY_LEVEL_ORDER = ['light','moderate','high','very_high'];
+function renderIntensityTags(typeKey, selectedLevel) {
+  const wrap = document.getElementById('exercise-intensity-tags');
+  if (!wrap) return;
+  const labels = INTENSITY_LABELS_BY_TYPE[typeKey] || INTENSITY_LABELS_BY_TYPE.resistance;
+  const sel = selectedLevel || 'light';
+  wrap.innerHTML = INTENSITY_LEVEL_ORDER.map(level =>
+    `<span class="tag${level===sel?' on':''}" data-level="${level}" onclick="selectIntensityTag(this)">${labels[level]}</span>`
+  ).join('');
+}
+function selectIntensityTag(el) {
+  document.querySelectorAll('#exercise-intensity-tags .tag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+function selectExerciseType(el, typeKey) {
+  document.querySelectorAll('#exercise-type-tags .tag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  const currentLevel = document.querySelector('#exercise-intensity-tags .tag.on')?.dataset.level || 'light';
+  renderIntensityTags(typeKey, currentLevel);
 }
 function toggleExerciseSubFields(exerciseValue) {
   const show = exerciseValue !== 'なし';
@@ -2522,15 +2619,22 @@ function resetProject() {
 // ===== PFC自動計算（JS） =====
 // 運動頻度の代表値（週あたりの回数）
 const EXERCISE_FREQ_MAP = {'なし':0, '週1〜2回':1.5, '週3〜4回':3.5, 'ほぼ毎日':6};
-// 運動強度の代表MET値
-const EXERCISE_MET_MAP = {
-  '軽度（楽に継続でき、息がほとんど上がらない）':3.5,
-  '中程度（呼吸はやや増えるが、会話できる）':5.0,
-  '高強度（呼吸が大きく増え、会話が難しくなる）':7.5,
-  '非常に高強度（かなりきつく、長時間継続することが難しい）':11.0
+// 運動タイプ（内部キー）
+const EXERCISE_TYPE_KEYS = {
+  '筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）': 'resistance',
+  '有酸素系（ウォーキング、ジョギング、ランニング、水泳、登山）': 'aerobic',
+  '混合系（HIIT、球技、競技スポーツ、クロストレーニング）': 'mixed',
+  'コンディショニング系（ヨガ、ピラティス、ストレッチ）': 'conditioning',
 };
-// 運動タイプ（Priority Matrixにおける需要の方向づけに使用。MET値には影響させない）
-const EXERCISE_TYPES = ['筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）','有酸素系（ウォーキング、ジョギング、ランニング、水泳、登山）','混合系（HIIT、球技、競技スポーツ、クロストレーニング）','コンディショニング系（ヨガ、ピラティス、ストレッチ）'];
+const EXERCISE_TYPES = Object.keys(EXERCISE_TYPE_KEYS);
+// Type × Intensity Level → MET（Evidence Level：A1=Compendium直接対応、B=Evidence-supported fallback）
+// Independent numerical extrapolation = 0（全セルEvidence根拠あり）
+const MET_MATRIX = {
+  aerobic:      { light:2.0, moderate:4.3, high:7.0, very_high:11.0 }, // 全てA1
+  resistance:   { light:3.5, moderate:3.8, high:6.0, very_high:6.0  }, // light/moderate/high=A1, very_high=B(同一Domain最高値のconservative fallback)
+  mixed:        { light:2.8, moderate:5.0, high:7.5, very_high:7.5  }, // light=B(Calisthenics援用), moderate=B(健康クラブ併用種目), high=A1, very_high=B(highと同値)
+  conditioning: { light:2.3, moderate:3.0, high:6.0, very_high:6.0  }, // light/moderate/high=A1, very_high=B(同一Domain最高値のconservative fallback)
+};
 // 運動時間の代表値（時間）
 const EXERCISE_TIME_MAP = {'30分未満':20/60, '30分〜1時間':45/60, '1〜2時間':90/60, '2〜4時間':180/60, '4時間以上':300/60};
 
@@ -2543,9 +2647,10 @@ function calcPFC() {
   const gender = profile.gender||'女性';
   const actFactor = parseFloat(profile.activity||'1.375');
   const exercise = profile.exercise||'週1〜2回';
-  const exerciseIntensity = profile.exercise_intensity||'軽度（楽に継続でき、息がほとんど上がらない）';
+  const exerciseIntensity = INTENSITY_LEVEL_ORDER.includes(profile.exercise_intensity) ? profile.exercise_intensity : 'light';
   const exerciseTime = profile.exercise_time||'30分〜1時間';
   const exerciseType = profile.exercise_type||null;
+  const exerciseTypeKey = EXERCISE_TYPE_KEYS[exerciseType] || 'resistance';
   const fatPct = parseFloat(profile.fat_pct||0);
   const goalFat = parseFloat(goalData.goal_fat||document.getElementById('goal_fat')?.value||0);
   const period = goalData.goal_period||document.getElementById('goal_period')?.value||'6ヶ月';
@@ -2561,7 +2666,7 @@ function calcPFC() {
 
   // 運動量（頻度・強度・時間は個別に保持。weeklyMetHoursは補助指標として算出するのみで、他の情報を破棄しない）
   const freqCount = EXERCISE_FREQ_MAP[exercise] ?? 1.5;
-  const metVal = EXERCISE_MET_MAP[exerciseIntensity] ?? 5.0;
+  const metVal = (MET_MATRIX[exerciseTypeKey] && MET_MATRIX[exerciseTypeKey][exerciseIntensity]) ?? 5.0;
   const timeHours = EXERCISE_TIME_MAP[exerciseTime] ?? 0.75;
   const weeklyMetHours = exercise==='なし' ? 0 : metVal * timeHours * freqCount;
   const dailyExtraKcal = exercise==='なし' ? 0 : ((metVal-1) * weight * timeHours * 1.05 * freqCount) / 7;
@@ -2593,31 +2698,39 @@ function calcPFC() {
   // C：全条件共通でReference range（厚労省2025）
   applicableRanges.C.push({source:'厚労省2025', basis:'%E', min:50, max:65});
 
-  // Cのfueling target適用条件：運動タイプに加え、頻度・強度が実質的なトレーニング需要と
-  // 言える組み合わせ（頻度：週3〜4回以上 かつ 強度：高強度以上）の場合のみ評価する。
-  // 新規の数値閾値（weeklyMetHours基準等）は作らず、既存の離散的な入力カテゴリのみで判定する。
-  const hasSubstantialTrainingVolume = ['週3〜4回','ほぼ毎日'].includes(exercise)
-    && ['高強度（呼吸が大きく増え、会話が難しくなる）','非常に高強度（かなりきつく、長時間継続することが難しい）'].includes(exerciseIntensity);
+  // Helms Eligibility Evidence：低体脂肪率(男性≤23%/女性≤35%)。Helms 2014の選定基準（原文の対象集団条件）
+  const isLeanForHelms = fatPct>0 && ((gender==='男性' && fatPct<=23) || (gender!=='男性' && fatPct<=35));
+  // Helms Application Proxy（訓練経験の代理指標。Evidenceが直接規定した条件ではなく実装上の推論）：
+  // 非常に高強度×ほぼ毎日×1時間以上を継続できていること自体が、相応の訓練適応を要するという判断
+  const helmsTrainingProfile = exerciseIntensity==='very_high' && exercise==='ほぼ毎日'
+    && ['1〜2時間','2〜4時間','4時間以上'].includes(exerciseTime);
+
+  // Cのdemand evidence適用条件（運動タイプごとにDomainを分離。頻度は判定軸に使わない＝Frequency単体は予測力が限定的との知見のため）
+  const isLongDuration = ['1〜2時間','2〜4時間','4時間以上'].includes(exerciseTime);
 
   if (!isExerciser) {
     // 条件1：非運動者。EARは必要量確認用のReferenceとして保持し、
     // 最終配分は厚労省の%E目標量（年齢により下限13/14/15%E、上限20%E共通）を使用する
     const pPercentELower = age>=65 ? 15 : age>=50 ? 14 : 13;
     applicableRanges.P.push({source:'厚労省2025(%E目標量)', basis:'%E', min:pPercentELower, max:20, earReference:0.66*weight, note:'EAR(0.66×BW)は必要量充足確認用のReferenceとして保持。配分自体は%Eで行う'});
-  } else if (exerciseType && exerciseType.startsWith('有酸素系')) {
-    // 条件4：有酸素系
+  } else if (exerciseTypeKey === 'aerobic') {
+    // 有酸素系：ISSN一般運動者レンジ下限を採用
     applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
-    if (hasSubstantialTrainingVolume) applicableRanges.C.push({source:'Burke(一般トレーニング)', basis:'BW', min:5, max:7, note:'weeklyMetHoursが高い場合、持久系増加需要7-10g/kgも評価対象'});
-  } else if (exerciseType && exerciseType.startsWith('筋力系') && goalFat>0 && energyDeficitRate>0) {
-    // 条件3：筋力系×エネルギー制限あり
+    if (isLongDuration) applicableRanges.C.push({source:'ACSM/AND/DC 2016(Application Rule：Duration基準の当てはめ)', basis:'BW', min:5, max:7, note:'原典はEndurance由来の根拠が中心。Evidence-supported fallbackとして限定的に適用'});
+  } else if (exerciseTypeKey === 'resistance' && goalFat>0 && energyDeficitRate>0 && isLeanForHelms && helmsTrainingProfile) {
+    // 筋力系×Helms適用条件（Eligibility Evidence＋Application Proxyの両方を満たす場合のみ）
     applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
-    if (ffm) applicableRanges.P.push({source:'Helms 2014', basis:'FFM', min:2.3, max:3.1, note:'エネルギー制限下の筋力トレーニング実施者。energyDeficitRateが高いほど上限側を検討'});
-  } else if (exerciseType && exerciseType.startsWith('混合系')) {
-    // 条件5：混合系
+    if (ffm) applicableRanges.P.push({source:'Helms 2014', basis:'FFM', min:2.3, max:3.1, note:'Eligibility Evidence(体脂肪率・エネルギー制限)とApplication Proxy(訓練プロファイル)の両方を満たす場合のみ適用'});
+    if (isLongDuration) applicableRanges.C.push({source:'Resistance Directional Demand Evidence(数値化なし、方向性のみ)', basis:'directional', min:null, max:null, note:'Session durationとglycogen depletionに正の関係(2025メタ解析)。daily g/kgへの変換式は存在しないため数値化しない'});
+  } else if (exerciseTypeKey === 'resistance') {
+    // 筋力系(Helms非該当)：Evidence-derived default anchor
+    applicableRanges.P.push({source:'ISSN 2017 + Tagawa et al.(2022) dose-response', basis:'BW', min:1.5, max:2.0, note:'ISSNレンジ内で、Resistance-specific dose-response evidence(plateau estimate約1.5-1.6g/kg域)に基づくApplication Anchor'});
+    if (isLongDuration) applicableRanges.C.push({source:'Resistance Directional Demand Evidence(数値化なし、方向性のみ)', basis:'directional', min:null, max:null});
+  } else if (exerciseTypeKey === 'mixed') {
     applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
-    if (hasSubstantialTrainingVolume) applicableRanges.C.push({source:'Burke(一般トレーニング)', basis:'BW', min:5, max:7});
+    if (isLongDuration) applicableRanges.C.push({source:'ACSM/AND/DC 2016(Application Rule)', basis:'BW', min:5, max:7, note:'Mixed専用Evidence不足のため参考程度'});
   } else {
-    // 筋力系(エネルギー制限なし)・コンディショニング系（weeklyMetHoursで運動者相当かは別途判定要）
+    // コンディショニング系
     applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
   }
 
@@ -2673,7 +2786,9 @@ function calcPFC() {
   const cPercentE = goalKcal>0 ? (goalCKcal/goalKcal)*100 : 0;
   const cReferenceRange = applicableRanges.C.find(r => r.source.indexOf('厚労省') !== -1);
   const cWithinReference = cReferenceRange ? (cPercentE >= cReferenceRange.min && cPercentE <= cReferenceRange.max) : null;
-  const cFuelingRange = applicableRanges.C.find(r => r.source.indexOf('Burke') !== -1);
+  // C Evidence Audit：数値化可能なquantitative evidenceのみでfuelingAdequacyを算出（directional evidenceは数値計算に使わない）
+  const cFuelingRange = applicableRanges.C.find(r => r.basis === 'BW' && r.min != null && (r.source.indexOf('ACSM') !== -1));
+  const cDirectionalFlag = applicableRanges.C.some(r => r.basis === 'directional');
   const fuelingAdequacy = cFuelingRange ? (goalC / (cFuelingRange.min * weight)) : null; // 1.0以上でfueling target下限を充足
 
 
@@ -2699,7 +2814,7 @@ function calcPFC() {
   if(el_barc) el_barc.style.width = (cRatio*100)+'%';
   if(el_result) el_result.style.display='block';
 
-  localStorage.setItem('pfc', JSON.stringify({goalKcal,goalP,goalF,goalC,_internal:{ffm,energyDeficitRate,cWithinReference,fuelingAdequacy,pSource:primaryPRange.source}}));
+  localStorage.setItem('pfc', JSON.stringify({goalKcal,goalP,goalF,goalC,_internal:{ffm,energyDeficitRate,cWithinReference,fuelingAdequacy,cDirectionalFlag,pSource:primaryPRange.source}}));
 }
 
 // ===== 保存 =====
@@ -2730,7 +2845,7 @@ function saveProfile() {
     bmr: document.getElementById('bmr').value,
     activity: document.getElementById('activity').value,
     exercise: document.querySelector('#exercise-tags .tag.on')?.textContent||'週1〜2回',
-    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.textContent||'軽度（楽に継続でき、息がほとんど上がらない）',
+    exercise_intensity: document.querySelector('#exercise-intensity-tags .tag.on')?.dataset.level||'light',
     exercise_type: document.querySelector('#exercise-type-tags .tag.on')?.textContent||'筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）',
     exercise_time: document.querySelector('#exercise-time-tags .tag.on')?.textContent||'30分〜1時間',
     meal_freq: document.querySelector('#meal-freq-tags .tag.on')?.textContent||'3食',
@@ -3541,7 +3656,7 @@ async function generateReport() {
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
   const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
     ? '運動習慣：なし'
-    : `運動：${profile.exercise}（強度：${profile.exercise_intensity||'軽度（楽に継続でき、息がほとんど上がらない）'}、1回${profile.exercise_time||'30分〜1時間'}）`;
+    : `運動：${profile.exercise}（強度：${describeIntensity(profile.exercise_type, profile.exercise_intensity)}、1回${profile.exercise_time||'30分〜1時間'}）`;
   const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
   const goalInfo=`\n【今日の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g\n【今日の合計摂取量】\n- カロリー：${totalKcal}kcal／タンパク質${totalP}g／脂質${totalF}g／炭水化物${totalC}g`;
   const weightForCheck = parseFloat(profile.weight||60);
@@ -3794,7 +3909,7 @@ async function generateWeeklyReport() {
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
   const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
     ? '運動習慣：なし'
-    : `運動：${profile.exercise}（強度：${profile.exercise_intensity||'軽度（楽に継続でき、息がほとんど上がらない）'}、1回${profile.exercise_time||'30分〜1時間'}）`;
+    : `運動：${profile.exercise}（強度：${describeIntensity(profile.exercise_type, profile.exercise_intensity)}、1回${profile.exercise_time||'30分〜1時間'}）`;
   const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
   const goalInfo = (pfc.goalKcal && pfc.goalP && pfc.goalF && pfc.goalC)
     ? `\n【今週の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g`
@@ -4039,7 +4154,7 @@ function initLogoImages() {
     }
   });
 })();
-window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
+window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); initIntensityTagsFromProfile(); checkUpdateNotice(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
 </script>
 <div id="legal-modal-overlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);">
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;background:#fff;">
@@ -4048,6 +4163,19 @@ window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogo
       <button onclick="closeLegalModal()" style="border:none;background:#f5f0e8;color:#7a4f35;width:32px;height:32px;border-radius:50%;font-size:16px;line-height:1;cursor:pointer;">✕</button>
     </div>
     <div id="legal-modal-body" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px 40px;font-size:13px;color:#333;line-height:1.9;"></div>
+  </div>
+</div>
+<div id="update-notice-overlay" style="display:none;position:fixed;inset:0;z-index:420;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
+  <div style="width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eee;">
+      <div id="update-notice-title" style="font-weight:700;color:#3d1a08;font-size:15px;">アップデートが完了しました</div>
+      <button onclick="closeUpdateNotice()" style="border:none;background:#f5f0e8;color:#7a4f35;width:32px;height:32px;border-radius:50%;font-size:16px;line-height:1;cursor:pointer;">✕</button>
+    </div>
+    <div id="update-notice-body" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;font-size:13px;color:#333;line-height:1.9;"></div>
+    <div style="flex-shrink:0;display:flex;gap:8px;padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid #eee;">
+      <button onclick="closeUpdateNotice()" style="flex:1;padding:14px;border:1.5px solid #e0dcd6;border-radius:10px;background:#fff;color:#888;font-size:14.5px;font-weight:500;cursor:pointer;font-family:inherit;">後で</button>
+      <button id="update-notice-cta" onclick="handleUpdateNoticeCTA()" style="flex:2;padding:14px;border:none;border-radius:10px;background:#7a4f35;color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;">今すぐ設定する</button>
+    </div>
   </div>
 </div>
 <div id="purchase-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:410;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
