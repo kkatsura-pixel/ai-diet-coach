@@ -2278,6 +2278,34 @@ const INTENSITY_MIGRATION_TABLE = {
   '非常に高強度（かなりきつく、長時間継続することが難しい）': 'very_high',
 };
 // Intensity Level（abstract値）を、運動タイプの文脈に応じた日本語表示に変換（AIレポート等で使用）
+// Pの適用根拠（pSource）を、専門用語を出さずAIへのヒントとして渡すための平易な説明に変換
+function describePSourceHint(pSource, exerciseTypeText) {
+  if (!pSource) return '';
+  // 大分類名のみ抽出（括弧内の具体例部分は使わない。例：「筋力系（筋トレ、〜）」→「筋力系」）
+  const typeLabel = exerciseTypeText ? exerciseTypeText.split('（')[0] : '';
+  const typePhrase = typeLabel ? `${typeLabel}の運動をされているので、` : '';
+  if (pSource.indexOf('Helms') !== -1) {
+    return `（ヒント：${typePhrase}筋肉量を落とさず脂肪を減らせるよう、体組成と減量ペースを踏まえて、タンパク質を通常より積極的に確保する設定にしています。この理由を、専門用語を使わず1文で触れてください）`;
+  }
+  if (pSource.indexOf('ISSN') !== -1 || pSource.indexOf('Tagawa') !== -1) {
+    return `（ヒント：${typePhrase}タンパク質を一般的な目安より多めに設定しています。この理由を、専門用語を使わず1文で触れてください）`;
+  }
+  if (pSource.indexOf('厚労省') !== -1) {
+    return ''; // 非運動者は特別な理由づけをしない（不自然になるため）
+  }
+  return '';
+}
+// Cの充足度（fuelingAdequacy）を、専門用語を出さずAIへのヒントとして渡すための平易な説明に変換
+function describeFuelingHint(fuelingAdequacy) {
+  if (fuelingAdequacy == null) return '';
+  if (fuelingAdequacy < 0.85) {
+    return '（ヒント：今日のような運動量の日は、体を動かすためのエネルギー源として、炭水化物をもう少し積極的に摂ることが望ましい状態です。専門用語を使わず1文で触れてください）';
+  }
+  if (fuelingAdequacy >= 1.0) {
+    return '（ヒント：今日の運動量に対して、炭水化物は十分に足りています。この点を専門用語を使わず1文で触れてください）';
+  }
+  return '';
+}
 function describeIntensity(exerciseTypeText, intensityLevel) {
   const typeKey = EXERCISE_TYPE_KEYS[exerciseTypeText] || 'resistance';
   const labels = INTENSITY_LABELS_BY_TYPE[typeKey] || INTENSITY_LABELS_BY_TYPE.resistance;
@@ -3660,9 +3688,11 @@ async function generateReport() {
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
   const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
     ? '運動習慣：なし'
-    : `運動：${profile.exercise}（強度：${describeIntensity(profile.exercise_type, profile.exercise_intensity)}、1回${profile.exercise_time||'30分〜1時間'}）`;
+    : `運動：${profile.exercise}（種目：${profile.exercise_type||'筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）'}、強度：${describeIntensity(profile.exercise_type, profile.exercise_intensity)}、1回${profile.exercise_time||'30分〜1時間'}）`;
   const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
-  const goalInfo=`\n【今日の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g\n【今日の合計摂取量】\n- カロリー：${totalKcal}kcal／タンパク質${totalP}g／脂質${totalF}g／炭水化物${totalC}g`;
+  const pSourceHint = describePSourceHint(pfc._internal?.pSource, profile.exercise_type);
+  const fuelingHint = describeFuelingHint(pfc._internal?.fuelingAdequacy);
+  const goalInfo=`\n【今日の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g${pSourceHint}／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g${fuelingHint}\n【今日の合計摂取量】\n- カロリー：${totalKcal}kcal／タンパク質${totalP}g／脂質${totalF}g／炭水化物${totalC}g`;
   const weightForCheck = parseFloat(profile.weight||60);
   const proteinPerKg = weightForCheck>0 ? (pfc.goalP/weightForCheck) : 0;
   const needsPerformanceFuel = proteinPerKg >= 1.6;
@@ -3711,15 +3741,15 @@ ${goalInfo}
 【文章構成】以下の順序で構成してください。②〜⑦は、それぞれの内容の直前に見出しを1行入れる（見出しの後に改行し、本文を続ける。見出しの文言は指定のものをそのまま使う）
 1. あいさつ（見出しなし）：短い挨拶のみ
 2. 見出し「目標と現在地」：できていることをメインに褒める、できていないことは僅かに伝える
-3. 見出し「カロリーとPFC」：目標カロリー・目標PFCと、今日の合計摂取量を具体的に比較する＋脂質については量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+3. 見出し「カロリーとPFC」：目標カロリー・目標PFCと、今日の合計摂取量を具体的に比較する＋脂質については量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる。目標PFCの記載に「（ヒント：〜）」という注記がある場合は、そのヒントの内容を専門用語を使わず1文で自然に織り込む。ヒントがない場合は無理に理由づけしない
 4. 見出し「ビタミン・ミネラル」：今日の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。それを補える具体的な食材名も挙げる
-5. 見出し「運動について」：運動状況（頻度・強度・時間）に触れる。その運動状況に応じて、意識すべき栄養面のポイントを1点添える（例：運動頻度や運動時間が多い場合は炭水化物を極端に減らさないよう伝える、筋力トレーニングや高負荷運動を行っている場合はタンパク質を十分に確保するよう伝える、運動量・負荷ともに高い場合は炭水化物・タンパク質の両方に触れる）。運動習慣がない場合は、無理のない範囲で運動を取り入れることを軽く勧める一言を入れる。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
+5. 見出し「運動について」：運動状況（運動タイプ・頻度・強度・時間）に触れる。目標PFCまたは合計摂取量の記載に「（ヒント：〜）」という注記がある場合は、その内容を専門用語を使わず1文で自然に織り込む。ヒントがない場合、運動習慣がなければ無理のない範囲で運動を取り入れることを軽く勧める一言を、運動習慣があれば運動タイプ・頻度・強度・時間に応じた一般的な栄養面のポイントを1点添える。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
 6. 見出し「このままだと」：その体への影響を伝える（理論・危機感）。「身体の悩み・改善したいこと」に関連づけて理由を伝える
 7. 見出し「解決策」：具体的な食材・行動で解決策を示す＋その先の未来のベネフィットを提示する
 8. 締めのあいさつ（見出しなし）：問いかけ形式で当事者意識を持たせて締める（習慣化としてのルールの意識）
 
 【条件】
-- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・650文字以内で収める
 - 見出しは、指定した6つの言葉（目標と現在地／カロリーとPFC／ビタミン・ミネラル／運動について／このままだと／解決策）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
 - 見出しは記号（##など）で装飾せず、単独の1行として置く
 - 端的に
@@ -3913,10 +3943,12 @@ async function generateWeeklyReport() {
   const bodyInfo=`- 体脂肪率：${profile.fat_pct||'未設定'}%${profile.muscle?'\n- 筋肉量：'+profile.muscle+'kg':''}`;
   const exerciseInfo = (!profile.exercise || profile.exercise==='なし')
     ? '運動習慣：なし'
-    : `運動：${profile.exercise}（強度：${describeIntensity(profile.exercise_type, profile.exercise_intensity)}、1回${profile.exercise_time||'30分〜1時間'}）`;
+    : `運動：${profile.exercise}（種目：${profile.exercise_type||'筋力系（筋トレ、マシントレーニング、ウエイトトレーニング）'}、強度：${describeIntensity(profile.exercise_type, profile.exercise_intensity)}、1回${profile.exercise_time||'30分〜1時間'}）`;
   const lifestyleInfo=`\n- ${exerciseInfo}、飲酒${profile.drink_freq||'ほぼ飲まない'}${profile.drink_amt?'（'+profile.drink_amt+'）':''}、間食${profile.snack||'ほぼしない'}、ストレス過食${profile.stress||'ほとんどない'}`;
+  const pSourceHintW = describePSourceHint(pfc._internal?.pSource, profile.exercise_type);
+  const fuelingHintW = describeFuelingHint(pfc._internal?.fuelingAdequacy);
   const goalInfo = (pfc.goalKcal && pfc.goalP && pfc.goalF && pfc.goalC)
-    ? `\n【今週の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g`
+    ? `\n【今週の目標】\n- 目標カロリー：${pfc.goalKcal}kcal\n- 目標PFC：タンパク質${pfc.goalP}g${pSourceHintW}／脂質${pfc.goalF}g／炭水化物${pfc.goalC}g${fuelingHintW}`
     : '';
   const weightForCheckWeekly = parseFloat(profile.weight||60);
   const proteinPerKgWeekly = weightForCheckWeekly>0 ? (pfc.goalP/weightForCheckWeekly) : 0;
@@ -3961,15 +3993,15 @@ ${dailySummaries.join('\n')}
 【文章構成】以下の順序で構成してください。②〜⑦は、それぞれの内容の直前に見出しを1行入れる（見出しの後に改行し、本文を続ける。見出しの文言は指定のものをそのまま使う）
 1. あいさつ（見出しなし）：短い挨拶のみ
 2. 見出し「記録とルールの継続状況」：7日中何日記録できたか、ルールを何日守れたかを、具体的な数字で示す。できていた日・できていなかった日のムラに触れる。さらに、なぜそれが問題なのか、理由も続けて伝える（「守れたり守れなかったり」という不安定さそのものが、成果が出にくい最大の原因であることを伝える）
-3. 見出し「今週のカロリーとPFC」：目標カロリー・目標PFCがある場合はそれとの比較で、カロリー・タンパク質・脂質・炭水化物それぞれについて日によるムラ、または一貫した傾向が見られる場合は必ず言及する。脂質は量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる
+3. 見出し「今週のカロリーとPFC」：目標カロリー・目標PFCがある場合はそれとの比較で、カロリー・タンパク質・脂質・炭水化物それぞれについて日によるムラ、または一貫した傾向が見られる場合は必ず言及する。脂質は量だけでなく質（n-6系＝植物油、n-3系＝青魚・えごま油など）にも触れる。目標PFCの記載に「（ヒント：〜）」という注記がある場合は、そのヒントの内容を専門用語を使わず1文で自然に織り込む。ヒントがない場合は無理に理由づけしない
 4. 見出し「今週のビタミン・ミネラル」：今週の食事内容を、食材のカテゴリ（野菜・果物・海藻・きのこ・乳製品・魚介・肉・穀物など）の観点から分析し、量や種類が不足しているカテゴリを特定した上で、そのカテゴリの不足によって栄養学的に不足しやすくなる、ビタミンまたはミネラル（食物繊維を含む）の個別名称を、AI自身の知識で1つ論理的に導き出し、必ず特定して言及する。それを補える具体的な食材名も挙げる
-5. 見出し「今週の運動と栄養」：今週の運動状況（頻度・強度・時間）に触れる。その運動状況に応じて、意識すべき栄養面のポイントを1点添える（例：運動頻度や運動時間が多い場合は炭水化物を極端に減らさないよう伝える、筋力トレーニングや高負荷運動を行っている場合はタンパク質を十分に確保するよう伝える、運動量・負荷ともに高い場合は炭水化物・タンパク質の両方に触れる）。運動習慣がない場合は、無理のない範囲で運動を取り入れることを軽く勧める一言を入れる。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
+5. 見出し「今週の運動と栄養」：今週の運動状況（運動タイプ・頻度・強度・時間）に触れる。目標PFCの記載に「（ヒント：〜）」という注記がある場合は、その内容を専門用語を使わず1文で自然に織り込む。ヒントがない場合、運動習慣がなければ無理のない範囲で運動を取り入れることを軽く勧める一言を、運動習慣があれば運動タイプ・頻度・強度・時間に応じた一般的な栄養面のポイントを1点添える。なお、具体的な摂取量は別途算出された栄養目標値に従い、この項目で独自に再計算・変更しない
 6. 見出し「このままだと未来は」：継続のムラ・栄養の傾向・運動状況を続けた場合のリスク・未来を、まとめて伝える。「身体の悩み・改善したいこと」に関連づけて理由を伝える
 7. 見出し「今すぐできる事」：来週、具体的に何をどう改善すべきかを提案する
 8. 締めのあいさつ（見出しなし）：励まし、当事者意識を持たせる問いかけで締める（習慣化としてのルールの意識）
 
 【条件】
-- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・600文字以内で収める
+- あいさつ（①・⑧）を除き、②〜⑦の本文合計で8文以内・650文字以内で収める
 - 見出しは、指定した6つの言葉（記録とルールの継続状況／今週のカロリーとPFC／今週のビタミン・ミネラル／今週の運動と栄養／このままだと未来は／今すぐできる事）を、そのまま使う。見出し自体は文字数（8文・600字）にカウントしない
 - 見出しは記号（##など）で装飾せず、単独の1行として置く
 - 端的に
