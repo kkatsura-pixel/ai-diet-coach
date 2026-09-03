@@ -2729,12 +2729,29 @@ function calcPFC() {
   // C：全条件共通でReference range（厚労省2025）
   applicableRanges.C.push({source:'厚労省2025', basis:'%E', min:50, max:65});
 
-  // Helms Eligibility Evidence：低体脂肪率(男性≤23%/女性≤35%)。Helms 2014の選定基準（原文の対象集団条件）
-  const isLeanForHelms = fatPct>0 && ((gender==='男性' && fatPct<=23) || (gender!=='男性' && fatPct<=35));
-  // Helms Application Proxy（訓練経験の代理指標。Evidenceが直接規定した条件ではなく実装上の推論）：
-  // 非常に高強度×ほぼ毎日×1時間以上を継続できていること自体が、相応の訓練適応を要するという判断
-  const helmsTrainingProfile = exerciseIntensity==='very_high' && exercise==='ほぼ毎日'
-    && ['1〜2時間','2〜4時間','4時間以上'].includes(exerciseTime);
+  // Helms Eligibility Evidence：低体脂肪率(男性≤23%/女性≤35%)。Helms 2014の選定基準（原文の対象集団条件、Eligibility Proxy）
+  const helmsLeanBoundary = gender==='男性' ? 23 : 35;
+  const isLeanForHelms = fatPct>0 && fatPct<=helmsLeanBoundary;
+
+  // Training Demand判定（頻度×強度×時間の積を、アンカーケース由来の境界で5段階に分類。Specification Freeze済み）
+  const FREQ_SCORE = {'週1〜2回':1, '週3〜4回':2, 'ほぼ毎日':3};
+  const INTENSITY_SCORE = {light:1, moderate:2, high:3, very_high:4};
+  const DURATION_SCORE = {'30分未満':1, '30分〜1時間':2, '1〜2時間':3, '2〜4時間':4, '4時間以上':5};
+  const trainingDemandProduct = isExerciser
+    ? (FREQ_SCORE[exercise]||1) * (INTENSITY_SCORE[exerciseIntensity]||1) * (DURATION_SCORE[exerciseTime]||1)
+    : 0;
+  function trainingDemandTier(product) {
+    if (product <= 3) return {name:'Low', pCoef:1.4};
+    if (product <= 7) return {name:'Low-Moderate', pCoef:1.5};
+    if (product <= 15) return {name:'Moderate', pCoef:1.6};
+    if (product <= 26) return {name:'High', pCoef:1.8};
+    return {name:'Very High', pCoef:2.0};
+  }
+  const trainingDemand = trainingDemandTier(trainingDemandProduct);
+
+  // Helms Application Proxy（訓練経験の代理指標）：Training DemandがVery Highであることを、
+  // 訓練経験の実務的な代理指標として使用（個別の強度×頻度×時間条件から、統一指標に置換）
+  const helmsTrainingProfile = trainingDemand.name === 'Very High';
 
   // Cのdemand evidence適用条件（運動タイプごとにDomainを分離。頻度は判定軸に使わない＝Frequency単体は予測力が限定的との知見のため）
   const isLongDuration = ['1〜2時間','2〜4時間','4時間以上'].includes(exerciseTime);
@@ -2750,12 +2767,19 @@ function calcPFC() {
     if (isLongDuration) applicableRanges.C.push({source:'ACSM/AND/DC 2016(Application Rule：Duration基準の当てはめ)', basis:'BW', min:5, max:7, note:'原典はEndurance由来の根拠が中心。Evidence-supported fallbackとして限定的に適用'});
   } else if (exerciseTypeKey === 'resistance' && goalFat>0 && energyDeficitRate>0 && isLeanForHelms && helmsTrainingProfile) {
     // 筋力系×Helms適用条件（Eligibility Evidence＋Application Proxyの両方を満たす場合のみ）
-    applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
-    if (ffm) applicableRanges.P.push({source:'Helms 2014', basis:'FFM', min:2.3, max:3.1, note:'Eligibility Evidence(体脂肪率・エネルギー制限)とApplication Proxy(訓練プロファイル)の両方を満たす場合のみ適用'});
+    // Helms Domain内位置：Evidence(「厳しさ・リーンさに応じ上方scale」)＋Application Rule(独自の正規化・平均・線形補間)
+    if (ffm) {
+      const leannessRatio = Math.max(0, Math.min(1, (helmsLeanBoundary - fatPct) / helmsLeanBoundary));
+      const deficitRatio = Math.max(0, Math.min(1, energyDeficitRate / 0.20)); // 0.20は既存の週1%安全上限相当値の流用
+      const helmsCoefRaw = 2.3 + ((leannessRatio + deficitRatio) / 2) * (3.1 - 2.3);
+      applicableRanges.P.push({source:'Helms 2014', basis:'FFM', min:helmsCoefRaw, max:3.1, note:'Evidence:厳しさ・リーンさに応じ上方scale。位置決定の数式自体はAI DIET COACH独自Application Rule'});
+    } else {
+      applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
+    }
     if (isLongDuration) applicableRanges.C.push({source:'Resistance Directional Demand Evidence(数値化なし、方向性のみ)', basis:'directional', min:null, max:null, note:'Session durationとglycogen depletionに正の関係(2025メタ解析)。daily g/kgへの変換式は存在しないため数値化しない'});
   } else if (exerciseTypeKey === 'resistance') {
-    // 筋力系(Helms非該当)：Evidence-derived default anchor
-    applicableRanges.P.push({source:'ISSN 2017 + Tagawa et al.(2022) dose-response', basis:'BW', min:1.5, max:2.0, note:'ISSNレンジ内で、Resistance-specific dose-response evidence(plateau estimate約1.5-1.6g/kg域)に基づくApplication Anchor'});
+    // 筋力系(Helms非該当)：通常Domain。Training Demandティアに応じたP係数（Specification Freeze済み）
+    applicableRanges.P.push({source:'ISSN 2017 + Tagawa et al.(2022) dose-response（Training Demand: '+trainingDemand.name+'）', basis:'BW', min:trainingDemand.pCoef, max:2.0, note:'頻度×強度×時間から判定したTraining Demandティアに応じたApplication Anchor'});
     if (isLongDuration) applicableRanges.C.push({source:'Resistance Directional Demand Evidence(数値化なし、方向性のみ)', basis:'directional', min:null, max:null});
   } else if (exerciseTypeKey === 'mixed') {
     applicableRanges.P.push({source:'ISSN 2017', basis:'BW', min:1.4, max:2.0});
@@ -2801,6 +2825,12 @@ function calcPFC() {
     // 運動者：適用レンジ（BWまたはFFM基準）の下限を標準値として採用（実装条件①）
     const pBasisValue = primaryPRange.basis === 'FFM' ? (ffm || weight) : weight;
     goalP = Math.round(primaryPRange.min * pBasisValue);
+    // Domain Transition Guard：Helms(FFM基準)適用時、通常Domain上限(2.0×体重)を下回らないようにする
+    // （Evidenceではなく、Domain切替による計算上のP低下を防ぐための実装上のガード）
+    if (primaryPRange.basis === 'FFM') {
+      const normalDomainCeiling = Math.round(2.0 * weight);
+      goalP = Math.max(goalP, normalDomainCeiling);
+    }
     goalPKcal = goalP * 4;
 
     // F：厚労省Reference rangeの下限（20%E）を標準値として採用
