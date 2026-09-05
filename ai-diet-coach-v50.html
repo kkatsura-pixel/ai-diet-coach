@@ -4232,7 +4232,7 @@ function registerServiceWorkerForUpdateDetection() {
   // 登録前の時点で既にcontroller（前のService Worker）が存在するかどうかを、先に確定しておく。
   // これが真の場合のみ「更新」であり、初回インストール時は必ず偽になる。
   const isReturningWithExistingController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('./sw.js').then(reg => {
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
       if (!newWorker) return;
