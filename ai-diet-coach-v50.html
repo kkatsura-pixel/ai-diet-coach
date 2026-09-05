@@ -4220,7 +4220,7 @@ function initLogoImages() {
     }
   });
 })();
-window.addEventListener('load',()=>{ loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); initIntensityTagsFromProfile(); checkUpdateNotice(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
+window.addEventListener('load',()=>{ if(localStorage.getItem('ob_done')){ showView('main', null); } loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); initIntensityTagsFromProfile(); checkUpdateNotice(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
 </script>
 <div id="legal-modal-overlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);">
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;background:#fff;">
