@@ -4221,14 +4221,17 @@ function initLogoImages() {
   });
 })();
 // ===== Service Worker（更新検知のみ。キャッシュ制御は行わない） =====
-function registerServiceWorkerForUpdateDetection() {
-  if (!('serviceWorker' in navigator)) return;
-  // 今回の起動時点で、前回までに「更新が有効化された」というフラグが立っていれば、
-  // このタイミング（起動直後）でのみバナーを表示する。
+function checkPendingSwUpdate() {
   if (localStorage.getItem('sw_update_pending') === '1') {
     const banner = document.getElementById('sw-update-banner');
     if (banner) banner.style.display = 'flex';
   }
+}
+function registerServiceWorkerForUpdateDetection() {
+  if (!('serviceWorker' in navigator)) return;
+  // 今回の起動時点で、前回までに「更新が有効化された」というフラグが立っていれば、
+  // このタイミング（起動直後）でのみバナーを表示する。
+  checkPendingSwUpdate();
   // 登録前の時点で既にcontroller（前のService Worker）が存在するかどうかを、先に確定しておく。
   // これが真の場合のみ「更新」であり、初回インストール時は必ず偽になる。
   const isReturningWithExistingController = !!navigator.serviceWorker.controller;
@@ -4247,6 +4250,24 @@ function registerServiceWorkerForUpdateDetection() {
     reg.update();
   }).catch(() => { /* 登録失敗時は何もしない（既存の動作に影響させない） */ });
 }
+// アプリがバックグラウンドから復帰した瞬間（ホーム画面アイコンから再度開いた場合を含む）にも、
+// 「起動」とみなして再チェックする。iOSはアプリ完全終了しない限りwindow.loadが再実行されないため、
+// visibilitychangeで補完する。ただし、他アプリへの一瞬の切り替え等、短時間の復帰では
+// 作業を妨げないよう、バックグラウンドに5分以上いた場合にのみ再チェックする。
+const BACKGROUND_RECHECK_THRESHOLD_MS = 5 * 60 * 1000;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    sessionStorage.setItem('bg_at', String(Date.now()));
+  } else if (document.visibilityState === 'visible') {
+    const bgAt = parseInt(sessionStorage.getItem('bg_at')||'0', 10);
+    const elapsed = bgAt ? Date.now() - bgAt : 0;
+    if (elapsed >= BACKGROUND_RECHECK_THRESHOLD_MS) {
+      checkPendingSwUpdate();
+      checkUpdateNotice();
+      if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
+    }
+  }
+});
 window.addEventListener('load',()=>{ if(localStorage.getItem('ob_done')){ showView('main', null); } loadMain(); initFutureParticles(); initLogoImages(); registerServiceWorkerForUpdateDetection(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); initIntensityTagsFromProfile(); checkUpdateNotice(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
 </script>
 <div id="legal-modal-overlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);">
