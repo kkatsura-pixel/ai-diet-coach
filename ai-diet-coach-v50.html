@@ -4220,7 +4220,34 @@ function initLogoImages() {
     }
   });
 })();
-window.addEventListener('load',()=>{ if(localStorage.getItem('ob_done')){ showView('main', null); } loadMain(); initFutureParticles(); initLogoImages(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); initIntensityTagsFromProfile(); checkUpdateNotice(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
+// ===== Service Worker（更新検知のみ。キャッシュ制御は行わない） =====
+function registerServiceWorkerForUpdateDetection() {
+  if (!('serviceWorker' in navigator)) return;
+  // 今回の起動時点で、前回までに「更新が有効化された」というフラグが立っていれば、
+  // このタイミング（起動直後）でのみバナーを表示する。
+  if (localStorage.getItem('sw_update_pending') === '1') {
+    const banner = document.getElementById('sw-update-banner');
+    if (banner) banner.style.display = 'flex';
+  }
+  // 登録前の時点で既にcontroller（前のService Worker）が存在するかどうかを、先に確定しておく。
+  // これが真の場合のみ「更新」であり、初回インストール時は必ず偽になる。
+  const isReturningWithExistingController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      if (!newWorker) return;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'activated' && isReturningWithExistingController) {
+          // ここでは即座に表示せず、フラグとして記憶するだけに留める。
+          // 実際にバナーを表示するのは、次回このアプリが起動された瞬間のみ。
+          localStorage.setItem('sw_update_pending', '1');
+        }
+      });
+    });
+    reg.update();
+  }).catch(() => { /* 登録失敗時は何もしない（既存の動作に影響させない） */ });
+}
+window.addEventListener('load',()=>{ if(localStorage.getItem('ob_done')){ showView('main', null); } loadMain(); initFutureParticles(); initLogoImages(); registerServiceWorkerForUpdateDetection(); setTimeout(()=>{ loadProfileForm(); loadGoalForm(); initIntensityTagsFromProfile(); checkUpdateNotice(); },300); handlePaymentReturn().then(()=>ensureLicenseCode()); });
 </script>
 <div id="legal-modal-overlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);">
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;background:#fff;">
@@ -4230,6 +4257,11 @@ window.addEventListener('load',()=>{ if(localStorage.getItem('ob_done')){ showVi
     </div>
     <div id="legal-modal-body" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px 40px;font-size:13px;color:#333;line-height:1.9;"></div>
   </div>
+</div>
+<div id="sw-update-banner" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(61,26,8,0.92);align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center;">
+  <div style="color:#fff;font-size:16px;font-weight:700;margin-bottom:10px;">新しいバージョンがあります</div>
+  <div style="color:#f0e5d8;font-size:13px;line-height:1.8;margin-bottom:24px;max-width:320px;">計算精度の向上など、重要な更新が含まれています。<br>続けてご利用いただくには、更新が必要です。</div>
+  <button onclick="localStorage.removeItem('sw_update_pending'); location.reload();" style="padding:14px 32px;border:none;border-radius:10px;background:#fff;color:#7a4f35;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">今すぐ更新する</button>
 </div>
 <div id="update-notice-overlay" style="display:none;position:fixed;inset:0;z-index:420;background:rgba(0,0,0,0.5);align-items:flex-end;justify-content:center;">
   <div style="width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;">
