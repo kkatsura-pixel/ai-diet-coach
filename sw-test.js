@@ -1,5 +1,5 @@
 // テスト用Service Worker
-const SW_VERSION = 'TEST-SW-V1'; // このファイルを更新する際、ここを変更する
+const SW_VERSION = 'TEST-SW-V2'; // このファイルを更新する際、ここを変更する
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
