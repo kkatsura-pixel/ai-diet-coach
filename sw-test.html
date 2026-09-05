@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Worker 更新検知テスト</title>
+<style>
+body{font-family:-apple-system,sans-serif;background:#faf9f7;padding:24px;text-align:center;}
+.box{background:#fff;border-radius:12px;padding:32px 20px;margin-top:20px;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.version{font-size:24px;font-weight:700;color:#7a4f35;}
+#status{margin-top:20px;padding:14px;border-radius:8px;font-size:13px;}
+.waiting{background:#fdf0e8;color:#7a4f35;}
+.updated{background:#e8f5e9;color:#2e7d32;}
+#update-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:#7a4f35;color:#fff;padding:16px;text-align:center;}
+#update-banner button{margin-left:12px;padding:8px 16px;border:none;border-radius:6px;background:#fff;color:#7a4f35;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div>現在のページバージョン：</div>
+  <div class="version" id="page-version">TEST-V1</div>
+  <div id="status" class="waiting">Service Worker登録中...</div>
+</div>
+<div id="update-banner">
+  新しいバージョンがあります <button onclick="location.reload()">今すぐ更新</button>
+</div>
+<script>
+const PAGE_VERSION = 'TEST-V1'; // このファイルを更新する際、ここも変更する
+document.getElementById('page-version').textContent = PAGE_VERSION;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw-test.js').then(reg => {
+    document.getElementById('status').textContent = 'Service Worker登録完了';
+
+    // 新しいService Workerが見つかった時の検知
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'activated') {
+          document.getElementById('status').textContent = '新しいService Workerが有効化されました';
+          document.getElementById('status').className = 'updated';
+          document.getElementById('update-banner').style.display = 'block';
+        }
+      });
+    });
+
+    // 起動のたびに、更新がないか明示的にチェックする
+    reg.update();
+  }).catch(err => {
+    document.getElementById('status').textContent = '登録失敗：' + err.message;
+  });
+} else {
+  document.getElementById('status').textContent = 'このブラウザはService Worker非対応です';
+}
+</script>
+</body>
+</html>
