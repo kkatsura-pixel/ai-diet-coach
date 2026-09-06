@@ -2,7 +2,7 @@
 // 目的：オフライン対応ではなく、「更新の検知」のみ。キャッシュは一切制御しない。
 // v50.htmlを更新するたびに、この値も必ず変更する。
 
-const SW_VERSION = 'v50-sw-3';
+const SW_VERSION = 'v50-sw-4';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

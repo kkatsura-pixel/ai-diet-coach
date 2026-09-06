@@ -4168,33 +4168,21 @@ localStorage.setItem('launch_count',lc);
   const preload = new Image();
   preload.src = './IMG_3070.png';
   // 毎回、必ずフル演出（1枚目 0〜1.5秒 → 2枚目 1.5〜3秒 → 3秒後に0.4秒かけてフェードアウト）
-  setTimeout(()=>{ img.src='./IMG_3070.png'; img.classList.remove('frame1'); }, 1500);
+  setTimeout(()=>{
+    img.src='./IMG_3070.png';
+    // 画像の実際の切り替え（デコード）が完了してから、CSSのtransformを変更する。
+    // 同時に行うと、旧画像のまま新しいtransformだけ先に適用される、一瞬のサイズジャンプが発生するため。
+    if (img.decode) {
+      img.decode().then(()=>{ img.classList.remove('frame1'); }).catch(()=>{ img.classList.remove('frame1'); });
+    } else {
+      img.classList.remove('frame1');
+    }
+  }, 1500);
   setTimeout(()=>{
     splash.classList.add('fade-out');
     setTimeout(()=>{ splash.style.display='none'; }, 400);
   }, 3000);
 
-  // ===== 【一時デバッグ】原因調査用。確認後に必ず削除する ===== //
-  const dbg = document.createElement('div');
-  dbg.style.cssText = 'position:fixed;top:4px;left:4px;z-index:99999;background:rgba(0,0,0,0.75);color:#0f0;font-size:9px;font-family:monospace;padding:4px 6px;line-height:1.5;white-space:pre;pointer-events:none;';
-  splash.appendChild(dbg);
-  let frameCount = 0;
-  function updateDebug(){
-    frameCount++;
-    const rect = img.getBoundingClientRect();
-    const cs = getComputedStyle(img);
-    dbg.textContent =
-      'f:'+frameCount+
-      ' vw:'+window.innerWidth+
-      ' vh:'+window.innerHeight+
-      ' imgW:'+Math.round(rect.width)+
-      ' imgH:'+Math.round(rect.height)+
-      ' transform:'+cs.transform+
-      ' class:'+img.className;
-    if(frameCount < 200) requestAnimationFrame(updateDebug);
-  }
-  requestAnimationFrame(updateDebug);
-  // ===== デバッグここまで ===== //
 })();
 
 // ===== YOUR FUTUREパーティクル =====
