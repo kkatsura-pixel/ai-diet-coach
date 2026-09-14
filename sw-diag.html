@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SW更新検知 診断ページ</title>
+<style>
+body{font-family:-apple-system,sans-serif;background:#1a1208;color:#f0e5d8;margin:0;padding:16px;font-size:13px;}
+h1{font-size:15px;margin-bottom:4px;}
+.sub{font-size:11px;color:#c9a96e;margin-bottom:16px;}
+#log{white-space:pre-wrap;word-break:break-all;background:#000;border-radius:8px;padding:12px;line-height:1.7;font-family:ui-monospace,monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
+.row{display:flex;gap:8px;margin-bottom:12px;}
+button{flex:1;padding:12px;border:none;border-radius:6px;background:#7a4f35;color:#fff;font-size:13px;font-weight:600;}
+button.danger{background:#8b2b1a;}
+.state{background:#2a1c0f;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.8;}
+.state b{color:#c9a96e;}
+</style>
+</head>
+<body>
+<h1>SW更新検知 診断ページ</h1>
+<div class="sub">このページを ./sw-diag.html としてアップロードし、実機のホーム画面に追加せず直接Safariで開いて検証してください。ログは端末内に保存され、アプリを閉じても消えません。</div>
+
+<div class="state" id="state">読み込み中...</div>
+
+<div class="row">
+  <button onclick="clearLog()">ログを消去</button>
+  <button class="danger" onclick="location.reload()">今すぐ再読み込み</button>
+</div>
+
+<div id="log">（ログなし）</div>
+
+<script>
+const LOG_KEY = 'sw_diag_log';
+
+function nowStr(){
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
+}
+function log(msg){
+  const lines = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+  lines.push(nowStr()+' — '+msg);
+  if(lines.length > 200) lines.shift();
+  localStorage.setItem(LOG_KEY, JSON.stringify(lines));
+  render();
+}
+function render(){
+  const lines = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+  document.getElementById('log').textContent = lines.length ? lines.join('\n') : '（ログなし）';
+  document.getElementById('log').scrollTop = document.getElementById('log').scrollHeight;
+}
+function clearLog(){
+  localStorage.removeItem(LOG_KEY);
+  render();
+}
+function renderState(){
+  const pending = localStorage.getItem('sw_diag_pending') || '(なし)';
+  const bgAt = sessionStorage.getItem('sw_diag_bg_at');
+  const el = document.getElementById('state');
+  el.innerHTML =
+    '<b>sw_diag_pending:</b> ' + pending + '<br>' +
+    '<b>controller有無（起動時）:</b> ' + (window._hadControllerAtLoad === undefined ? '(未計測)' : window._hadControllerAtLoad) + '<br>' +
+    '<b>このタブのbg退避時刻:</b> ' + (bgAt || '(なし)');
+}
+
+log('=== ページ読み込み (load) ===');
+
+if (!('serviceWorker' in navigator)) {
+  log('このブラウザはServiceWorker非対応');
+} else {
+  window._hadControllerAtLoad = !!navigator.serviceWorker.controller;
+  log('登録前のcontroller有無: ' + window._hadControllerAtLoad);
+
+  if (localStorage.getItem('sw_diag_pending') === '1') {
+    log('★ pendingフラグ=1 を検出 → 本番ならここでバナー表示');
+  }
+
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+    log('register() 成功。scope=' + reg.scope);
+    log('登録直後のreg.installing=' + !!reg.installing + ' / waiting=' + !!reg.waiting + ' / active=' + !!reg.active);
+
+    reg.addEventListener('updatefound', () => {
+      log('★ updatefound イベント発火');
+      const nw = reg.installing;
+      if (!nw) { log('installingが取得できず'); return; }
+      log('新workerのscriptURL=' + nw.scriptURL);
+      nw.addEventListener('statechange', () => {
+        log('新workerのstate変化: ' + nw.state);
+        if (nw.state === 'activated') {
+          if (window._hadControllerAtLoad) {
+            localStorage.setItem('sw_diag_pending', '1');
+            log('★★ pendingフラグを1に設定しました（次回起動でバナー相当）');
+          } else {
+            log('（初回インストール扱いのためpendingは立てない）');
+          }
+          renderState();
+        }
+      });
+    });
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      log('★★★ controllerchange イベント発火（新SWが制御を開始した確定の瞬間）');
+    });
+
+    reg.update().then(() => log('reg.update() 呼び出し完了')).catch(e => log('reg.update() エラー: ' + e));
+  }).catch(e => log('register() 失敗: ' + e));
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    sessionStorage.setItem('sw_diag_bg_at', String(Date.now()));
+    log('画面が非表示に（バックグラウンド退避）');
+  } else if (document.visibilityState === 'visible') {
+    const bgAt = parseInt(sessionStorage.getItem('sw_diag_bg_at')||'0', 10);
+    const elapsed = bgAt ? Date.now() - bgAt : 0;
+    log('画面が表示に復帰。バックグラウンド経過: ' + Math.round(elapsed/1000) + '秒');
+    if (localStorage.getItem('sw_diag_pending') === '1') {
+      log('★ 復帰時点でpendingフラグ=1 → 本番ならここでバナー表示');
+    }
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) { reg.update().then(()=>log('復帰時のreg.update()完了')); }
+      });
+    }
+  }
+});
+
+renderState();
+</script>
+</body>
+</html>
