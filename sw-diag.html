@@ -74,7 +74,7 @@ if (!('serviceWorker' in navigator)) {
     log('★ pendingフラグ=1 を検出 → 本番ならここでバナー表示');
   }
 
-  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+  navigator.serviceWorker.register('./sw-diag-worker.js', { updateViaCache: 'none' }).then(reg => {
     log('register() 成功。scope=' + reg.scope);
     log('登録直後のreg.installing=' + !!reg.installing + ' / waiting=' + !!reg.waiting + ' / active=' + !!reg.active);
 
