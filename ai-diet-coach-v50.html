@@ -37,6 +37,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
 .drawer-dot{width:7px;height:7px;border-radius:50%;background:#d0c4ba;flex-shrink:0;}
 .drawer-dot.done{background:#7a4f35;}
 .drawer-close{padding:12px 20px;font-size:12px;color:#aaa;text-align:right;background:#faf8f5;cursor:pointer;}
+.drawer-group-lbl{padding:10px 20px 4px;font-size:10px;font-weight:700;color:#a8843a;letter-spacing:0.08em;background:#faf8f5;}
 
 .view{display:none;width:100%;max-width:100%;padding:0;}
 .view.on{display:block;}
@@ -501,10 +502,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI"
       <div class="logo" id="drawer-logo-img"></div>
       <div><div class="drawer-hdr-t1">AI Diet Coach</div><div class="drawer-hdr-t2">POWERED BY THE LOOP</div></div>
     </div>
-    <div class="drawer-item" id="di-setup1" onclick="showView('setup1',null);closeDrawer()"><div class="drawer-dot" id="dd1"></div>① プロフィール</div>
-    <div class="drawer-item" id="di-setup2" onclick="showView('setup2',null);closeDrawer()"><div class="drawer-dot" id="dd2"></div>② 目標設定</div>
+    <div class="drawer-group-lbl">設定ページ</div>
+    <div class="drawer-item" id="di-setup1" onclick="showView('setup1',null);closeDrawer()"><div class="drawer-dot" id="dd1"></div>① プロフィール入力</div>
+    <div class="drawer-item" id="di-setup2" onclick="showView('setup2',null);closeDrawer()"><div class="drawer-dot" id="dd2"></div>② 目標</div>
     <div class="drawer-item" id="di-setup3" onclick="showView('setup3',null);closeDrawer()"><div class="drawer-dot" id="dd3"></div>③ 週間ルール</div>
-    <div class="drawer-item" id="di-main" onclick="showView('main',null);closeDrawer()"><div class="drawer-dot done"></div>メインページ</div>
+    <div class="drawer-group-lbl">メインページ</div>
+    <div class="drawer-item" id="di-main-today" onclick="openMainTab('today');closeDrawer()"><div class="drawer-dot done"></div>① 今日の入力</div>
+    <div class="drawer-item" id="di-main-report" onclick="openMainTab('report');closeDrawer()"><div class="drawer-dot done"></div>② AIレポート</div>
+    <div class="drawer-item" id="di-main-profile" onclick="openMainTab('profile');closeDrawer()"><div class="drawer-dot done"></div>③ プロフィール</div>
     <div class="drawer-item" id="di-guide" onclick="showView('guide',null);closeDrawer()"><div class="drawer-dot done"></div>使い方ガイド</div>
     <div class="drawer-item" id="di-basics" onclick="showView('basics',null);closeDrawer()"><div class="drawer-dot done"></div>基礎知識</div>
     <div class="drawer-item" id="di-backup" onclick="openBackupFromMenu()"><div class="drawer-dot done"></div>データを守る</div>
@@ -2407,6 +2412,14 @@ function showView(view, btn) {
   if(view==='setup3') { loadRulesForm(); }
   if(view==='guide') { renderGuideFaq(); }
   window.scrollTo(0,0);
+}
+
+// ドロワーメニューから、メインアプリの特定タブへ直接遷移する
+function openMainTab(name) {
+  showView('main', null);
+  const idx = {today:0, report:1, profile:2}[name];
+  const btn = document.querySelectorAll('#view-main .tab')[idx];
+  if(btn) swTab(name, btn);
 }
 
 // ===== タブ切り替え =====
