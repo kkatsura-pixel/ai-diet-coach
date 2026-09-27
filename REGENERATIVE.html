@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REGENERATIVE Insight</title>
+<meta name="apple-mobile-web-app-title" content="REGENERATIVE Insight">
+<link rel="apple-touch-icon" href="./icon-regen.png">
+<link rel="icon" href="./icon-regen.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@200;300;400&family=Noto+Sans+JP:wght@200;300&display=swap');
+html, body { height: 100%; margin: 0; overflow: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+#app { font-family: 'Noto Serif JP', serif; font-weight: 300; background: #faf8f5; min-height: 100vh; color: #0e0c08; letter-spacing: 0.05em; }
+#app::before { display: none; }
+.screen { display: none; flex-direction: column; height: 100vh; overflow-y: auto; position: relative; z-index: 1; }
+.screen.active { display: flex; }
+#screen-top { position:relative; filter: contrast(0.94); align-items: center; justify-content: flex-end; text-align: center; padding: 56px 40px 100px; gap: 0; overflow: hidden; }
+#screen-top .bg-video { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:0; }
+#screen-top .bg-video.is-visible { opacity:1; }
+#screen-top > *:not(.bg-video) { position:relative; z-index:1; }
+html.line-app #screen-top { padding-bottom: 64px; }
+.top-logo-wrap { margin-bottom: 20px; }
+.top-logo { width: 200px; height: 200px; object-fit: contain; opacity: 0.95; }
+.brand { font-family: 'Cormorant Garamond', serif; font-size: 10px; letter-spacing: 0.4em; color: #2a2018; margin-bottom: 24px; font-weight: 400; text-transform: uppercase; }
+.top-regen { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 500; letter-spacing: 0.22em; color: #1a1408; margin-bottom: 20px; line-height: 1; }
+.top-divider-line { width: 36px; height: 1px; background: #b8b098; margin: 0 auto 20px; }
+.top-jissei { font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 200; letter-spacing: 0.5em; color: #2a2018; margin-bottom: 32px; }
+.top-catchcopy { font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 200; line-height: 2.8; color: #2a2018; letter-spacing: 0.12em; margin-bottom: 48px; text-shadow: 0 0 1.5px #2a2418, 0 0 3px rgba(42,36,24,0.3); }
+.btn-start { border: 1px solid #fff; color: #2a2018; background: rgba(255,255,255,0.88); padding: 15px 48px; font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.3em; cursor: pointer; font-weight: 400; transition: all 0.4s; display: inline-block; box-shadow: 0 4px 20px rgba(0,0,0,0.15); backdrop-filter: blur(4px); }
+.btn-start:hover { background: #fff; border-color: #fff; color: #0e0c08; }
+#screen-concept { background: transparent; align-items: center; justify-content: center; padding: 80px 40px; gap: 0; }
+.concept-line { font-family: 'Noto Serif JP', serif; font-size: 15px; font-weight: 200; line-height: 1; color: #2a2418; letter-spacing: 0.14em; padding: 22px 0; border-bottom: 1px solid #cdc8bc; opacity: 0; transform: translateY(8px); transition: all 0.65s ease; text-align: center; width: 100%; }
+.concept-line:first-child { border-top: 1px solid #cdc8bc; }
+.concept-line.show { opacity: 1; transform: translateY(0); }
+.concept-btn-wrap { margin-top: 56px; text-align: center; }
+.btn-ghost { border: 1px solid #a09880; color: #4a4030; background: transparent; padding: 13px 36px; font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.25em; cursor: pointer; font-weight: 300; transition: all 0.3s; display: inline-block; }
+.btn-ghost:hover { border-color: #4a4030; color: #1c1810; }
+.q-screen { background: transparent; padding: 52px 36px 40px; flex: 1; flex-direction: column; }
+#screen-q1 { background: linear-gradient(rgba(250,248,244,0.23), rgba(250,248,244,0.23)), url('IMG_3105.jpg') no-repeat center center / cover; }
+#screen-q2 { background: linear-gradient(rgba(250,248,244,0.23), rgba(250,248,244,0.23)), url('IMG_3112.jpg') no-repeat center center / cover; }
+#screen-q3 { background: linear-gradient(rgba(250,248,244,0.23), rgba(250,248,244,0.23)), url('IMG_3106.jpg') no-repeat center center / cover; }
+#screen-q5 { background: linear-gradient(rgba(250,248,244,0.23), rgba(250,248,244,0.23)), url('IMG_3107.jpg') no-repeat center center / cover; }
+.q-step { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 0.3em; color: #000; font-weight: 600; margin-bottom: 32px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,1), 0 0 4px rgba(255,255,255,1), 0 1px 2px rgba(255,255,255,1); }
+.q-title { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; color: #000; letter-spacing: 0.1em; margin-bottom: 40px; line-height: 2.0; text-shadow: 0 0 12px rgba(255,255,255,1), 0 0 5px rgba(255,255,255,1), 0 1px 3px rgba(255,255,255,1); }
+.q-options { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.q-option { border: none; border-bottom: 1px solid #a89e8c; background: rgba(250,248,244,0.94); padding: 17px 20px; cursor: pointer; text-align: left; transition: all 0.25s; display: flex; flex-direction: column; gap: 5px; backdrop-filter: blur(3px); box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.q-option:hover { border-color: #8a8270; background: #e8e4dc; }
+.q-option.selected { border-color: #2a2018; background: #d8d2c4; box-shadow: inset 4px 0 0 #2a2018; }
+.q-option.selected .opt-main { color: #0e0c08; font-weight: 400; }
+.q-option.selected .opt-sub { color: #3a3228; }
+.opt-main { font-family: 'Noto Serif JP', serif; font-size: 15px; font-weight: 600; color: #000; letter-spacing: 0.08em; transition: all 0.25s; }
+.opt-sub { font-family: 'Noto Sans JP', sans-serif; font-size: 11px; font-weight: 500; color: #1a1408; letter-spacing: 0.04em; }
+.q-nav { margin-top: 32px; text-align: right; }
+#screen-loading { background: linear-gradient(rgba(250,248,244,0.23), rgba(250,248,244,0.23)), url('IMG_3111.jpg') no-repeat center center / cover; align-items: center; justify-content: center; flex-direction: column; gap: 24px; }
+.loading-mark { font-family: 'Cormorant Garamond', serif; font-size: 56px; color: #2a2018; letter-spacing: 0.2em; animation: pulse 2s ease-in-out infinite; text-shadow: 0 2px 8px rgba(255,255,255,0.9), 0 2px 8px rgba(255,255,255,0.9); }
+.loading-text { font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600; color: #000; letter-spacing: 0.2em; text-shadow: 0 0 10px rgba(255,255,255,1), 0 0 4px rgba(255,255,255,1), 0 1px 2px rgba(255,255,255,1); }
+@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+#screen-vitalscan { background: linear-gradient(rgba(250,248,244,0.23), rgba(250,248,244,0.23)), url('IMG_3111.jpg') no-repeat center center / cover; align-items: center; justify-content: center; flex-direction: column; gap: 24px; padding: 40px 28px; }
+.vs-title { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:700; letter-spacing:0.3em; color:#000; text-transform:uppercase; -webkit-text-stroke:0.4px #000; position:relative; top:-6px; text-shadow:0 0 4px rgba(255,255,255,1), 0 0 10px rgba(255,255,255,1), 0 0 16px rgba(255,255,255,0.95), 0 0 24px rgba(255,255,255,0.8); margin:0; }
+.vs-sub { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:300; color:#000; letter-spacing:0.15em; text-shadow:0 0 3px rgba(255,255,255,1), 0 0 8px rgba(255,255,255,1), 0 0 12px rgba(255,255,255,0.85); margin:-20px 0 0; }
+.vs-ring-wrap { position:relative; width:200px; height:200px; }
+.vs-ring-wrap > svg { position:absolute; top:0; left:0; filter:drop-shadow(0 0 3px rgba(255,255,255,1)) drop-shadow(0 0 8px rgba(255,255,255,0.9)); }
+.vs-finger-area { position:absolute; top:50%; left:50%; width:120px; height:130px; transform:translate(-50%,-50%); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.vs-finger-label { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:'Noto Serif JP',serif; font-size:10px; font-weight:400; color:#000; letter-spacing:0.15em; white-space:nowrap; }
+.vs-vital-score { position:absolute; top:calc(50% - 20px); left:50%; transform:translate(-50%,-50%); font-family:'Noto Serif JP',serif; font-size:13px; font-weight:400; color:#000; letter-spacing:0.15em; white-space:nowrap; min-height:1em; }
+.vs-finger-icon { position:absolute; top:calc(50% + 4px); left:50%; transform:translate(-50%,0); display:flex; filter:drop-shadow(0 0 3px rgba(255,255,255,1)) drop-shadow(0 0 8px rgba(255,255,255,0.9)); }
+.vs-wave-svg { filter:drop-shadow(0 0 3px rgba(255,255,255,1)) drop-shadow(0 0 8px rgba(255,255,255,0.9)); }
+.loading-fallback-btn { border:none; border-bottom:1px solid #a89e8c; background:rgba(250,248,244,0.94); padding:14px 40px; cursor:pointer; transition:all 0.25s; box-shadow:0 2px 10px rgba(0,0,0,0.08); backdrop-filter:blur(3px); font-family:'Noto Serif JP',serif; font-size:15px; font-weight:600; color:#000; letter-spacing:0.08em; text-align:center; display:none; }
+.loading-fallback-btn:hover { border-color:#8a8270; background:#e8e4dc; }
+@keyframes bgBreathe { 0%,100%{opacity:0.30;} 50%{opacity:0.47;} }
+@keyframes ringGlow { 0%,100%{stroke-opacity:0.4;} 50%{stroke-opacity:1;} }
+#screen-result { background: transparent; padding: 52px 36px 48px; flex: 1; flex-direction: column; }
+.result-brand { font-family: 'Cormorant Garamond', serif; font-size: 27px; font-weight: 700; letter-spacing: 0.3em; line-height: 1.35; color: #1a1408; margin-bottom: 10px; text-transform: uppercase; }
+.result-title-line { width: 32px; height: 1px; background: #b8b098; margin-bottom: 36px; }
+.result-cond-label { font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 800; letter-spacing: 0.3em; color: #3a3228; margin-bottom: 12px; text-transform: uppercase; }
+.result-summary { font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 200; line-height: 1.8; color: #0e0c08; margin-bottom: 40px; letter-spacing: 0.08em; padding-bottom: 36px; border-bottom: 1px solid #cdc8bc; }
+.result-block { margin-bottom: 32px; }
+.result-block-label { font-family: 'Cormorant Garamond', serif; font-size: 19px; letter-spacing: 0.35em; color: #a17d0e; margin-bottom: 12px; margin-top: 20px; text-transform: uppercase; border-left: 2px solid #2a2018; padding-left: 16px; font-weight: 900; }
+.result-block-body { font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 600; line-height: 2.4; color: #1a1408; letter-spacing: 0.07em; }
+.result-block-body strong { display: block; margin-top: 16px; margin-bottom: 15px; }
+.result-evidence-wrap { margin-top: 24px; margin-bottom: 36px; padding: 20px 20px 20px 24px; border-left: 2px solid #b8b098; background: rgba(232,228,220,0.75); }
+.result-evidence-label { font-family: 'Cormorant Garamond', serif; font-size: 9px; letter-spacing: 0.35em; color: #1a1408; margin-bottom: 10px; text-transform: uppercase; }
+.result-evidence-body { font-family: 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 200; line-height: 2.2; color: #0e0c08; letter-spacing: 0.04em; }
+.result-evidence-body strong { display: block; margin-bottom: 8px; }
+.result-closing { font-family: 'Noto Serif JP', serif; font-size: 13px; font-weight: 700; color: #0e0c08; letter-spacing: 0.18em; margin-bottom: 80px; text-align: center; }
+.result-btns { display: flex; flex-direction: column; gap: 12px; }
+.btn-primary { border: 1px solid #2a2018; color: #000; background: transparent; padding: 17px; font-family: 'Cormorant Garamond', serif; font-size: 14px; letter-spacing: 0.3em; cursor: pointer; font-weight: 700; transition: all 0.35s; text-transform: uppercase; display: block; width: 100%; }
+.btn-primary:hover { background: rgba(90,80,60,0.06); border-color: #2a2418; color: #0e0c08; }
+.btn-secondary { border: 1px solid #8a8270; color: #0e0c08; background: transparent; padding: 14px; font-family: 'Cormorant Garamond', serif; font-size: 12px; letter-spacing: 0.3em; cursor: pointer; font-weight: 700; transition: all 0.3s; text-transform: uppercase; display: block; width: 100%; }
+.btn-secondary:hover { border-color: #4a4038; color: #2a2018; }
+.result-scores { display: flex; justify-content: space-around; align-items: center; padding: 48px 0 42px; border-bottom: 1px solid #a89e88; margin-bottom: 40px; }
+.score-label { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 0.35em; color: #0a0806; text-transform: uppercase; font-weight: 900; }
+.score-ring { width: 70px; height: 70px; }
+.btn-detail { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:0.2em; color:#2a2018; font-weight:700; background:transparent; border:none; cursor:pointer; padding:0; display:block; margin-top:16px; }
+.btn-detail.is-closed { background:rgba(161,125,14,0.08); border-left:2px solid #a17d0e; padding:10px 16px; display:inline-block; }
+.result-block-expand { display:none; margin-top:16px; padding:20px 20px 20px 24px; border-left:2px solid #a17d0e; background:rgba(161,125,14,0.08); font-family:'Noto Sans JP',sans-serif; font-size:12px; font-weight:600; line-height:2.2; color:#1a1610; }
+.result-block-expand.open { display:block; }
+.score-number { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: #0a0806; letter-spacing: 0.1em; }
+.sound-divider{border:none;border-top:1px solid rgba(26,20,8,0.15);margin:20px 0 18px;}
+.sound-label{display:flex;align-items:center;gap:8px;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:0.3em;color:#a17d0e;margin-bottom:12px;text-transform:uppercase;font-weight:700;}
+.sound-label .bar{width:2px;height:14px;background:#a17d0e;display:inline-block;}
+.sound-caption{font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:600;line-height:2.2;color:#0e0c08;letter-spacing:0.04em;margin-bottom:16px;}
+.track-card{display:flex;align-items:center;gap:14px;border:1px solid rgba(26,20,8,0.15);background:rgba(255,255,255,0.45);padding:14px;}
+.track-thumb{width:50px;height:50px;flex:0 0 50px;background:linear-gradient(145deg,#c2a25f,#8a6a12);display:flex;align-items:center;justify-content:center;color:#faf8f5;font-size:18px;}
+.track-info{flex:1;min-width:0;}
+.track-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:0.2em;color:#a17d0e;text-transform:uppercase;margin-bottom:3px;}
+.track-title{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:400;color:#1a1408;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.track-artist{font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:200;color:#5a5040;margin-top:2px;}
+.track-play{width:34px;height:34px;border-radius:50%;flex:0 0 34px;background:#1a1408;color:#faf8f5;display:flex;align-items:center;justify-content:center;font-size:11px;padding-left:2px;text-decoration:none;}
+</style>
+<script>
+if(navigator.userAgent.indexOf('Line')!==-1){
+document.documentElement.classList.add('line-app');
+function setLineScreenHeight(){
+document.querySelectorAll('.screen').forEach(function(el){ el.style.height = window.innerHeight + 'px'; });
+}
+window.addEventListener('load', setLineScreenHeight);
+window.addEventListener('resize', setLineScreenHeight);
+setLineScreenHeight();
+}
+</script>
+</head>
+<body>
+<div id="app">
+<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:url('IMG_0952.png') no-repeat center top / cover;opacity:0.35;z-index:0;pointer-events:none;animation:bgBreathe 6s ease-in-out infinite;"></div>
+<h2 style="position:absolute;left:-9999px;font-size:1px">Social Wellness Club LOOP</h2>
+
+<div id="screen-top" class="screen active">
+<video id="top-video-a" class="bg-video is-visible" src="top-video-forward.mp4" poster="top-video-poster.jpg" autoplay muted playsinline preload="auto"></video>
+<video id="top-video-b" class="bg-video" src="top-video-reverse.mp4" muted playsinline preload="auto"></video>
+<button class="btn-start" onclick="goTo('q1')">Check Start →</button>
+</div>
+
+<div id="screen-q1" class="screen q-screen">
+<p class="q-step">Q1 / 4</p>
+<p class="q-title">今、優先したいテーマは？</p>
+<div class="q-options">
+<button class="q-option" onclick="selectQ('q1','姿勢・コンディション',this)"><span class="opt-main">姿勢・コンディション</span><span class="opt-sub">バランスを整える</span></button>
+<button class="q-option" onclick="selectQ('q1','ビューティー',this)"><span class="opt-main">ビューティー</span><span class="opt-sub">内側から輝く</span></button>
+<button class="q-option" onclick="selectQ('q1','ボディメイク・ダイエット',this)"><span class="opt-main">ボディメイク・ダイエット</span><span class="opt-sub">ラインをつくる</span></button>
+<button class="q-option" onclick="selectQ('q1','メンタル',this)"><span class="opt-main">メンタル</span><span class="opt-sub">リズムを整える</span></button>
+</div>
+</div>
+
+<div id="screen-q2" class="screen q-screen">
+<p class="q-step">Q2 / 4</p>
+<p class="q-title">最近のコンディションは？</p>
+<div class="q-options">
+<button class="q-option" onclick="selectQ('q2','良好・安定している',this)"><span class="opt-main">良好</span><span class="opt-sub">安定している</span></button>
+<button class="q-option" onclick="selectQ('q2','やや疲労・少し違和感',this)"><span class="opt-main">やや疲労</span><span class="opt-sub">少し違和感を感じる</span></button>
+<button class="q-option" onclick="selectQ('q2','疲れが続いている・滞り抜けにくい',this)"><span class="opt-main">疲れが続いている</span><span class="opt-sub">滞り抜けにくい状態</span></button>
+<button class="q-option" onclick="selectQ('q2','不安定・波がある',this)"><span class="opt-main">不安定</span><span class="opt-sub">波がある状態</span></button>
+</div>
+</div>
+
+<div id="screen-q3" class="screen q-screen">
+<p class="q-step">Q3 / 4</p>
+<p id="q3-title" class="q-title"></p>
+<div class="q-options" id="q3-options"></div>
+</div>
+
+<div id="screen-q5" class="screen q-screen">
+<p class="q-step">Q4 / 4</p>
+<p class="q-title">自分の時間、取れていますか？</p>
+<div class="q-options">
+<button class="q-option" onclick="selectQ('q5','十分取れている',this)"><span class="opt-main">十分取れている</span><span class="opt-sub">余白のある日々を送れている</span></button>
+<button class="q-option" onclick="selectQ('q5','少し足りない',this)"><span class="opt-main">少し足りない</span><span class="opt-sub">もう少し自分時間がほしい</span></button>
+<button class="q-option" onclick="selectQ('q5','ほとんど取れていない',this)"><span class="opt-main">ほとんど取れていない</span><span class="opt-sub">他のことで精一杯な状態</span></button>
+<button class="q-option" onclick="selectQ('q5','意識したことがなかった',this)"><span class="opt-main">意識したことがなかった</span><span class="opt-sub">自分時間という概念がなかった</span></button>
+</div>
+</div>
+
+<div id="screen-vitalscan" class="screen">
+<p class="vs-title">Vital Scan</p>
+<p class="vs-sub">人差し指を置いてください</p>
+<div class="vs-ring-wrap">
+<svg width="200" height="200" viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="1.5" style="filter:drop-shadow(0 0 3px rgba(20,16,10,0.35));"/>
+<circle id="vs-pr" cx="100" cy="100" r="88" fill="none" stroke="#8a6a12" stroke-width="2.5" stroke-dasharray="553" stroke-dashoffset="553" stroke-linecap="round" transform="rotate(-90 100 100)"/>
+</svg>
+<div class="vs-finger-area" id="vs-fbtn">
+<span id="vs-vitalScore" class="vs-vital-score"></span>
+<span id="vs-flabel" class="vs-finger-label">ここに置く</span>
+<div class="vs-finger-icon">
+<svg width="34" height="40" viewBox="0 0 40 48" fill="none">
+<path d="M20 6C20 6 20 4 18 4C16 4 16 6 16 6V24C16 24 14 22 12 22C10 22 9 24 10 26L16 36C17 38 19 40 22 40H26C30 40 32 36 32 32V16C32 16 32 14 30 14C28 14 28 16 28 16V20C28 20 28 18 26 18C24 18 24 20 24 20V16C24 16 24 14 22 14C20 14 20 16 20 16V6Z" stroke="#8a6a12" stroke-width="1.2" stroke-linejoin="round"/>
+</svg>
+</div>
+</div>
+</div>
+<svg class="vs-wave-svg" width="320" height="60" viewBox="0 0 320 60">
+<path id="vs-wp" d="M0,30 L320,30" fill="none" stroke="#8a6a12" stroke-width="1.8" opacity="1"/>
+</svg>
+</div>
+
+<div id="screen-loading" class="screen">
+<p class="loading-mark">∿</p>
+<p id="loading-text" class="loading-text" style="line-height:2.8;text-align:center;">あなたの今を、静かに読み取りながら<br>あなただけのinsightを、ひもといています</p>
+<button id="loading-fallback-btn" class="loading-fallback-btn" onclick="recheck()">Recheck</button>
+</div>
+
+<div id="screen-result" class="screen">
+<p class="result-brand">Regenerative<br>Insight</p>
+<p class="result-cond-label" style="margin-top:36px;">今日のリズム</p><div id="moon-phase-wrap" style="display:flex;align-items:center;gap:10px;margin-top:16px;margin-bottom:4px;"><svg id="moon-svg" width="20" height="20" viewBox="0 0 22 22"></svg><span id="moon-name" style="font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:800;letter-spacing:0.25em;color:#0a0806;white-space:nowrap;flex-shrink:0;"></span><span style="color:#8a8270;font-size:10px;">·</span><span id="moon-message" style="font-family:'Noto Serif JP',serif;font-size:11px;font-weight:800;color:#1a1408;letter-spacing:0.05em;"></span></div><div id="element-wrap" style="display:flex;align-items:center;gap:10px;margin-top:8px;margin-bottom:4px;"><svg id="element-svg" width="20" height="20" viewBox="0 0 22 22"></svg><span id="element-name-en" style="font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:800;letter-spacing:0.25em;color:#0a0806;white-space:nowrap;flex-shrink:0;"></span><span id="element-name-jp" style="font-family:'Noto Serif JP',serif;font-size:11px;font-weight:800;letter-spacing:0.15em;color:#0a0806;white-space:nowrap;flex-shrink:0;"></span><span style="color:#8a8270;font-size:10px;">·</span><span id="element-message" style="font-family:'Noto Serif JP',serif;font-size:11px;font-weight:800;color:#1a1408;letter-spacing:0.05em;"></span></div>
+
+<div class="result-scores"><div class="score-item" style="display:flex;flex-direction:column;align-items:center;gap:14px;"><p class="score-label" style="color:#0a0806;">Energy</p><svg class="score-ring" viewBox="0 0 70 70"><circle cx="35" cy="35" r="28" fill="none" stroke="#c2bcb0" stroke-width="1.5"/><circle id="ring-energy" cx="35" cy="35" r="28" fill="none" stroke="#a8855a" stroke-width="2.5" stroke-dasharray="0 176" transform="rotate(-90 35 35)" style="animation:ringGlow 3s ease-in-out infinite;"/><text id="num-energy" x="35" y="40" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="18" font-weight="800" fill="#0a0806">—</text></svg></div><div class="score-item" style="display:flex;flex-direction:column;align-items:center;gap:14px;"><p class="score-label" style="color:#0a0806;">Mind</p><svg class="score-ring" viewBox="0 0 70 70"><circle cx="35" cy="35" r="28" fill="none" stroke="#c2bcb0" stroke-width="1.5"/><circle id="ring-mind" cx="35" cy="35" r="28" fill="none" stroke="#5a8a72" stroke-width="2.5" stroke-dasharray="0 176" transform="rotate(-90 35 35)" style="animation:ringGlow 3s ease-in-out infinite;"/><text id="num-mind" x="35" y="40" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="18" font-weight="800" fill="#0a0806">—</text></svg></div><div class="score-item" style="display:flex;flex-direction:column;align-items:center;gap:14px;"><p class="score-label" style="color:#0a0806;">Flow</p><svg class="score-ring" viewBox="0 0 70 70"><circle cx="35" cy="35" r="28" fill="none" stroke="#c2bcb0" stroke-width="1.5"/><circle id="ring-flow" cx="35" cy="35" r="28" fill="none" stroke="#6a8aa8" stroke-width="2.5" stroke-dasharray="0 176" transform="rotate(-90 35 35)" style="animation:ringGlow 3s ease-in-out infinite;"/><text id="num-flow" x="35" y="40" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="18" font-weight="800" fill="#0a0806">—</text></svg></div></div>
+
+<div class="result-block" id="block-sensory" style="opacity:0;transform:translateY(20px);transition:all 0.6s ease;text-align:center;"><p class="result-block-label" style="text-align:center;border-left:none;padding-left:0;letter-spacing:0.35em;color:#a17d0e;font-weight:900;font-size:19px;">Sensory</p><p id="result-sensory" class="result-block-body" style="margin-top:8px;letter-spacing:0.18em;text-align:center;color:#1a1610;font-weight:200;text-shadow:0 0 1.5px #2a2418, 0 0 3px rgba(42,36,24,0.3);"></p></div>
+
+<img src="IMG_3122.png" style="width:80%;height:auto;margin-left:auto;display:block;margin-top:40px;margin-bottom:8px;">
+
+<div class="result-block" id="block-insight" style="opacity:0;transform:translateY(20px);transition:all 0.6s ease 0.1s;"><p class="result-block-label">Insight</p><p id="result-insight-title" class="result-block-body" style="font-weight:700;margin-top:8px;"></p><button class="btn-detail is-closed" id="btn-insight" onclick="toggleBlock('insight')">詳しく見る→</button><div id="result-insight" class="result-block-body result-block-expand"></div></div>
+
+<img src="IMG_3123.png" style="width:80%;height:auto;margin-right:auto;display:block;margin-top:40px;margin-bottom:8px;">
+
+<div class="result-block" id="block-evidence" style="opacity:0;transform:translateY(20px);transition:all 0.6s ease 0.2s;"><p class="result-block-label">Evidence</p><p id="result-evidence-title" class="result-block-body" style="font-weight:700;margin-top:8px;"></p><button class="btn-detail is-closed" id="btn-evidence" onclick="toggleBlock('evidence')">詳しく見る→</button><p id="result-evidence" class="result-block-body result-block-expand"></p></div>
+
+<img src="IMG_3102.png" style="width:80%;height:auto;margin-left:auto;display:block;margin-top:40px;margin-bottom:8px;">
+
+<div class="result-block" id="block-action" style="opacity:0;transform:translateY(20px);transition:all 0.6s ease 0.3s;"><p class="result-block-label">Action</p><p id="result-action-title" class="result-block-body" style="font-weight:700;margin-top:8px;"></p><button class="btn-detail is-closed" id="btn-action" onclick="toggleBlock('action')">詳しく見る→</button><p id="result-action" class="result-block-body result-block-expand"></p></div>
+
+<img src="IMG_3101.png" style="width:80%;height:auto;margin-right:auto;display:block;margin-top:40px;margin-bottom:8px;">
+
+<div class="result-block" id="block-recipe" style="opacity:0;transform:translateY(20px);transition:all 0.6s ease 0.4s;margin-bottom:80px;"><p class="result-block-label">Recipe</p><p id="result-recipe-title" class="result-block-body" style="font-weight:700;margin-top:8px;"></p><button class="btn-detail is-closed" id="btn-recipe" onclick="toggleBlock('recipe')">詳しく見る→</button><div id="result-recipe" class="result-block-body result-block-expand"></div></div>
+
+<p class="result-closing">「整える」小さな一歩から</p>
+
+<div class="result-btns">
+<a class="btn-primary" href="https://lin.ee/tClBpeN" target="_blank" style="text-decoration:none;display:block;text-align:center;">Next Action</a>
+<button class="btn-secondary" onclick="recheck()">Recheck</button>
+</div>
+
+</div>
+</div>
+
+<script>
+function toggleBlock(id){var body=document.getElementById('result-'+id);var btn=document.getElementById('btn-'+id);var opening=!body.classList.contains('open');body.classList.toggle('open');if(opening){btn.textContent='閉じる';btn.classList.remove('is-closed');}else{btn.textContent='詳しく見る→';btn.classList.add('is-closed');}var blocks=['insight','action','evidence','recipe'];blocks.forEach(function(b){if(b!==id){var el=document.getElementById('result-'+b);var bb=document.getElementById('btn-'+b);if(el&&el.classList.contains('open')){el.classList.remove('open');if(bb){bb.textContent='詳しく見る→';bb.classList.add('is-closed');}}}});}
+
+function getSeason(month){
+if(month>=2&&month<=4)return '春';
+if(month>=5&&month<=7)return '夏';
+if(month>=8&&month<=10)return '秋';
+return '冬';
+}
+function getTimeOfDay(hour){
+if(hour>=5&&hour<10)return '朝';
+if(hour>=10&&hour<14)return '昼';
+if(hour>=14&&hour<18)return '午後';
+if(hour>=18&&hour<22)return '夜';
+return '深夜';
+}
+function getMoonPhase(){
+var now=new Date();
+var known=new Date(2000,0,6);
+var diff=now-known;
+var days=diff/(1000*60*60*24);
+var phase=days%29.53;
+if(phase<0)phase+=29.53;
+if(phase<1.85)return{name:'NEW MOON',svg:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/>'};
+if(phase<7.38)return{name:'WAXING',svg:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><path d="M11,1 A10,10 0 0,1 11,21 A5,10 0 0,0 11,1" fill="#8a6a12"/>'};
+if(phase<14.77)return{name:'FULL MOON',svg:'<circle cx="11" cy="11" r="10" fill="#8a6a12"/>'};
+if(phase<22.15)return{name:'WANING',svg:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><path d="M11,1 A10,10 0 0,0 11,21 A5,10 0 0,1 11,1" fill="#8a6a12"/>'};
+return{name:'NEW MOON',svg:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/>'};
+}
+function getElement(){var now=new Date();var day=now.getDate();var elements=[{name:'WOOD',msg:['新しい芽吹きを、内側に感じて','静かな力が、内側にある','やわらかく、しなやかに伸びる']},{name:'FIRE',msg:['内なる熱を、静かに燃やす','光は、内側から生まれる','火のように、前へ向かう']},{name:'EARTH',msg:['地に足をつけ、内側を満たす','自分の中に、戻れる場所がある','大地に還る、ただそこにいる']},{name:'METAL',msg:['研ぎ澄まされた感覚で、今日を','手放すほど、本質が見えてくる','静けさの中に、輝きが宿る']},{name:'WATER',msg:['流れに委ねる、静かな循環を','深く、静かに、身体が満ちる','滞りが、静かにほどけていく']}];var el=elements[day%5];var msg=el.msg[day%3];return{name:el.name,msg:msg};}
+function getElementSvg(name){var svgs={WOOD:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><line x1="11" y1="17" x2="11" y2="6" stroke="#8a6a12" stroke-width="1.6"/><line x1="11" y1="10" x2="7" y2="7" stroke="#8a6a12" stroke-width="1.6"/><line x1="11" y1="13" x2="15" y2="10" stroke="#8a6a12" stroke-width="1.6"/>',FIRE:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><polygon points="11,5 17,17 5,17" fill="#8a6a12"/>',EARTH:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><rect x="5" y="11" width="12" height="7" fill="#8a6a12"/><polygon points="5,11 11,5 17,11" fill="#8a6a12"/>',METAL:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><polygon points="11,4 18,11 11,18 4,11" fill="#8a6a12"/>',WATER:'<circle cx="11" cy="11" r="10" fill="none" stroke="#8a6a12" stroke-width="1.4"/><path d="M4,13 Q7,8 11,13 Q15,18 18,13" fill="#8a6a12"/><path d="M4,9 Q7,4 11,9 Q15,14 18,9" fill="#8a6a12"/>'}; return svgs[name]||'';}
+
+var moodTracks = {
+ACTIVE:{jp:'律動',tracks:[
+{title:'Alone together',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/alone-together/1698082281?i=1698082295'},
+{title:'sunset waves',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/sunset-waves/1698082281?i=1698082300'},
+{title:'デイドリーム',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/デイドリーム/1677906930?i=1677906932'},
+{title:'春にして君を想う',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/春にして君を想う/1677906930?i=1677906933'},
+{title:'讃美歌ひとつ',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/讃美歌ひとつ/1698082281?i=1698082293'},
+{title:'haru',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/haru/1677906930?i=1677906931'},
+{title:'ハーフノート',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/ハーフノート/1677906930?i=1677906938'},
+{title:'Same Song (feat. LUCA)',artist:'orbe / haruka nakamura / 田辺玄 / LUCA',url:'https://music.apple.com/jp/album/same-song-feat-luca/1570780808?i=1570780811'},
+{title:'Lamp (feat. Nujabes)',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/lamp-feat-nujabes/1367831134?i=1367831136'},
+{title:'MELODICA (feat. ARAKI Shin)',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/melodica-feat-araki-shin/1367831134?i=1367831651'},
+{title:'arne',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/arne/1742659050?i=1742659339'},
+{title:'Another Lamp',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/another-lamp/1846131839?i=1846132114'},
+{title:'Today (vo.Meadow)',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/today-vo-meadow/1858138320?i=1858138325'}
+]},
+REST:{jp:'休息',tracks:[
+{title:'time space',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/time-space/1715276502?i=1715276504'},
+{title:'雨上がりの日に',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/雨上がりの日に/1715276502?i=1715277081'},
+{title:'LONG WAY',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/long-way/1715276502?i=1715276855'},
+{title:'星へ',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/星へ/1715276502?i=1715276853'},
+{title:'森の食卓',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/森の食卓/1715276502?i=1715276850'},
+{title:'over come',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/over-come/1715276502?i=1715276506'},
+{title:'birds sing piano',artist:'haruka nakamura',url:'https://music.apple.com/jp/song/birds-sing-piano/1715276857'}
+]},
+STILL:{jp:'静寂',tracks:[
+{title:'あくる日',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/あくる日/1505479919?i=1505479920'},
+{title:'ある光',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/ある光/1505479919?i=1505479921'},
+{title:'新しい朝',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/新しい朝/1505479919?i=1505479922'},
+{title:'春からの電話',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/春からの電話/1505479919?i=1505480136'},
+{title:'風が通り過ぎていく季節',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/風が通り過ぎていく季節/1505479919?i=1505480139'},
+{title:'うたかた',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/うたかた/1505479919?i=1505479923'},
+{title:'Fly',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/fly/1505479919?i=1505479925'},
+{title:'雨の日のために',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/雨の日のために/1505479919?i=1505480140'},
+{title:'17時と街',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/17時と街/1505479919?i=1505480143'}
+]},
+RENEW:{jp:'転換',tracks:[
+{title:'音楽のある風景',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/音楽のある風景/1544259766?i=1544259777'},
+{title:'CALL',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/call/948185070?i=948185084'},
+{title:'夕べの祈り',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/夕べの祈り/1544259766?i=1544259767'},
+{title:'BEAU PAYSAGE – Harvest Rain ver. – (feat. LUCA)',artist:'orbe / haruka nakamura / 田辺玄 / LUCA',url:'https://music.apple.com/jp/album/beau-paysage-harvest-rain-ver-feat-luca/1570780808?i=1570780812'},
+{title:'Reflection Eternal',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/reflection-eternal/1597702249?i=1597702260'},
+{title:'Memoria',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/memoria/1544259766?i=1544259772'},
+{title:'ベランダにて',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/ベランダにて/1544259766?i=1544259773'},
+{title:'窓辺',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/窓辺/1544259766?i=1544259771'},
+{title:'光 (feat. ASPIDISTRAFLY)',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/光-feat-aspidistrafly/1544259766?i=1544259781'},
+{title:'カーテンコール',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/カーテンコール/1544259766?i=1544259779'},
+{title:'still TRUCK',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/still-truck/1787679996?i=1787680002'},
+{title:'MONDAY FELT PIANO',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/monday-felt-piano/1787679996?i=1787680003'},
+{title:'小さな祈り',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/小さな祈り/1537548169?i=1537548171'},
+{title:'君の窓を開けて',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/君の窓を開けて/1537548169?i=1537548173'},
+{title:'凪',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/凪/1537548169?i=1537548175'},
+{title:'透きとおり、光るもの',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/透きとおり、光るもの/1537548169?i=1537548177'}
+]},
+CALM:{jp:'凪',tracks:[
+{title:'小さな夢',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/小さな夢/1706285641?i=1706285644'},
+{title:'森のピアノ 第三番',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/森のピアノ-第三番/1706285641?i=1706286503'},
+{title:'the window',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/the-window/1706285641?i=1706286346'},
+{title:'森のピアノ 第二番',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/森のピアノ-第二番/1706285641?i=1706286351'},
+{title:'森のピアノ 第一番',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/森のピアノ-第一番/1706285641?i=1706285646'},
+{title:'青い森',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/青い森/1706285641?i=1706285643'}
+]},
+TENDER:{jp:'慈しみ',tracks:[
+{title:'blue',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/blue/1745953031?i=1745953034'},
+{title:'white',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/white/1745953031?i=1745953038'},
+{title:'wonder',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/wonder/1745953031?i=1745953230'},
+{title:'true',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/true/1745953031?i=1745953037'},
+{title:'talk',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/talk/1745953031?i=1745953225'},
+{title:'lake',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/lake/1745953031?i=1745953231'},
+{title:'soil',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/soil/1745953031?i=1745953234'},
+{title:'space',artist:'haruka nakamura',url:'https://music.apple.com/jp/album/space/1745953031?i=1745953431'}
+]}
+};
+function pickMood(e,m,f){
+if(e>=70&&m>=70&&f>=70)return 'ACTIVE';
+if(e<40&&m<40&&f<40)return 'TENDER';
+var min=Math.min(e,m,f);
+var lowCount=[e,m,f].filter(function(v){return v===min;}).length;
+if(lowCount>=2)return 'RENEW';
+if(min===e)return 'REST';
+if(min===m)return 'CALM';
+return 'STILL';
+}
+function pickTrack(mood){
+var list=moodTracks[mood].tracks;
+return list[Math.floor(Math.random()*list.length)];
+}
+function buildSoundHtml(caption,mood){
+var t=pickTrack(mood);
+return '<hr class="sound-divider"><div class="sound-label"><span class="bar"></span>Sound</div><p class="sound-caption">'+caption+'</p><div class="track-card"><div class="track-thumb">♪</div><div class="track-info"><div class="track-tag">'+mood+' / '+moodTracks[mood].jp+'</div><div class="track-title">'+t.title+'</div><div class="track-artist">'+t.artist+'</div></div><a class="track-play" href="'+t.url+'" target="_blank" rel="noopener">▶</a></div>';
+}
+
+var state={q1:null,q2:null,q3:null,q4:null,q5:null};
+var q3Map={
+'姿勢・コンディション':{title:'どの部位に意識を向けますか？',opts:[{v:'首・頭まわり（こりや重さ）',m:'首・頭まわり',s:'こりや重さを感じる'},{v:'肩・肩甲骨（緊張や動かしにくさ）',m:'肩・肩甲骨',s:'緊張や動かしにくさ'},{v:'腰まわり（張りや違和感）',m:'腰まわり',s:'張りや違和感'},{v:'姿勢バランス（背中・骨盤）',m:'姿勢バランス',s:'背中・骨盤の整い'}]},
+'ビューティー':{title:'どの変化に意識を向けますか？',opts:[{v:'肌（乾燥・くすみ・ハリ・ツヤ）',m:'肌',s:'乾燥・くすみ・ハリ・ツヤ'},{v:'フェイスライン（印象・輪郭）',m:'フェイスライン',s:'印象・輪郭'},{v:'むくみ（巡り・すっきり感）',m:'むくみ',s:'巡り・すっきり感'},{v:'内側のバランス（栄養・コンディション）',m:'内側のバランス',s:'栄養・コンディション'}]},
+'ボディメイク・ダイエット':{title:'どのラインを整えたいですか？',opts:[{v:'ヒップ（引き上げ・安定）',m:'ヒップ',s:'引き上げ・安定'},{v:'ウエスト（くびれ・ライン）',m:'ウエスト',s:'くびれ・ライン'},{v:'二の腕（引き締め）',m:'二の腕',s:'引き締め'},{v:'全身バランス（体脂肪・シルエット）',m:'全身バランス',s:'体脂肪・シルエット'}]},
+'メンタル':{title:'今の状態に近いものは？',opts:[{v:'ストレスを感じる（緊張や負担）',m:'ストレスを感じる',s:'緊張や負担'},{v:'疲れが抜けにくい（回復しにくい）',m:'疲れが抜けにくい',s:'回復しにくい'},{v:'集中しにくい（思考の乱れ）',m:'集中しにくい',s:'思考の乱れ'},{v:'睡眠の質が低い（休息の浅さ）',m:'睡眠の質が低い',s:'休息の浅さ'}]}
+};
+
+(function(){
+var vA = document.getElementById('top-video-a');
+var vB = document.getElementById('top-video-b');
+if(!vA || !vB) return;
+vA.playbackRate = 0.9;
+vB.playbackRate = 0.9;
+function attachEnded(cur, nxt){
+cur.addEventListener('ended', function(){
+function onPlaying(){
+nxt.removeEventListener('playing', onPlaying);
+nxt.classList.add('is-visible');
+cur.classList.remove('is-visible');
+cur.pause();
+setTimeout(function(){ cur.currentTime = 0; }, 300);
+}
+setTimeout(function(){
+nxt.addEventListener('playing', onPlaying);
+nxt.play();
+}, 300);
+});
+}
+attachEnded(vA, vB);
+attachEnded(vB, vA);
+vB.play().then(function(){ vB.pause(); vB.currentTime = 0; }).catch(function(){});
+})();
+
+function goTo(s){
+document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');});
+document.getElementById('screen-'+s).classList.add('active');
+if(s==='q3')buildQ3();
+}
+function selectQ(q,val,el){
+state[q]=val;
+if(q==='q1')state.q3=null;
+el.closest('.q-options').querySelectorAll('.q-option').forEach(function(b){b.classList.remove('selected');});
+el.classList.add('selected');
+var btn=document.getElementById('btn-'+q+'-next');
+if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';}
+setTimeout(function(){if(q==='q1')goTo('q2');else if(q==='q2')goTo('q3');else if(q==='q3')goTo('q5');else if(q==='q5'){fetchResult();goTo('vitalscan');startVitalScan();}},400);}
+function buildQ3(){
+var d=q3Map[state.q1];
+if(!d)return;
+document.getElementById('q3-title').textContent=d.title;
+var c=document.getElementById('q3-options');
+c.innerHTML='';
+state.q3=null;
+d.opts.forEach(function(opt){
+var el=document.createElement('button');
+el.className='q-option';
+el.innerHTML='<span class="opt-main">'+opt.m+'</span><span class="opt-sub">'+opt.s+'</span>';
+el.onclick=function(){selectQ('q3',opt.v,el);};
+c.appendChild(el);
+});
+}
+
+var resultReady=false, resultData=null, resultFailed=false;
+async function fetchResult(){
+resultReady=false; resultData=null; resultFailed=false;
+var now=new Date();var season=getSeason(now.getMonth());var timeOfDay=getTimeOfDay(now.getHours());var moon=getMoonPhase();var element=getElement();
+var prompt = 'あなたはquiet luxury × sensory wellnessの世界観を持つウェルネスコーチです。これは健康管理アプリではなく、"静かな身体理解"を届けるラグジュアリーウェルネス体験です。Aesopのエディトリアルとして書く。同じ比喩・同じ構文を繰り返さない。断定しすぎない・診断口調NG・医療断定NG・不安訴求NG・テック感NG・スピリチュアル過多NG・ネガティブ表現NG・論文調NG・説教調NG・ポジティブで上品な言葉を選ぶ。\n\n全Layer共通ルール：です・ます調を基本とする・文の途中で自然な余韻を持たせてよい・「、」は全ての文で自然に使う・「。」は最後の文末のみ使用しない・体言止めを多用しない・コピーの断片ではなく自然な文章を書く・読み手に寄り添う温かい文章・短く余白のある文章・説明しすぎない\n\n現在の季節: '+season+'\n現在の時間帯: '+timeOfDay+'\n月のフェーズ: '+moon.name+'\nテーマ: '+state.q1+'\nコンディション: '+state.q2+'\n詳細: '+state.q3+'\n自分時間: '+state.q5+'\n\n以下のJSON形式のみで返答してください（他の文言一切不要）:\n{\n "sensory": "役割：没入。テイスト：空気・感覚。比率：80%感覚20%身体理解。余白・温度・重さ・流れ・静けさなど抽象的な言葉で1〜2文。",\n "insight_title": "役割：現状理解・現状認識。今の自分の身体で何が起きているかを静かに理解させる1行。それに関連する身体語（神経・ホルモン・筋肉・呼吸・体温など）を1つ自然に含める。読んだ瞬間に\'あ、だからか\'と腑に落ちる納得感。",\n "insight": "insight_titleの現状理解を深める具体的学びを2〜3行。",\n "evidence_title": "役割：信頼。テイスト：学び・知的。比率：20%感覚80%医科学。医科学理論と結果を結びつけた学びのある1行。最も知的で最も具体。",\n "evidence": "evidence_titleの理論を深める科学的裏付け。栄養素・筋肉・神経・研究領域など名詞を1つ自然に含める。2〜3行。",\n "action_title": "役割：変化実感。テイスト：実践・具体。比率：10%感覚90%実践。得られるベネフィットを先に示し動機付けになる1行。今すぐ身体変化が想像できる具体的解決法。",\n "action": "action_titleのベネフィットを実現する具体的行動。エクササイズ・ストレッチ・呼吸法・ボディケア・セラピー・食事など具体的な行動名を必ず1つ含む。回数・時間・食材名など数値や名称を含む。テーマに沿ったカテゴリから選ぶ。2〜3行。",\n "sound_caption": "役割：橋渡し。曲そのものの説明やジャンル名には触れず、\'今のあなたに寄り添う一曲です\'という一言を、です・ます調で。断定的な言い切りは避け、体言止めは多用しない。必ず25〜35文字に収めること（1文字も超えてはいけません）。",\n "recipe_title": "Layer5・期待感・情緒。\'やってみたい\'と思わせるレシピ名。温度感・香り・色・季節感など感情に触れる言葉を使う。",\n "recipe_concept": "このレシピがなぜ今のあなたに必要かを1行で。栄養素名を含む",\n "recipe_type": "料理・スムージー・ドリンク・スープのいずれか",\n "moon_message": "月のフェーズ・コンディション・季節・時間帯を自然に絡めた一言。詩的で余韻のある日本語。〜の夜で終わること。必ず15文字以内に収めること（1文字も超えてはいけません）。文末に句点「。」を絶対に使用しないこと（文中の読点「、」は使ってよい）。断定しない。スピリチュアル過多NG。",\n "ingredients": "材料（5品目以内・分量付き・改行は\\nで）",\n "steps": "手順（3ステップ以内・改行は\\nで）",\n "note": "食べ方・飲み方の一言。やってみたいと思わせる期待感・温度感・情緒を重視",\n "energy": エネルギースコア（0〜100の整数）,\n "mind": マインドスコア（0〜100の整数）,\n "flow": フロースコア（0〜100の整数）\n}\n\n重要：**などのマークダウン記号は絶対に使わないこと。';
+try {
+var resp = await fetch('https://regenerative-proxy.koshiro-katsura.workers.dev',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+contents:[{parts:[{text:prompt}]}]
+})
+});
+var data = await resp.json();
+var text = data.candidates[0].content.parts.map(function(i){return i.text||'';}).join('');
+text = text.replace(/```json|```/g,'').trim();
+var r = JSON.parse(text);
+resultData = {r:r, moon:moon, element:element};
+resultReady = true;
+} catch(e){
+resultFailed = true;
+}
+}
+
+function renderResult(){
+var r=resultData.r, moon=resultData.moon, element=resultData.element;
+document.getElementById('result-sensory').textContent=r.sensory;document.getElementById('moon-svg').innerHTML=moon.svg;document.getElementById('moon-name').textContent=moon.name;document.getElementById('moon-message').textContent=r.moon_message;document.getElementById('element-svg').innerHTML=getElementSvg(element.name);document.getElementById('element-name-en').textContent=element.name;document.getElementById('element-name-jp').textContent=' の日';document.getElementById('element-message').textContent=element.msg;['block-sensory','block-insight','block-evidence','block-action','block-recipe'].forEach(function(id){var el=document.getElementById(id);if(el){setTimeout(function(){el.style.opacity='1';el.style.transform='translateY(0)';},300);}});
+var circ=2*Math.PI*28;document.getElementById('num-energy').textContent=r.energy;document.getElementById('ring-energy').setAttribute('stroke-dasharray',(circ*r.energy/100)+' '+circ);document.getElementById('num-mind').textContent=r.mind;document.getElementById('ring-mind').setAttribute('stroke-dasharray',(circ*r.mind/100)+' '+circ);document.getElementById('num-flow').textContent=r.flow;document.getElementById('ring-flow').setAttribute('stroke-dasharray',(circ*r.flow/100)+' '+circ);
+document.getElementById('result-insight-title').textContent=r.insight_title;document.getElementById('result-insight').innerHTML=r.insight+buildSoundHtml(r.sound_caption,pickMood(r.energy,r.mind,r.flow));
+document.getElementById('result-action-title').textContent=r.action_title;document.getElementById('result-action').textContent=r.action;
+document.getElementById('result-evidence-title').textContent=r.evidence_title;document.getElementById('result-evidence').textContent=r.evidence;
+document.getElementById('result-recipe-title').textContent=r.recipe_title;document.getElementById('result-recipe').innerHTML=r.recipe_concept.replace(/\*\*/g,'')+'<br><br><span style="font-size:9px;letter-spacing:0.2em;color:#1a1610;text-transform:uppercase;display:block;">— 材料</span><span style="display:block;margin-top:8px;">'+r.ingredients.replace(/\*\*/g,'').replace(/\n/g,'<br>')+'</span><span style="font-size:9px;letter-spacing:0.2em;color:#1a1610;text-transform:uppercase;display:block;margin-top:12px;">— 作り方</span><span style="display:block;margin-top:8px;">'+r.steps.replace(/\*\*/g,'').replace(/\n/g,'<br>').replace(/(\d+)\./g,'$1. ')+'</span><br><span style="font-size:12px;font-family:\'Noto Sans JP\',sans-serif;font-weight:200;color:#1a1610;">'+r.note.replace(/\*\*/g,'')+'</span>';
+goTo('result');
+}
+
+function renderResultFallback(){
+document.getElementById('result-sensory').textContent='現在混み合っています。画面下部の RECHECK よりもう一度お試しください。';
+document.getElementById('result-insight-title').textContent='今のあなたへ';
+document.getElementById('result-insight').textContent='ご用意できませんでした。次回のインサイトで、今のあなたに必要なケアをお伝えします。';
+document.getElementById('result-action-title').textContent='まず一歩';
+document.getElementById('result-action').textContent='ご用意できませんでした。次回のスキャンで、今日から行えるワンポイントをレクチャーします。小さなことから始めてみましょう。';
+document.getElementById('result-evidence-title').textContent='知る、からはじまる';
+document.getElementById('result-evidence').textContent='ご用意できませんでした。次回の診断で、医科学に基づいた小さな気づきをお届けします。';
+document.getElementById('result-recipe-title').textContent='今日のひと皿';
+document.getElementById('result-recipe').innerHTML='ご用意できませんでした。次回の診断で、あなたに合わせたレシピをお届けします。';
+['block-sensory','block-insight','block-evidence','block-action','block-recipe'].forEach(function(id){var el=document.getElementById(id);if(el){setTimeout(function(){el.style.opacity='1';el.style.transform='translateY(0)';},300);}});
+}
+
+function showLoadingFallback(){
+document.getElementById('loading-text').innerHTML='ただいま混み合っております<br>間をおいて再度お試しください';
+document.getElementById('loading-fallback-btn').style.display='inline-block';
+}
+
+var vsPressed=false, vsDone=false, vsProgress=0, vsLastT=null, vsElapsed=0;
+var vsDur=8000;
+var vsPr,vsWp,vsFlabel,vsFbtn,vsVitalEl;
+var vsCurAmp=0, vsTargetAmp=0, vsNextAmpAt=0;
+var vsPhase1=0, vsPhase2=Math.random()*10, vsPhase3=Math.random()*10;
+var vsReleasing=false, vsNextVitalAt=0;
+function vsPickTargetAmp(){ return 6 + Math.random()*16; }
+function startVitalScan(){
+vsPr=document.getElementById('vs-pr');
+vsWp=document.getElementById('vs-wp');
+vsFlabel=document.getElementById('vs-flabel');
+vsFbtn=document.getElementById('vs-fbtn');
+vsVitalEl=document.getElementById('vs-vitalScore');
+vsPressed=false; vsDone=false; vsReleasing=false;
+vsProgress=0; vsLastT=null; vsElapsed=0;
+vsCurAmp=0; vsTargetAmp=0; vsNextAmpAt=0; vsNextVitalAt=0;
+vsPr.setAttribute('stroke-dashoffset',553);
+vsWp.setAttribute('d','M0,30 L320,30');
+vsFlabel.textContent='ここに置く';
+vsVitalEl.textContent='';
+vsFbtn.onmousedown=vsStartPress;
+vsFbtn.ontouchstart=function(e){e.preventDefault();vsStartPress();};
+document.onmouseup=vsEndPress;
+document.ontouchend=vsEndPress;
+}
+function vsUpdateVital(val){ vsVitalEl.textContent='Vital '+val; }
+function vsStartPress(){
+if(vsDone)return;
+vsPressed=true; vsReleasing=false;
+vsFlabel.textContent='スキャン中...';
+requestAnimationFrame(vsFrame);
+}
+function vsEndPress(){
+if(vsDone||!vsPressed)return;
+vsPressed=false; vsReleasing=true;
+vsFlabel.textContent='ここに置く';
+vsVitalEl.textContent='';
+}
+function vsDrawWave(t, ampScale){
+var d='M0,30';
+for(var i=1;i<=80;i++){
+var x=i/80*320, xp=(i-1)/80*320;
+var y = 30 + Math.sin(i/80*Math.PI*4 + t*1.6 + vsPhase1)*vsCurAmp*0.55*ampScale
++ Math.sin(i/80*Math.PI*7 + t*2.3 + vsPhase2)*vsCurAmp*0.30*ampScale
++ Math.sin(i/80*Math.PI*11 + t*3.1 + vsPhase3)*vsCurAmp*0.15*ampScale;
+var yp = 30 + Math.sin((i-1)/80*Math.PI*4 + t*1.6 + vsPhase1)*vsCurAmp*0.55*ampScale
++ Math.sin((i-1)/80*Math.PI*7 + t*2.3 + vsPhase2)*vsCurAmp*0.30*ampScale
++ Math.sin((i-1)/80*Math.PI*11 + t*3.1 + vsPhase3)*vsCurAmp*0.15*ampScale;
+d += ' C'+(xp+(x-xp)*0.4)+','+yp+' '+(xp+(x-xp)*0.6)+','+y+' '+x+','+y;
+}
+vsWp.setAttribute('d',d);
+}
+function vsFrame(ts){
+if(!vsPressed && !vsReleasing && !vsDone) return;
+if(!vsLastT) vsLastT=ts;
+var dt=ts-vsLastT; vsLastT=ts;
+var t=ts/1000;
+if(vsPressed && !vsDone){
+vsElapsed+=dt;
+vsProgress=Math.min(vsElapsed/vsDur,1);
+vsPr.setAttribute('stroke-dashoffset', 553*(1-vsProgress));
+if(ts>vsNextAmpAt){ vsTargetAmp=vsPickTargetAmp(); vsNextAmpAt=ts+500+Math.random()*500; }
+vsCurAmp += (vsTargetAmp-vsCurAmp)*0.06;
+if(ts>vsNextVitalAt){ vsUpdateVital(Math.floor(60+Math.random()*36)); vsNextVitalAt=ts+280+Math.random()*220; }
+vsDrawWave(t, vsProgress);
+if(vsProgress>=1){
+vsDone=true;
+vsUpdateVital(Math.floor(60+Math.random()*36));
+vsFlabel.textContent='スキャン完了';
+onVitalScanComplete();
+return;
+}
+requestAnimationFrame(vsFrame);
+return;
+}
+if(vsReleasing){
+vsTargetAmp=0;
+vsCurAmp += (vsTargetAmp-vsCurAmp)*0.08;
+vsDrawWave(t, vsProgress);
+if(vsCurAmp<0.3){ vsCurAmp=0; vsReleasing=false; vsWp.setAttribute('d','M0,30 L320,30'); return; }
+requestAnimationFrame(vsFrame);
+}
+}
+function onVitalScanComplete(){
+if(resultReady){ renderResult(); return; }
+if(resultFailed){ goTo('loading'); renderResultFallback(); goTo('result'); return; }
+goTo('loading');
+var elapsedWait=0;
+var watchInterval=setInterval(function(){
+elapsedWait+=300;
+if(resultReady){ clearInterval(watchInterval); renderResult(); }
+else if(resultFailed || elapsedWait>=15000){
+clearInterval(watchInterval);
+if(resultFailed){ renderResultFallback(); goTo('result'); }
+else { showLoadingFallback(); }
+}
+}, 300);
+}
+function recheck(){
+state={q1:null,q2:null,q3:null,q4:null,q5:null};
+document.querySelectorAll('.q-option').forEach(function(b){b.classList.remove('selected');});
+document.getElementById('loading-text').innerHTML='あなたの今を、静かに読み取りながら<br>あなただけのinsightを、ひもといています';
+document.getElementById('loading-fallback-btn').style.display='none';
+goTo('top');
+}
+</script>
+</body>
+</html>
